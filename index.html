@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integração de Segurança</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+    <!-- Barra Superior Fixa (Estilo LMS) -->
+    <header class="topbar">
+
+        <button class="btn-menu-mobile" onclick="alternarMenuMobile()" aria-label="Abrir trilha de aprendizagem">
+            ☰
+        </button>
+
+        <div class="topbar-logo">
+            <span class="logo-icon">🛡️</span> Integração em Segurança
+        </div>
+        <div class="topbar-user" id="topbar-user" style="display: none;">
+            <span id="topbar-nome"></span>
+            <div class="user-avatar">👲</div>
+        </div>
+        <button class="btn-reset" onclick="abrirModalReset()">Reiniciar todo o curso</button>
+    </header>
+
+    <!-- Área principal gerenciada pelo JS -->
+    <div id="app"></div>
+
+    <div class="menu-overlay-mobile" onclick="fecharMenuMobile()"></div>
+
+    <!-- Template do certificado oculto -->
+    <div id="certificado-area" style="display: none;">
+        <div class="certificate-card" id="certificado-conteudo">
+            <h1>Certificado de Conclusão</h1>
+            <p>Certificamos que</p>
+            <h2 id="cert-nome-aluno">Nome do funcionário</h2>
+            <p>concluiu com êxito o treinamento de</p>
+            <p><strong>INTEGRAÇÃO DE SEGURANÇA DO TRABALHO</strong></p>
+            <div class="certificate-folder">
+                <div>
+                    <p><strong>Data:</strong> <span id="cert-data">00/00/0000</span></p>
+                </div>
+                <div class="signature-line">
+                    <p><strong>Segurança do Trabalho</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+     
+    <a href="https://www.instagram.com/gskool.ti/"
+   target="_blank"
+   rel="noopener noreferrer"
+   class="credits-footer">
+    Desenvolvido por
+    <span class="brand-name">
+        <img src="img/logo-g.png" alt="G" class="credits-logo">
+        Skool
+    </span>
+</a>
+
+    <script src="script.js"></script>
+</body>
+</html>

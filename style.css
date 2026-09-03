@@ -65,11 +65,20 @@ body { background-color: var(--bg-page); color: var(--text-main); min-height: 10
     box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid var(--border-color);
 }
 
+
 h2 { color: var(--primary-color); 
     margin-bottom: 20px; 
     font-size: 24px; 
     text-align: center;
 }
+
+h3 { color: var(--primary-color); 
+    margin-bottom: 25px; 
+    font-size: 18px; 
+    text-align: left;
+}
+
+
 p { 
     text-indent: 2em;
     line-height: 1.7; 
@@ -368,14 +377,52 @@ input[type="text"]:focus { border-color: var(--secondary-color); }
 
 .imagem-lateral {
     display: block;
-    float: none;
-    clear: both;
+    float: right;
 
-    width: auto;
-    max-width: 100%;
+    width: 150px;
+    max-width: 30%;
     height: auto;
 
-    margin: 25px auto;
+    margin: 10px 0 20px 20px;
+}
+
+.imagem-ajuste-1 {
+    display: block;
+    float: right;
+    height: auto;
+
+    width: 50px;
+    max-width: none;
+    margin-top: -20px;
+}
+
+.imagem-ajuste-2 {
+    display: block;
+    float: right;
+    height: auto;
+
+    width: 50px;
+    margin-top: -10px;
+}
+
+.imagem-ajuste-3 {
+    display: block;
+    float: right;
+    height: auto;
+
+    width: 120px;
+    max-width: none;
+    margin-top: 0px;
+}
+
+.imagem-levantamento {
+    display: block;
+    float: right;
+    height: auto;
+
+    width: 50px;
+    max-width: none;
+    margin-top: -90px;
 }
 
 .imagens-lado-a-lado {
@@ -396,7 +443,7 @@ input[type="text"]:focus { border-color: var(--secondary-color); }
 
 .imagem-centralizada {
     display: block;
-    max-width: 100%;
+    max-width: 35%;
     height: auto;
     margin: 25px auto;
 }
@@ -785,18 +832,18 @@ input[type="text"]:focus { border-color: var(--secondary-color); }
         min-height: calc(100vh - 60px);
     }
 
+ @media (max-width: 768px) {
     .imagem-lateral {
-    display: block;
-    float: none;
-    clear: both;
+        display: block;
+        float: right;
 
-    width: auto;
-    max-width: 90%;
-    height: auto;
+        width: 85px;
+        max-width: 28%;
+        height: auto;
 
-    margin: 20px auto;
+        margin: 10px 0 15px 12px;
+    }
 }
-
 @media (max-width: 768px) {
 
     .imagens-lado-a-lado {

@@ -56,7 +56,7 @@ de segurança da empresa. </p>
         <img src="img/atoInseguro2.jpg">
     </div>
 
-    <h2>Exemplos:</h2>
+    <h3>Exemplos:</h3>
     
     <p> ▪️Não usar os equipamentos de proteção individual obrigatórios; </p>
     <p> ▪️Não obedecer a sinalização de segurança; </p>
@@ -70,7 +70,7 @@ de segurança da empresa. </p>
         <img src="img/atoInseguro4.png">
     </div>
 
-    <h2>Exemplos:</h2>
+    <h3>Exemplos:</h3>
    
     <p> ▪️Máquinas em estado precário de manutenção;</p>
     <p> ▪️Falta de proteção em máquinas e equipamentos;</p>
@@ -107,54 +107,341 @@ de segurança da empresa. </p>
         },
 
         {
-            titulo: "3.2 Condições Inseguras",
+            titulo: "3.2 Atos e Condições Inseguras",
             audio: " ",
             texto: `
-    <p> <strong>Como evitar acidentes:</strong> </p>
+    <p> Algumas áreas da empresa são consideradas áreas de risco (cabines elétricas, depósito de produtos químicos, etc...), SÓ PODENDO NELAS ENTRAR PESSOAS AUTORIZADAS. 
+    Caso você não seja autorizado, não entre nessas áreas, pois além de estar incorrendo em risco físico, também estará cometendo uma falta grave. Caso você seja autorizado, 
+    siga corretamente as normas de segurança e orientação da chefia. </p>
+
+    <img src="img/atoInseguro9.png" class="imagem-centralizada">
+
+    <h2> <strong>LEVANTAMENTO E TRANSPORTE DE CARGAS:</strong> </h2>
+
+    <p> O levantamento e transporte de cargas exige precauções, pois na maioria das vezes os acidentes acontecem quando não são tomados os cuidados necessários. </p>
+
+    <h3>Antes de levantar e transportar uma carga verificar:</h3>
+
+    <p> ▪️Qual equipamento será utilizado para levantar e para transportar a carga; </p>
+    <p> ▪️Os equipamentos foram vistoriados e liberados para a realização da tarefa, pelo responsável pela realização da mesma; </p>
+    <p> ▪️Os equipamentos que serão utilizados para o levantamento e transporte suportam o peso da carga; </p>
+    <p> ▪️Quais serão os procedimentos de segurança adotados para a realização do levantamento e transporte da carga; </p>
+    <p> ▪️Que tipo de material será transportado? O mesmo possui pontas, rebarbas, etc?; </p>
     `
+        },
+
+        {
+            titulo: "3.3 Atos e Condições Inseguras",
+            audio: " ",
+            texto: `
+                
+            <img src="img/atoInseguro10.png" class="imagem-lateral">
+
+            <p>▪️O caminho a ser percorrido está impedido?; </p>
+            <p>▪️Será necessário a utilização de EPIs?; </p>
+            <p>▪️Só inicie quando não restar nenhuma dúvida quanto ao serviço que será executado</p>
+
+
+            <h3> Se o levantamento for manual, este deve seguir a sequência abaixo:</h3>
+
+              <img src="img/atoInseguro11.png" class="imagem-lateral imagem-ajuste-1">
+
+            <p>Posicione-se próximo à carga com os pés abertos para manter o equilíbrio; </p> 
+            <p>Abaixe-se e mantenha a cabeça e as costas em linha reta; </p>
+            <p>Segure firmemente a carga usando a palma das mãos e os dedos; </p>
+            <p>Sempre utilizar alças ou outros pontos de agarre caso o objeto os tenha; </p>
+
+
+            <h2> <strong>⚠️ATENÇÃO PARA A PARTE PRINCIPAL⚠️</strong></h2>
+
+            <img src="img/atoInseguro12.png" class="imagem-lateral imagem-ajuste-2">
+
+            <p>Levante-se usando somente as pernas e mantendo os braços esticados, sustentando a carga;</p>
+            <p>Aproxime a carga do corpo, mantendo-a centralizada (isso pode ser feito pela sua base ou pelas alças);</p>
+            <p>Agora é possível transporta-la de forma segura.</p> 
+            
+            <img src="img/atoInseguro13.png" class="imagem-lateral imagem-levantamento">
+
+            <h2> <strong>⚠️O QUE NÃO SE DEVE FAZER⚠️</strong></h2>
+
+            <img src="img/atoInseguro14.png" class="imagem-lateral imagem-ajuste-2">
+
+            <p>Dobrar as costas;</p>
+            <p>Ficar muito longe da carga;</p>
+            <p>Manter as pernas fixas no chão e virar o corpo com a carga;</p>
+            <p>Escorar a carga nas pernas ou nos joelhos.</p>
+
+            `
         }
     ]
+},
+  {
+    titulo: "4. Ferramentas manuais",
+    audio: "audios/modulo4.mp3",
+    texto: `
+    <p> Podemos considerar as ferramentas manuais como um prolongamento das mãos do trabalhador, dando-lhe mais força e precisão, trabalhar com ferramentas manuais 
+defeituosas constitui em riscos de acidentes. Ferramentas gastas ou mal fixadas podem escapar e causar sérios acidentes, use as ferramentas adequadas para cada tipo de trabalho, 
+ferramentas “quebra galho” poderão “quebrar você”. As ferramentas manuais que não puderem ser consertadas deverão ser substituidas. </p>
+<p>Lembre-se: Os bolsos não são locais adequados para se colocar ferramentas, as mesmas devem permanecer limpas e em locais adequados. </p>
+    
+    `
   },
   {
-    titulo: "4. Regras de Conduta e Operação de Equipamentos",
-    texto: "Conheça seu trabalho e solicite orientação sempre que iniciar uma nova atividade. Exija a Ordem de Serviço antes de atuar em outro setor. Não corra e use o corrimão. É proibido o uso de roupas folgadas, anéis e relógios na operação de máquinas. Nunca limpe ou regule máquinas em movimento.",
-    audio: "audios/modulo4.mp3"
+    titulo: "5. Ordem e limpeza",
+    audio: "audios/modulo5.mp3",
+    texto: `
+    <p> Esses conceitos não são novos. Todavia ainda não foram assimilados em alguns locais de trabalho. Há quem pense que a ordem e a limpeza no ambiente de trabalho, 
+são responsabilidade apenas da equipe de limpeza, quando na realidade esta responsabilidade pertence a todos.</p> 
+
+    <p>Seu setor de trabalho deve ser permanecer limpo e organizado, de modo que cada equipamento ou ferramenta de trabalho esteja no seu devido lugar, não haja sujeiras e nem 
+materiais espalhados.</p>
+    
+    <p> A falta da ordem e limpeza cria com frequência problemas que afetam à produtividade e a eficácia das operações, contribuem para o relaxamento dos hábitos de higiene pessoal e 
+aumenta a propensão à doenças profissionais e acidentes do trabalho. Com as simples recomendações abaixo, você poderá conseguir facilmente esse
+objetivo: </p>
+
+    <p><strong>EVITE DERRAMAR MATERIAIS:</strong> Quando isso ocorrer, recolha-os tão logo quanto possível. Pregos, parafusos, ou outros pequenos objetos difíceis de serem
+percebidos podem causar graves quedas.</p>
+
+    <p> <strong>DEIXE AS PASSAGENS LIVRES:</strong> Sempre verifique se os corredores, as plataformas, escadas e/ou outros locais de passagens estão livres de materiais que
+possam provocar tropeções ou quedas.</p>
+
+    <p> <strong>REMOVA O LIXO E SUCATA:</strong> Deposite sempre esses materiais em locais e recipientes apropriados, a fim de que possam ser removidos facilmente, lembrando sempre, que devemos manter cada material 
+no seu lugar e ter um lugar para cada material.</p>
+    
+    <p><strong>ORGANIZE-SE:</strong>  Mantenha as suas ferramentas, após serem limpas em locais apropriados e seguros, sempre que não estiverem em uso. </p>
+
+    
+    <img src="img/atoInseguro15.jpg" class="imagem-centralizada">
+
+    
+    `
   },
   {
-    titulo: "5. Levantamento e Transporte Manual de Cargas",
-    texto: "Verifique se o percurso está livre antes de mover qualquer carga. Dobre os joelhos, mantenha a cabeça e costas alinhadas e levante usando a força das pernas com a carga junta ao corpo. Nunca dobre as costas ou torça o tronco durante o levantamento.",
-    audio: "audios/modulo5.mp3"
+    titulo: "6. Sinalização",
+    audio: "audios/modulo6.mp3",
+    texto: `
+    <p> Siga corretamente os procedimentos indicados nos avisos e nas placas
+orientativas existentes na empresa, pois essas indicam a
+obrigatoriedade do uso de EPI's ou dos cuidados que deverão ser
+tomados na execução de uma determinada tarefa ou procedimento.
+Nunca retire ou danifique as placas de aviso
+e/ou sinalizações de segurança, que não
+estejam sob sua responsabilidade. </p>
+
+    <img src="img/Sinalizacao.png" class="imagem-centralizada">
+    
+    `
+    
+},
+  {
+    titulo: "7. Higiene pessoal",
+    audio: "audios/modulo7.mp3",
+    texto: `
+    <p>A higiene pessoal é o conjunto de hábitos de limpeza e asseio com que
+cuidamos do nosso corpo. É um importante meio de comunicação para
+um relacionamento saudável com outros, por exemplo, se estivermos á
+beira de uma pessoa com odor corporal fétido temos tendência a
+afastarmo-nos, mediante tal devemos ter uma boa higiene pessoal.
+Dentre as normas para uma boa higiene pessoal destacam-se as
+seguintes: </p>
+
+    <p>▪️ No banho diário devemos utilizar um sabonete neutro.</p>
+
+    <p>▪️ O uso de desodorizante é bastante útil, especialmente de Verão. No
+entanto devem ser evitados os que inibem a produção do suor, podendo
+assim acumular a transpiração noutros locais do corpo – transpiração
+compensatória. Devemos lavar as mãos sempre que necessário,
+especialmente antes das refeições, antes do contato com os alimentos e
+depois de utilizar o banheiro. Alem disso, é importante manter as unhas
+bem cortadas.</p>
+
+    <p>▪️ Os dentes e a boca devem ser lavados depois da ingestão de
+alimentos, usando um dentifrício com flúor. Uma higiene inadequada dos
+dentes está na origem da carie dentaria, que pode ser causa de
+inúmeras doenças.</p>
+
+    
+    `
   },
   {
-    titulo: "6. Uso de Ferramentas Manuais",
-    texto: "Utilize a ferramenta correta para cada tipo de trabalho e evite improvisações. Ferramentas gastas ou danificadas devem ser substituídas imediatamente. Guarde os instrumentos em locais adequados e nunca nos bolsos.",
-    audio: "audios/modulo6.mp3"
+    titulo: "8. Uso do fumo",
+    audio: "audios/modulo8.mp3",
+    texto: `
+    <p> Mais que o fato de proibir ou limitar a
+possibilidade do consumo de cigarro no
+ambiente de trabalho, esta a preocupação, o
+cuidado e a prevenção da saúde do
+trabalhador por parte da empresa.</p>
+
+    <img src="img/Usodofumo.png" class="imagem-centralizada">
+
+    <p>Derivado de tabaco ou não do tabaco, em recinto
+coletivo , privado ou público, salvo em área
+destinada exclusivamente a esse fim,
+devidamente isolada e com arejamento
+conveniente. Desta forma, o uso do fumo deverá
+A legislação, através da Lei 9.294/96, proibe o uso de cigarros,
+cigarrilhas, charutos, cachimbos ou qualquer outro produto fumigero,
+ser feito somente na área de fumantes, previamente estabelecida,
+observe a sinalização. Você deve estar ciente de que fumar em local
+proibido constitui falta grave.</p>
+
+    <img src="img/Usodofumo1.png" class="imagem-centralizada">
+    
+    `
+},
+  {
+    titulo: "9. CIPA",
+    audio: "audios/modulo9.mp3",
+    texto: `
+    <p> A CIPA – (Comissão Interna de Prevenção de Acidentes), é composta
+por representantes do empregador e dos empregados, e tem como
+missão a preservação da saúde e da
+integridade física dos trabalhadores e de
+todos aqueles que interagem com a empresa.
+Atua ainda na prevenção de acidentes, na
+fiscalização quanto ao cumprimento das estabelecidas, bem como descobrir as 
+causas e efeitos dos acidentes, desenvolvendo normas, orientações técnicas, 
+treinamentos, etc, para evitá-los.</p>
+    <p>Procure um membro da CIPA, para comunicar, qualquer irregularidade
+que possa colocar você ou seus companheiros em risco de acidentes.</p>
+
+    <img src="img/cipa.png" class="imagem-centralizada">
+
+    
+    `
   },
   {
-    titulo: "7. Ordem e Limpeza",
-    texto: "A organização do ambiente é responsabilidade de todos. Limpe imediatamente qualquer derramamento de líquidos e recolha objetos do chão. Mantenha corredores, passagens, escadas e equipamentos de emergência sempre desobstruídos.",
-    audio: "audios/modulo7.mp3"
+    titulo: "10. EPI",
+    audio: "audios/modulo10.mp3",
+    texto: `
+    <h2>EQUIPAMENTO DE PROTEÇÃO INDIVIDUAL (EPI)</h2>
+
+    <p>O EPI é um dispositivo destinado a proteger a integridade física do
+trabalhador, quando a proteção coletiva não eliminar completamente o
+risco.</p>
+    <p>A empresa é obrigada a fornecer aos empregados, gratuitamente, EPI
+adequado ao risco, em perfeito estado de conservação e
+funcionamento, nas seguintes circunstâncias:</p>
+    <p>a) sempre que as medidas de ordem geral não ofereçam completa
+proteção contra os riscos de acidentes do trabalho ou de doenças
+profissionais e do trabalho;</p>
+    <p>b) enquanto as medidas de proteção coletiva estiverem sendo
+implantadas;</p>
+    <p>c) para atender a situações de emergência.</p>
+
+    <h3>Cabe ao empregador quanto ao EPI:</h3>
+
+    <p>a) adquirir o adequado ao risco de cada atividade;</p>
+    <p>b) exigir seu uso;</p>
+    <p>c) fornecer ao trabalhador somente o aprovado pelo órgão nacional
+   competente em matéria de segurança e saúde no trabalho;</p>
+    <p>d) orientar e treinar o trabalhador sobre o uso adequado, guarda e
+conservação;</p>
+    <p>e) substituir imediatamente, quando danificado ou extraviado;</p>
+    <p>f) responsabilizar-se pela higienização e manutenção periódica;</p>
+    <p>g) comunicar ao MTE qualquer irregularidade observada;</p>
+    <p>h) registrar o seu fornecimento ao trabalhador, podendo ser adotados
+livros, fichas ou sistema eletrônico.</p>
+    <h3>Cabe ao empregado quanto ao EPI:</h3>
+    <p>a) usar, utilizando-o apenas para a finalidade a que se destina;</p>
+    <p>b) responsabilizar-se pela guarda e conservação;</p>
+    <p>c) comunicar ao empregador qualquer alteração que o torne impróprio
+para uso;</p>
+    <p>d) cumprir as determinações do empregador sobre o uso adequado.</p>
+
+    <p>É importante resaltar que o uso do EPI é obrigatório e de muita
+importância como meio de proteção à saúde e integridade física. O não
+uso do EPI (caso o trabalhador se omitir ou recusar, sem justificativa),
+fornecido pela empresa, poderá ser considerado como falta grave,
+passivel de punição prevista em lei.</p>
+
+    <p>Os acidentes/lesões podem ser eliminados ou amenizados, se você
+utilizar todos os equipamentos de proteção individual (EPIs)
+recomendados, conforme seu trabalho e/ou setor, tais como: calçados
+de proteção, óculos de segurança, protetor auricular, luvas, aventais,
+etc. Quando surgir duvidas a respeito do seu uso, manuseio,
+conservação e limpeza seu encarregado deve ser consultado para
+esclarecer suas duvidas. Vamos demostrar a seguir os EPIs mais
+importantes.</p>
+    
+    `
   },
   {
-    titulo: "8. Equipamentos de Proteção (EPI) e Sinalização",
-    texto: "O uso dos EPIs indicados para a sua função é obrigatório. Respeite os avisos e placas de sinalização. O acesso a áreas de risco, como cabines elétricas e depósitos químicos, é exclusivo para pessoal autorizado.",
-    audio: "audios/modulo8.mp3"
+    titulo: "11. Proteção dos olhos, da face e da audição",
+    audio: "audios/modulo11.mp3",
+    texto: `
+
+    <h2>PROTEÇÃO DOS OLHOS E DA FACE</h2>
+
+    
+    <img src="img/olhoseface.png" class="imagem-lateral imagem-ajuste-3">
+
+
+    <p>Todo ambiente que oferece riscos de quebra
+e arremesso de materiais ou que apresenta
+riscos químicos, físicos e biológicos, exige a
+utilização de proteção adequada ao risco. Os
+olhos e a face são, geralmente, muito
+atingidos em acidentes de trabalho. A
+utilização correta dos óculos, protetores
+faciais e mascaras de solda, é a forma
+mais segura de se evitar danos visuais. Fique atento para os seguintes tipos
+de riscos: </p>
+
+
+<img src="img/olhoseface1.png" class="imagem-lateral imagem-ajuste-3">
+
+    <p><strong>Impactos:</strong> Objetos voadores, lascas diversas, fragmentos e partículas
+são perigos, pois podem atingir os olhos na realização de tarefas
+comuns;</p>
+
+    <p><strong>Químicos:</strong> Respingos, fumos e vapores de
+substâncias químicas, podem levar a cegueira
+parcial e/ou total;</p>
+
+    <p><strong>Radiação Ótica:</strong> A emissão de radiação e luz
+intensa, através da exposição a fornos, soldas,
+maçaricos, etc, deve ser combatida com a
+utilização de óculos de segurança, protetores
+faciais e/ou mascaras de solda.</p>
+
+    <h2>PROTEÇÃO AUDITIVA</h2>
+
+
+    <img src="img/auditiva.png" class="imagem-lateral imagem-ajuste-3">
+
+    <p><strong>Ruído:</strong> O ruído é prejudicial à saúde humana
+porque causa sensação desagradável e
+irritante, causando efeitos tanto no trabalho
+como no organismo</p>
+
+    <p><strong>Efeitos no Trabalho:</strong> Problemas de comunicação, baixa concentração,
+desconforto, cansaço, nervosismo, irritação, baixo rendimento e perda
+de reflexos.</p>
+
+    <p><strong>Efeitos no Organismo:</strong> Estreitamento dos vasos sangüíneos, aumento
+da pressão arterial, ansiedade, tensão, insônia, problemas digestivos
+(úlcera, gastrite) e problemas cardíacos.</p>
+
+    
+    ` 
+    
+
   },
-  {
-    titulo: "9. Higiene Pessoal",
-    texto: "Mantenha o hábito do banho diário e higienização. Lave as mãos com frequência, especialmente antes das refeições e após usar o banheiro. Conserve as unhas cortadas e faça a higiene bucal após a alimentação.",
-    audio: "audios/modulo9.mp3"
-  },
-  {
-    titulo: "10. Política sobre o Fumo",
-    texto: "Em conformidade com a Lei nº 9.294/96, é proibido o uso de cigarros ou similares em recintos coletivos. O uso do fumo é restrito às áreas exclusivas para fumantes. O descumprimento caracteriza falta grave.",
-    audio: "audios/modulo10.mp3"
-  },
+
   {
     titulo: "11. Atuação da CIPA",
-    texto: "A Comissão Interna de Prevenção de Acidentes (CIPA) tem como objetivo identificar riscos, propor melhorias e fiscalizar o cumprimento das normas de segurança. Procure um cipeiro sempre que identificar qualquer irregularidade.",
-    audio: "audios/modulo11.mp3"
+    audio: "audios/modulo11.mp3",
+    texto: `
+    
+    
+    ` 
+    
+
   }
+
 ];
 const textoBoasVindas = {
     texto: "Olá! Seja muito bem-vindo ao nosso treinamento de Integração de Segurança. É uma satisfação enorme ter você em nossa equipe. Para começarmos, por favor, insira o seu nome completo abaixo.",

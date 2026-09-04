@@ -183,7 +183,7 @@ de segurança da empresa. </p>
     <p> Podemos considerar as ferramentas manuais como um prolongamento das mãos do trabalhador, dando-lhe mais força e precisão, trabalhar com ferramentas manuais 
 defeituosas constitui em riscos de acidentes. Ferramentas gastas ou mal fixadas podem escapar e causar sérios acidentes, use as ferramentas adequadas para cada tipo de trabalho, 
 ferramentas “quebra galho” poderão “quebrar você”. As ferramentas manuais que não puderem ser consertadas deverão ser substituidas. </p>
-<p>Lembre-se: Os bolsos não são locais adequados para se colocar ferramentas, as mesmas devem permanecer limpas e em locais adequados. </p>
+<p><strong>Lembre-se:</strong> Os bolsos não são locais adequados para se colocar ferramentas, as mesmas devem permanecer limpas e em locais adequados. </p>
     
     `
   },
@@ -999,6 +999,26 @@ function iniciarIntegracao(e) {
     init();
 }
 
+function atualizarProgressoVisual() {
+    const preenchido = document.getElementById('progresso-preenchido');
+    const porcentagem = document.getElementById('porcentagem-progresso');
+
+    if (!preenchido || !porcentagem) return;
+
+    const total = modulos.length;
+
+    let atual = estado.etapaAtual;
+
+    if (estado.etapaAtual > total) {
+        atual = total;
+    }
+
+    const percentual = Math.round((atual / total) * 100);
+
+    preenchido.style.width = `${percentual}%`;
+    porcentagem.textContent = `${percentual}%`;
+}
+
 function renderLayout(index) {
     const modulo = modulos[index];
 
@@ -1056,6 +1076,19 @@ if (m.partes && estaLiberado) {
         <div class="layout-wrapper">
             <aside class="sidebar">
                 <div class="sidebar-title">Trilha de Aprendizagem</div>
+                <div class="progresso-trilha">
+                <div class="progresso-info">
+                    <span>Seu progresso</span>
+                    <span id="porcentagem-progresso">0%</span>
+            </div>
+
+                <div class="progresso-barra">
+            <div
+                class="progresso-preenchido"
+                id="progresso-preenchido"
+                ></div>
+            </div>
+        </div>
                 <ul class="menu-list">${menuHtml}</ul>
             </aside>
             <main class="main-content">
@@ -1092,6 +1125,7 @@ if (m.partes && estaLiberado) {
             </main>
         </div>
     `;
+    atualizarProgressoVisual();
         setTimeout(() => {
             tocarAudioESincronizar(parte.audio, parte.texto);
     }, 100);
@@ -1181,16 +1215,40 @@ window.scrollTo({
 }
 
 function renderConclusao() {
+
+    const app = document.getElementById('app');
+
     const dataAtual = new Date().toLocaleDateString('pt-BR');
+
     app.innerHTML = `
-        <div class="main-content">
-            <div class="container" style="text-align: center;">
-                <h1 style="color: var(--secondary-color); margin-bottom: 15px;">🎉 Treinamento Concluído!</h1>
-                <p>Parabéns, <strong>${estado.nomeUsuario}</strong>! Você finalizou todas as etapas obrigatórias.</p>
-                <button class="btn" style="background-color: var(--primary-color);" onclick="gerarPDF()">📄 BAIXAR CERTIFICADO</button>
+        <div class="conclusao-box">
+
+            <div class="conclusao-icone">
+                🎉
             </div>
+
+            <h1>Treinamento Concluído!</h1>
+
+            <p>
+                Parabéns, <strong>${estado.nomeUsuario}</strong>!
+            </p>
+
+            <p>
+                Você finalizou todas as etapas obrigatórias
+                da Integração de Segurança.
+            </p>
+
+            <div class="conclusao-mensagem">
+                Seu treinamento foi concluído com sucesso.
+            </div>
+
+            <button class="btn" onclick="gerarPDF()">
+                🏆 EMITIR CERTIFICADO
+            </button>
+
         </div>
     `;
+
     document.getElementById('cert-nome-aluno').innerText = estado.nomeUsuario;
     document.getElementById('cert-data').innerText = dataAtual;
 }

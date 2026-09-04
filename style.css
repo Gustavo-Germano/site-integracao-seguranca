@@ -705,6 +705,230 @@ input[type="text"]:focus { border-color: var(--secondary-color); }
     }
 }
 
+/* =========================================
+   DESTAQUE DO MÓDULO ATUAL
+   ========================================= */
+
+.menu-item.ativo {
+    position: relative;
+
+    background: #ecfdf5;
+    border-color: #10b981;
+
+    color: #065f46;
+
+    font-weight: 700;
+
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);
+}
+
+.menu-item.ativo::before {
+    content: "";
+
+    position: absolute;
+
+    left: -1px;
+    top: 8px;
+    bottom: 8px;
+
+    width: 4px;
+
+    background: #10b981;
+
+    border-radius: 0 4px 4px 0;
+}
+
+/* =========================================
+   PROGRESSO DA TRILHA
+   ========================================= */
+
+.progresso-trilha {
+    margin: 15px 0 20px;
+    padding: 12px;
+
+    background: #f8fafc;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+.progresso-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 8px;
+
+    font-size: 12px;
+    color: #64748b;
+}
+
+.progresso-info span:last-child {
+    font-weight: 700;
+    color: #059669;
+}
+
+.progresso-barra {
+    width: 100%;
+    height: 7px;
+
+    background: #e2e8f0;
+
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progresso-preenchido {
+    width: 0%;
+    height: 100%;
+
+    background: #10b981;
+
+    border-radius: 10px;
+
+    transition: width 0.5s ease;
+}
+
+/* =========================================
+   BOTÃO PLAY / PAUSE
+   ========================================= */
+
+.controles-flutuantes .btn-controle-audio {
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 2px solid rgba(255,255,255,.8);
+
+    box-shadow:
+        0 4px 12px rgba(0,0,0,.18),
+        0 0 0 0 rgba(16,185,129,.3);
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+.controles-flutuantes .btn-controle-audio:hover {
+    transform: scale(1.08);
+
+    box-shadow:
+        0 6px 16px rgba(0,0,0,.22),
+        0 0 0 5px rgba(16,185,129,.10);
+}
+
+.controles-flutuantes .btn-controle-audio:active {
+    transform: scale(.94);
+}
+
+
+/* =========================================
+   BOTÃO CONTINUAR
+   ========================================= */
+
+#btn-avancar {
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+#btn-avancar:hover:not(:disabled) {
+    transform: translateY(-2px);
+
+    box-shadow: 0 5px 14px rgba(0,0,0,.12);
+}
+
+#btn-avancar:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+
+/* =========================================
+   HIERARQUIA DOS SUBTÍTULOS
+   ========================================= */
+
+#texto-modulo h2 {
+    margin-top: 35px;
+    margin-bottom: 18px;
+
+    color: #065f46;
+
+    font-size: 22px;
+    line-height: 1.3;
+}
+
+#texto-modulo h3 {
+    margin-top: 30px;
+    margin-bottom: 15px;
+
+    color: #047857;
+
+    font-size: 18px;
+    line-height: 1.4;
+}
+
+#texto-modulo h3::before {
+    content: "▸ ";
+
+    color: #10b981;
+}
+
+/* =========================================
+   PROGRESSO DA TRILHA
+   ========================================= */
+
+.progresso-trilha {
+    margin: 15px 0 20px;
+    padding: 12px;
+
+    background: #f8fafc;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+.progresso-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 8px;
+
+    font-size: 12px;
+    color: #64748b;
+}
+
+.progresso-info span:last-child {
+    font-weight: 700;
+    color: #059669;
+}
+
+.progresso-barra {
+    width: 100%;
+    height: 7px;
+
+    background: #e2e8f0;
+
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progresso-preenchido {
+    width: 0%;
+    height: 100%;
+
+    background: #10b981;
+
+    border-radius: 10px;
+
+    transition: width 0.5s ease;
+}
+
 /* =====================================================
                 ANIMAÇÃO DA TELA INICIAL
    ===================================================== */
@@ -795,6 +1019,108 @@ input[type="text"]:focus { border-color: var(--secondary-color); }
         transform: translateY(0);
     }
 
+}
+
+/* Efeito do botão INICIAR TREINAMENTO */
+#btn-iniciar {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#btn-iniciar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
+}
+
+#btn-iniciar:active {
+    transform: translateY(0);
+}
+
+/*  BOTÃO PLAY / PAUSE */
+
+.controles-flutuantes .btn-controle-audio {
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 2px solid rgba(255,255,255,.8);
+
+    box-shadow:
+        0 4px 12px rgba(0,0,0,.18),
+        0 0 0 0 rgba(16,185,129,.3);
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+.controles-flutuantes .btn-controle-audio:hover {
+    transform: scale(1.08);
+
+    box-shadow:
+        0 6px 16px rgba(0,0,0,.22),
+        0 0 0 5px rgba(16,185,129,.10);
+}
+
+.controles-flutuantes .btn-controle-audio:active {
+    transform: scale(.94);
+}
+
+/*TELA DE CONCLUSÃO*/
+
+.conclusao-box {
+    max-width: 650px;
+
+    margin: 40px auto;
+
+    padding: 45px 35px;
+
+    text-align: center;
+
+    background: #ffffff;
+
+    border: 1px solid #dbe4ec;
+    border-radius: 16px;
+
+    box-shadow: 0 8px 30px rgba(0,0,0,.06);
+}
+
+.conclusao-icone {
+    font-size: 55px;
+
+    margin-bottom: 15px;
+}
+
+.conclusao-box h1 {
+    margin-bottom: 18px;
+
+    color: #065f46;
+
+    font-size: 28px;
+}
+
+.conclusao-box p {
+    margin-bottom: 12px;
+}
+
+.conclusao-mensagem {
+    margin: 25px 0;
+
+    padding: 14px;
+
+    background: #ecfdf5;
+
+    border: 1px solid #a7f3d0;
+
+    border-radius: 10px;
+
+    color: #065f46;
+
+    font-weight: 600;
 }
 
 /* =========================================
@@ -897,6 +1223,7 @@ input[type="text"]:focus { border-color: var(--secondary-color); }
         border-right: none;
         border-bottom: 1px solid var(--border-color);
         padding: 15px;
+        text-align: center;
     }
 
     .sidebar-title {

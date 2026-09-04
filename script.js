@@ -146,19 +146,19 @@ de segurança da empresa. </p>
 
               <img src="img/atoInseguro11.png" class="imagem-lateral imagem-ajuste-1">
 
-            <p>Posicione-se próximo à carga com os pés abertos para manter o equilíbrio; </p> 
-            <p>Abaixe-se e mantenha a cabeça e as costas em linha reta; </p>
-            <p>Segure firmemente a carga usando a palma das mãos e os dedos; </p>
-            <p>Sempre utilizar alças ou outros pontos de agarre caso o objeto os tenha; </p>
+            <p>▪️Posicione-se próximo à carga com os pés abertos para manter o equilíbrio; </p> 
+            <p>▪️Abaixe-se e mantenha a cabeça e as costas em linha reta; </p>
+            <p>▪️Segure firmemente a carga usando a palma das mãos e os dedos; </p>
+            <p>▪️Sempre utilizar alças ou outros pontos de agarre caso o objeto os tenha; </p>
 
 
             <h2> <strong>⚠️ATENÇÃO PARA A PARTE PRINCIPAL⚠️</strong></h2>
 
             <img src="img/atoInseguro12.png" class="imagem-lateral imagem-ajuste-2">
 
-            <p>Levante-se usando somente as pernas e mantendo os braços esticados, sustentando a carga;</p>
-            <p>Aproxime a carga do corpo, mantendo-a centralizada (isso pode ser feito pela sua base ou pelas alças);</p>
-            <p>Agora é possível transporta-la de forma segura.</p> 
+            <p>▪️Levante-se usando somente as pernas e mantendo os braços esticados, sustentando a carga;</p>
+            <p>▪️Aproxime a carga do corpo, mantendo-a centralizada (isso pode ser feito pela sua base ou pelas alças);</p>
+            <p>▪️Agora é possível transporta-la de forma segura.</p> 
             
             <img src="img/atoInseguro13.png" class="imagem-lateral imagem-levantamento">
 
@@ -166,16 +166,17 @@ de segurança da empresa. </p>
 
             <img src="img/atoInseguro14.png" class="imagem-lateral imagem-ajuste-2">
 
-            <p>Dobrar as costas;</p>
-            <p>Ficar muito longe da carga;</p>
-            <p>Manter as pernas fixas no chão e virar o corpo com a carga;</p>
-            <p>Escorar a carga nas pernas ou nos joelhos.</p>
+            <p>▪️Dobrar as costas;</p>
+            <p>▪️Ficar muito longe da carga;</p>
+            <p>▪️Manter as pernas fixas no chão e virar o corpo com a carga;</p>
+            <p>▪️Escorar a carga nas pernas ou nos joelhos.</p>
 
             `
         }
     ]
 },
-  {
+
+{
     titulo: "4. Ferramentas manuais",
     audio: "audios/modulo4.mp3",
     texto: `
@@ -368,13 +369,17 @@ importantes.</p>
     
     `
   },
+ 
   {
+
     titulo: "11. Proteção dos olhos, da face e da audição",
-    audio: "audios/modulo11.mp3",
-    texto: `
 
-    <h2>PROTEÇÃO DOS OLHOS E DA FACE</h2>
-
+    partes: [
+        {
+        
+            titulo: "11.1. Proteção dos olhos e da face",
+            audio: "audios/modulo11.mp3",
+            texto: `
     
     <img src="img/olhoseface.png" class="imagem-lateral imagem-ajuste-3">
 
@@ -407,7 +412,7 @@ maçaricos, etc, deve ser combatida com a
 utilização de óculos de segurança, protetores
 faciais e/ou mascaras de solda.</p>
 
-    <h2>PROTEÇÃO AUDITIVA</h2>
+        <h2>PROTEÇÃO AUDITIVA</h2>
 
 
     <img src="img/auditiva.png" class="imagem-lateral imagem-ajuste-3">
@@ -425,16 +430,238 @@ de reflexos.</p>
 da pressão arterial, ansiedade, tensão, insônia, problemas digestivos
 (úlcera, gastrite) e problemas cardíacos.</p>
 
+        <h2>EFEITOS DO RUÍDO NA AUDIÇÃO</h2>
+
+<p><strong>Trauma Acústico:</strong> É a perda auditiva repentina causada por ruídos de
+impacto. Exemplo: Explosões de dinamites, bombas e rojões.</p>
+
+<p><strong>Perda Auditiva Temporária:</strong> Ocorre após exposição a ruído intenso,
+mesmo por curto período de tempo. A audição volta ao normal após
+algum tempo longe do ruído. Exemplo: Discoteca e Trio Elétrico.</p>
+
+<p><strong>Perda Auditiva Permanente:</strong> Ocorre pela exposição repetida, durante
+longos períodos, a ruídos de alta intensidade.É irreversível, pois
+destrói as células auditivas. Exemplo: Trabalho em ambiente ruidoso.</p>
+        `
+
+        },
+
+        {
+            titulo: "11.2. Uso dos protetores",
+            audio: "audios/modulo11-2.mp3",
+            texto: `
+
+            <h2>Colocando o protetor tipo Inserção (Plug)</h2>
+
+            <img src="img/protetorPlug.png" class="imagem-lateral imagem-ajuste-3">
     
+    <p><strong>1:</strong> Com as mãos limpas, pegue na haste do protetor e o direcione até a entrada do canal
+auditivo.</p>
+
+    <p><strong>2:</strong> Para facilitar a colocação, puxe a orelha
+para cima e para o lado e coloque o protetor no
+canal auditivo.</p>
+
+    <p><strong>3:</strong> Após ser colocado o protetor deve ser
+tirado apenas em locais livres de ruído.</p>
+
+            <h2>COLOCANDO PROTETOR TIPO CONCHA</h2>
+
+            <img src="img/protetorConcha.png" class="imagem-lateral imagem-ajuste-3">
+
+    <p><strong>1:</strong> Alinhe as conchas de modo que elas cubram
+completamente o ouvido.</p>
+
+    <p><strong>2:</strong>Retire o excesso de cabelo que fique entre o abafador e o ouvido.</p>
+
+    <p><strong>3:</strong> Certifique-se de que a vedação é satisfatória, sem a interferência de objetos 
+como elástico de respiradores ou armação de óculos, de modo a obter melhor desempenho. </p>
+
+            <h2>PROTEÇÃO RESPIRATÓRIA</h2>
+
+            <img src="img/protetorRespiratorio.png" class="imagem-lateral imagem-ajuste-3">
+
+    <p>O uso de respiradores requer difusão de
+informações básicas entre os trabalhadores.
+Saber para qual tipo de risco que o
+respirador que você esta usando é indicado
+é muito importante. Por isso observe se:</p>
+
+    <p><strong>a)</strong> O respirador que você esta utilizando para poeira, serve para
+manipular produtos químicos?;</p>
+
+    <p><strong>b)</strong>  Ele é ideal para entrada em espaços confinados?;
+</p>
+
+    <p><strong>c)</strong> Eu estou fazendo a troca no período indicado?;</p>
+
+    <p><strong>d)</strong> Recebi treinamento adequado para a utilização do respirador?;</p>
+
+    <p><strong>e)</strong>  Estou cuidando e utilizando o respirador da forma adequada?.</p>
+
+    <p>Não são poucos os itens que precisam estar de acordo para que se
+estabeleça um uso seguro de protetores respiratórios. Na dúvida,
+pergunte a seu encarregado, pois é a sua segurança que esta em jogo.</p>
+
+<p><strong>Atenção:</strong> A barba impede o ajuste e vedação adequados do respirador,
+facilitando a passagem dos contaminantes. Por isso pessoas com barba
+não devem usar respiradores que necessitem vedação facial, em caso
+de dúvida ou para informação adicional, procure se encarregado</p>
+
+            <h2>COLOCANDO O RESPIRADOR DESCARTÁVEL:</h2>
+
+            <img src="img/protetorRespiratorio2.png" class="imagem-lateral imagem-ajuste-3">
+
+    <p><strong>1:</strong>Apoie o respirador no rosto, inicialmente no
+queixo, depois cubra a boca e o nariz. Puxe o
+elástico superior, ajustando-o bem acima das
+orelhas, faça o mesmo com o elático de baixo,
+passando-o pela cabeça e ajustando-o na nuca.</p>
+
+    <p><strong>2:</strong> Com dois dedos de cada mão pressione a
+peça de alumínio de forma a moldá-lo ao seu
+formato de nariz.</p>
+
+    <p><strong>3:</strong>Para verificar o ajuste, coloque as mãos na
+frente do respirador cobrindo toda a sua
+superfície e inale. O ar não deve passar pelas
+laterais.</p>
+
+    <p><strong>4:</strong> Esta é a forma correta de colocação do
+respirador.</p>
+   
     ` 
+
+        },
+
+        {
+            titulo: "11.3 Uso dos protetores - PARTE 2",
+            audio: "",
+            texto: `
+            
+            <h2>COLOCANDO O RESPIRADOR SEMI FACIAL</h2>
+
+            <img src="img/protetorRespiratorio3.png" class="imagem-lateral imagem-ajuste-5">
+
+            <p><strong>1:</strong>Coloque o respirador no rosto, e posicione o
+elástico superior sobre a cabeça. Encaixe os
+elásticos inferiores (de baixo) ligando as
+presilhas atrás do pescoço.
+</p>
+
+            <p><strong>2:</strong>Puxe as extremidades dos elásticos
+superiores, e depois os inferiores, para fazer o
+ajuste do respirador no rosto.
+</p>
+
+            <p><strong>3:</strong>Verificação de vedação com pressão positiva:
+Coloque a palma da mão sobre a válvula de
+exalação e assopre suavemente várias vezes. A
+peça facial deverá se expandir suavemente sem
+ocorrer vazamentos.
+</p>
+
+            <p><strong>4:</strong> Teste de pressão negativa: Coloque as mãos
+sobre os cartuchos e/ou filtros e inale
+profundamente várias vezes. A peça facial
+deverá comprimir levemente contra o rosto sem
+ocorrer vazamento.
+</p>
+
+            <h2>PROTEÇÃO DO TRONCO E CORPO INTEIRO</h2>
     
+            <img src="img/protetorCorpo.png" class="imagem-lateral imagem-ajuste-3">
+    
+            <p>Este tipo de proteção é composta
+básicamente por calças, conjuntos de calça e
+blusão, aventais, capas, tem como finalidade a
+proteção contra calor, frio, produtos
+químicos, umidade, intempéries, etc.</p>
 
-  },
+            <h2>PROTEÇÃO DOS MEMBROS SUPERIORES</h2>
 
-  {
-    titulo: "11. Atuação da CIPA",
+            <img src="img/protetorMao.png" class="imagem-lateral imagem-ajuste-7">
+
+            <p>Este tipo de proteção é composta básicamente
+por luvas, cremes protetor, mangas,
+braçadeiras, dedeiras, etc.</p>
+
+            <p><strong>Luvas Impermeáveis:</strong> Nitrilica, Látex, são
+indicadas para trabalhos que envolvam umidade
+e produtos químicos.</p>
+
+            <p><strong>Luvas contra Temperaturas:</strong> Kevlar, Raspa, Grafatex, são indicadas
+para trabalhos que envolvam temperaturas extremas.</p>
+
+            <p><strong>Luvas contra Cortes:</strong> Raspa, Couro, Kevlar, são indicadas para
+trabalhos onde haja o manuseio de materiais com rebarbas ou cortantes.</p>
+
+            <p><strong>Cremes Protetores:</strong> Outra forma de proteção das mãos são os cremes,
+que tem a finalidade de criar uma película que impede a ação de alguns
+agentes agressivos, principalmete os produtos químicos.</p>
+
+            <h2>PROTEÇÃO DOS MEMBROS NFERIORES</h2>
+
+            <img src="img/protetorPe.png" class="imagem-lateral imagem-ajuste-3">
+
+            <p>Este tipo de proteção é composta básicamente
+por calçados, meias, perneiras, calças, etc.</p>
+
+            <p><strong>Acidentes com os Pés:</strong> Fraturas, choques
+elétricos, dermatoses, queimaduras, bactérias
+e radiações, são alguns dos riscos aos quais os
+pés ficam expostos durante a execução de
+determinadas tarefas. O trabalho de manuseio
+de materiais pesados ou cortantes, o choque contra objetos 
+estáticos ou em movimento, os pisos irregulares ou
+escorregadios e a exposição do trabalhador a produtos químicos,
+frio, calor intenso, são fatores responsáveis por muitos 
+acidentes de trabalho com prejuízos aos pés. </p>
+
+            `
+        },
+    ]
+
+},
+
+{
+    titulo: "12. Recomendações Finais",
     audio: "audios/modulo11.mp3",
     texto: `
+    
+    <p>Os acidentes nunca acontecem por acaso, eles são provocados. Uma das
+melhores maneiras de evitá-los é procurar primeiro conhecer o modo
+correto e seguro de realizar o trabalho antes de iniciá-lo.
+As causas mais freqüentes de acidentes são:</p>
+
+<p><strong>I:</strong> Falta de atenção;</p>
+<p><strong>II:</strong> Falta de experiência;</p>
+<p><strong>III:</strong> Inobservância às normas de segurança.</p>
+
+    <p>Se houver a necessidade de executar atividades em outro setor ou
+maquinário, sempre solicite a ordem de serviço para esta atividade.
+É fundamental que você conheça todos os riscos da atividade e formas
+de prevenção para que sua saúde e integridade física sejam
+preservadas. Procure o encarregado do setor para obtenção e
+autorização de seu trabalho no local. Lembrete: não realize atividades
+sem o conhecimento de seus riscos, pois você estará propiciando um
+procedimento inseguro, passível de punição.</p>
+
+    <p>Utilize o equipamento de segurança conforme o risco encontrado em sua
+atividade, em caso de dúvidas, procure orientação junto ao seu
+encarregado ou algum membro da CIPA. Em caso de perda do EPI ou
+no caso de o equipamento estiver danificado, faça sua substituição
+imediata. O equipamento de segurança é gratuito e tem como objetivo
+preservar sua saúde e integridade física.</p>
+
+    <p>Em caso de problemas elétricos e/ou mecânico em seu setor ou
+equipamento de trabalho, comunique imediatamente a seu encarregado.
+Não faça nenhuma manutenção em equipamento sem ter qualificação,
+habilitação e autorização.</p>
+
+    <p>Antes de iniciar o seu turno de trabalho, verifique as condições gerais
+do equipamento e das instalações. Qualquer problema que coloque em
+risco a sua segurança, solicite a manutenção imediata ou substituição.</p>
     
     
     ` 
@@ -528,6 +755,30 @@ function alternarBloqueioUI(bloquear) {
 }
 
 function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = false) {
+    tocadorAudio.onended = () => {
+    document
+        .querySelectorAll('.palavra.lendo')
+        .forEach(el => el.classList.remove('lendo'));
+
+    alternarBloqueioUI(false);
+
+    const robo = document.getElementById('robo-avatar');
+
+    if (robo) {
+        robo.classList.remove('falando');
+    }
+
+    const botaoAudio = document.getElementById('btn-play-pause');
+
+    if (botaoAudio) {
+        botaoAudio.innerText = '▶';
+        botaoAudio.setAttribute('aria-label', 'Reproduzir áudio');
+    }
+
+    if (ehTelaInicial) {
+        liberarFormularioLogin();
+    }
+};
     pararLeitura();
 
     tocadorAudio = new Audio(caminhoAudio);
@@ -543,22 +794,35 @@ function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = fal
     // Total de caracteres somente das palavras visíveis
     const totalCaracteres = palavras.join(" ").length;
 
-    // Pequeno ajuste para o grifo não ficar adiantado
-    const atrasoGrifo = 0.15;
+   
+    // Ajuste de sincronização:
+// mais forte no início e vai diminuindo até desaparecer.
+    const atrasoInicial = 0.1;
+    const tempoDeAjuste = 0.1;
 
     tocadorAudio.ontimeupdate = () => {
         if (!tocadorAudio.duration || totalCaracteres === 0) return;
 
-        const tempoAtual = tocadorAudio.currentTime;
-        const duracaoTotal = tocadorAudio.duration;
+    const tempoAtual = tocadorAudio.currentTime;
+    const duracaoTotal = tocadorAudio.duration;
 
-        // Compensa o pequeno adiantamento do grifo
-        const tempoSincronizado = Math.max(0, tempoAtual - atrasoGrifo);
+    const fatorAjuste = Math.max(
+        0,
+        1 - (tempoAtual / tempoDeAjuste)
+    );
+
+    const atrasoDinamico = atrasoInicial * fatorAjuste;
+
+    const tempoSincronizado = Math.max(
+        0,
+        tempoAtual - atrasoDinamico
+        )
 
         const progresso = Math.min(
             1,
             tempoSincronizado / duracaoTotal
         );
+
 
         // Descobre aproximadamente qual palavra deve estar sendo lida
         const charAlvo = progresso * totalCaracteres;
@@ -651,6 +915,38 @@ function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = fal
     });
 }
 
+function alternarAudio() {
+    if (!tocadorAudio || !tocadorAudio.src) return;
+
+    const botao = document.getElementById('btn-play-pause');
+    const robo = document.getElementById('robo-avatar');
+
+    if (tocadorAudio.paused) {
+        tocadorAudio.play();
+
+        if (botao) {
+            botao.innerText = '⏸';
+            botao.setAttribute('aria-label', 'Pausar áudio');
+        }
+
+        if (robo) {
+            robo.classList.add('falando');
+        }
+
+    } else {
+        tocadorAudio.pause();
+
+        if (botao) {
+            botao.innerText = '▶';
+            botao.setAttribute('aria-label', 'Continuar áudio');
+        }
+
+        if (robo) {
+            robo.classList.remove('falando');
+        }
+    }
+}
+
 function pararLeitura() {
     if (tocadorAudio) {
         tocadorAudio.pause();
@@ -705,9 +1001,10 @@ function iniciarIntegracao(e) {
 
 function renderLayout(index) {
     const modulo = modulos[index];
+
     const parte = modulo.partes
-    ? modulo.partes[estado.parteAtual]
-    : modulo;
+        ? (modulo.partes[estado.parteAtual] || modulo.partes[0])
+        : modulo;
     let menuHtml = '';
 
     
@@ -763,10 +1060,34 @@ if (m.partes && estaLiberado) {
             </aside>
             <main class="main-content">
                 <div class="container">
+
+                     <h2>${parte.titulo}</h2>
+
+                     <p id="texto-modulo">${formatarTextoEmSpans(parte.texto)}</p>
+
+                    <button
+                        class="btn"
+                        id="btn-avancar"
+                        onclick="avancarEtapa()"
+                    >
+                        CONTINUAR ➡
+                    </button>
+
+                </div>
+
+                <div class="controles-flutuantes">
+
                     ${getAvatarHTML()}
-                    <h2>${parte.titulo}</h2>
-                    <p id="texto-modulo">${formatarTextoEmSpans(parte.texto)}</p>
-                    <button class="btn" id="btn-avancar" onclick="avancarEtapa()">CONTINUAR ➡</button>
+
+                    <button
+                        class="btn-controle-audio"
+                        id="btn-play-pause"
+                        onclick="alternarAudio()"
+                        aria-label="Pausar áudio"
+                    >
+                        ⏸
+                    </button>
+
                 </div>
             </main>
         </div>
@@ -796,6 +1117,8 @@ function mudarParte(numEtapa, numParte) {
 
 function mudarModulo(numEtapa) {
     estado.etapaAtual = numEtapa;
+    estado.parteAtual = 0;
+
     salvarEstado();
     init();
 }
@@ -826,7 +1149,15 @@ function avancarEtapa() {
 
     salvarEstado();
     init();
-    return;
+
+
+    window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+});
+
+return;
+    
 }
 
         // Terminou todas as partes
@@ -840,8 +1171,13 @@ function avancarEtapa() {
         estado.maiorEtapa = estado.etapaAtual;
     }
 
-    salvarEstado();
-    init();
+  salvarEstado();
+init();
+
+window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+});
 }
 
 function renderConclusao() {

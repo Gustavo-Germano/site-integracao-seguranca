@@ -44,7 +44,7 @@ ou deste para aquele. As causas mais freqüentes de acidentes são a falta de at
     
     partes: [
         {
-            titulo: "3. Atos e Condições Inseguras",
+            titulo: "3.1 Atos e Condições Inseguras",
             audio: "audios/modulo3.mp3",
             texto: `
 
@@ -81,7 +81,7 @@ de segurança da empresa. </p>
         },
 
         {
-            titulo: "3.1 Atos e Condições Inseguras",
+            titulo: "3.2 Atos e Condições Inseguras",
             audio: " ",
             texto: `
     <p> Não Efetue a limpeza, lubrificação ou regulagem, com a máquina em movimento. Desligue a maquina antes de executar qualquer serviço e chame a pessoa responsável, 
@@ -107,7 +107,7 @@ de segurança da empresa. </p>
         },
 
         {
-            titulo: "3.2 Atos e Condições Inseguras",
+            titulo: "3.3 Atos e Condições Inseguras",
             audio: " ",
             texto: `
     <p> Algumas áreas da empresa são consideradas áreas de risco (cabines elétricas, depósito de produtos químicos, etc...), SÓ PODENDO NELAS ENTRAR PESSOAS AUTORIZADAS. 
@@ -131,7 +131,7 @@ de segurança da empresa. </p>
         },
 
         {
-            titulo: "3.3 Atos e Condições Inseguras",
+            titulo: "3.4 Atos e Condições Inseguras",
             audio: " ",
             texto: `
                 
@@ -600,7 +600,7 @@ trabalhos onde haja o manuseio de materiais com rebarbas ou cortantes.</p>
 que tem a finalidade de criar uma película que impede a ação de alguns
 agentes agressivos, principalmete os produtos químicos.</p>
 
-            <h2>PROTEÇÃO DOS MEMBROS NFERIORES</h2>
+            <h2>PROTEÇÃO DOS MEMBROS INFERIORES</h2>
 
             <img src="img/protetorPe.png" class="imagem-lateral imagem-ajuste-3">
 
@@ -693,17 +693,358 @@ let tocadorAudio = new Audio();
 function getAvatarHTML() {
     return `
         <div class="avatar-container">
-            <div id="robo-avatar" class="cyber-robo">
-                <div class="cyber-visor">
-                    <div class="cyber-olho"></div>
-                    <div class="cyber-olho"></div>
-                </div>
-                <div class="cyber-boca">
-                    <div class="onda"></div>
-                    <div class="onda"></div>
-                    <div class="onda"></div>
-                    <div class="onda"></div>
-                </div>
+            <div id="robo-avatar" class="worker-avatar">
+
+                <svg
+                    class="worker-svg"
+                    viewBox="0 0 220 220"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-label="Trabalhador de segurança"
+                    role="img"
+                >
+
+                    <!-- SOMBRA -->
+                    <ellipse
+                        class="worker-shadow"
+                        cx="110"
+                        cy="207"
+                        rx="55"
+                        ry="7"
+                    />
+
+                    <!-- CORPO -->
+                    <g class="worker-body">
+
+                        <!-- BRAÇO ESQUERDO -->
+                        <g class="worker-arm worker-arm-left">
+                            <path
+                                d="M62 123
+                                   C49 128 43 141 40 155
+                                   C38 164 42 170 49 171
+                                   C56 172 60 166 62 158
+                                   L72 137 Z"
+                                fill="#f1b38b"
+                            />
+
+                            <path
+                                d="M40 155
+                                   C35 157 32 162 34 167
+                                   C36 172 42 174 47 171
+                                   C51 169 52 165 49 161
+                                   Z"
+                                fill="#e8a477"
+                            />
+                        </g>
+
+                        <!-- TRONCO / CAMISA -->
+                        <path
+                            class="worker-shirt"
+                            d="M72 112
+                               C83 106 137 106 148 112
+                               L166 195
+                               C145 202 75 202 54 195
+                               L72 112 Z"
+                            fill="#f5f7fa"
+                        />
+
+                        <!-- COLETE -->
+                        <path
+                            class="worker-vest-left"
+                            d="M74 111
+                               L91 118
+                               L82 195
+                               L55 195
+                               L72 112 Z"
+                            fill="#f28c28"
+                        />
+
+                        <path
+                            class="worker-vest-right"
+                            d="M146 111
+                               L129 118
+                               L138 195
+                               L165 195
+                               L148 112 Z"
+                            fill="#f28c28"
+                        />
+
+                        <!-- FAIXAS REFLETIVAS -->
+                        <path
+                            d="M67 148 L85 153"
+                            stroke="#fff"
+                            stroke-width="6"
+                            stroke-linecap="round"
+                            opacity=".9"
+                        />
+
+                        <path
+                            d="M153 148 L135 153"
+                            stroke="#fff"
+                            stroke-width="6"
+                            stroke-linecap="round"
+                            opacity=".9"
+                        />
+
+                        <path
+                            d="M61 176 L82 180"
+                            stroke="#fff"
+                            stroke-width="5"
+                            stroke-linecap="round"
+                            opacity=".9"
+                        />
+
+                        <path
+                            d="M159 176 L138 180"
+                            stroke="#fff"
+                            stroke-width="5"
+                            stroke-linecap="round"
+                            opacity=".9"
+                        />
+
+                        <!-- GOLA -->
+                        <path
+                            d="M91 111
+                               Q110 130 129 111"
+                            fill="none"
+                            stroke="#d7dde4"
+                            stroke-width="4"
+                        />
+
+                        <!-- CRACHÁ -->
+                        <g class="worker-badge">
+                            <rect
+                                x="113"
+                                y="139"
+                                width="23"
+                                height="30"
+                                rx="3"
+                                fill="#ffffff"
+                                stroke="#cbd5e1"
+                                stroke-width="1.5"
+                            />
+
+                            <circle
+                                cx="124.5"
+                                cy="147"
+                                r="4"
+                                fill="#94a3b8"
+                            />
+
+                            <path
+                                d="M118 156 H131"
+                                stroke="#94a3b8"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                            />
+
+                            <path
+                                d="M118 161 H128"
+                                stroke="#cbd5e1"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                            />
+                        </g>
+
+                        <!-- BRAÇO DIREITO -->
+                        <g class="worker-arm worker-arm-right">
+
+                            <path
+                                d="M148 121
+                                   C162 124 171 137 174 151
+                                   C176 160 173 169 166 171
+                                   C159 173 154 167 153 159
+                                   L143 137 Z"
+                                fill="#f1b38b"
+                            />
+
+                            <path
+                                d="M174 151
+                                   C180 153 184 158 182 164
+                                   C181 170 175 173 169 170
+                                   C165 168 164 163 166 159
+                                   Z"
+                                fill="#e8a477"
+                            />
+                        </g>
+
+                        <!-- PESCOÇO -->
+                        <path
+                            d="M95 96
+                               L95 113
+                               Q110 123 125 113
+                               L125 96 Z"
+                            fill="#e8a477"
+                        />
+
+                        <!-- CABEÇA -->
+                        <g class="worker-head">
+
+                            <!-- ORELHAS -->
+                            <circle
+                                cx="78"
+                                cy="77"
+                                r="8"
+                                fill="#e8a477"
+                            />
+
+                            <circle
+                                cx="142"
+                                cy="77"
+                                r="8"
+                                fill="#e8a477"
+                            />
+
+                            <!-- ROSTO -->
+                            <path
+                                d="M81 51
+                                   Q110 35 139 51
+                                   L139 82
+                                   Q136 105 110 111
+                                   Q84 105 81 82 Z"
+                                fill="#f1b38b"
+                            />
+
+                            <!-- CABELO -->
+                            <path
+                                d="M83 57
+                                   Q87 41 110 41
+                                   Q133 41 137 57
+                                   L131 64
+                                   Q124 53 110 53
+                                   Q96 53 89 64 Z"
+                                fill="#3b2f2a"
+                            />
+
+                            <!-- SOBRANCELHAS -->
+                            <path
+                                d="M91 72 Q98 68 104 72"
+                                fill="none"
+                                stroke="#5b463d"
+                                stroke-width="3"
+                                stroke-linecap="round"
+                            />
+
+                            <path
+                                d="M116 72 Q122 68 129 72"
+                                fill="none"
+                                stroke="#5b463d"
+                                stroke-width="3"
+                                stroke-linecap="round"
+                            />
+
+                            <!-- OLHO ESQUERDO -->
+                            <ellipse
+                                cx="98"
+                                cy="78"
+                                rx="4"
+                                ry="3"
+                                fill="#263238"
+                            />
+
+                            <!-- OLHO DIREITO -->
+                            <ellipse
+                                cx="122"
+                                cy="78"
+                                rx="4"
+                                ry="3"
+                                fill="#263238"
+                            />
+
+                            <!-- NARIZ -->
+                            <path
+                                d="M110 78
+                                   Q106 88 111 89
+                                   Q115 90 117 87"
+                                fill="none"
+                                stroke="#d18c68"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                            />
+
+                            <!-- BOCA -->
+                            <g class="worker-mouth">
+
+                                <path
+                                    class="mouth-closed"
+                                    d="M101 96 Q110 100 119 96"
+                                    fill="none"
+                                    stroke="#8e4d49"
+                                    stroke-width="2.5"
+                                    stroke-linecap="round"
+                                />
+
+                                <ellipse
+                                    class="mouth-open"
+                                    cx="110"
+                                    cy="97"
+                                    rx="8"
+                                    ry="4"
+                                    fill="#8e4d49"
+                                />
+
+                            </g>
+
+                        </g>
+
+                        <!-- CAPACETE -->
+                        <g class="worker-helmet">
+
+                            <!-- ABA -->
+                            <path
+                                d="M65 61
+                                   Q110 48 155 61
+                                   Q163 64 158 69
+                                   Q110 76 62 69
+                                   Q57 65 65 61 Z"
+                                fill="#e5e7eb"
+                                stroke="#cbd5e1"
+                                stroke-width="2"
+                            />
+
+                            <!-- CASCO -->
+                            <path
+                                d="M72 61
+                                   Q74 28 110 26
+                                   Q146 28 148 61
+                                   Z"
+                                fill="#ffffff"
+                                stroke="#cbd5e1"
+                                stroke-width="2"
+                            />
+
+                            <!-- DETALHE DO CAPACETE -->
+                            <path
+                                d="M92 30
+                                   Q110 25 128 30"
+                                fill="none"
+                                stroke="#f59e0b"
+                                stroke-width="5"
+                                stroke-linecap="round"
+                            />
+
+                            <!-- PEQUENO LOGO -->
+                            <circle
+                                cx="110"
+                                cy="43"
+                                r="8"
+                                fill="#f59e0b"
+                            />
+
+                            <path
+                                d="M106 43 L109 46 L115 39"
+                                fill="none"
+                                stroke="#fff"
+                                stroke-width="2.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            />
+
+                        </g>
+
+                    </g>
+
+                </svg>
+
             </div>
         </div>
     `;
@@ -801,7 +1142,16 @@ function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = fal
     const tempoDeAjuste = 0.1;
 
     tocadorAudio.ontimeupdate = () => {
-        if (!tocadorAudio.duration || totalCaracteres === 0) return;
+
+    const robo = document.getElementById('robo-avatar');
+
+    if (robo) {
+        const falandoAgora = !tocadorAudio.paused && !tocadorAudio.ended;
+
+        robo.classList.toggle('falando', falandoAgora);
+    }
+
+    if (!tocadorAudio.duration || totalCaracteres === 0) return;
 
     const tempoAtual = tocadorAudio.currentTime;
     const duracaoTotal = tocadorAudio.duration;
@@ -922,6 +1272,7 @@ function alternarAudio() {
     const robo = document.getElementById('robo-avatar');
 
     if (tocadorAudio.paused) {
+
         tocadorAudio.play();
 
         if (botao) {
@@ -934,6 +1285,7 @@ function alternarAudio() {
         }
 
     } else {
+
         tocadorAudio.pause();
 
         if (botao) {

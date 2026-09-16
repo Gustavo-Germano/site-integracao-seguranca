@@ -16,19 +16,26 @@ export const pool = new Pool({
 export async function testarBanco() {
 
     try {
+
         const resultado = await pool.query(
-            "SELECT * FROM usuarios"
+            "SELECT NOW()"
         );
 
         console.log("========================================");
-        console.log("✅ TABELA USUARIOS ACESSADA");
-        console.log("📋 Registros encontrados:", resultado.rows.length);
+        console.log("✅ BANCO DE DADOS CONECTADO");
+        console.log("🗄️ Banco:", process.env.DB_NAME);
+        console.log("🖥️ Servidor:", process.env.DB_HOST);
+        console.log("🕐 Horário do banco:", resultado.rows[0].now);
         console.log("========================================");
+
     } catch (erro) {
+
         console.error("========================================");
-        console.error("❌ ERRO AO ACESSAR USUARIOS");
+        console.error("❌ ERRO AO CONECTAR AO BANCO");
         console.error("========================================");
         console.error(erro.message);
+        console.error("========================================");
+
     }
 }
 

@@ -45,7 +45,7 @@ ou deste para aquele. As causas mais freqüentes de acidentes são a falta de at
     partes: [
         {
             titulo: "3.1 Atos e Condições Inseguras",
-            audio: "audios/modulo3.mp3",
+            audio: "audios/modulo3-1.mp3",
             texto: `
 
     <p> <strong>Ato Inseguro:</strong> É o ato praticado pelo colaborador, em geral, consciente de que está fazendo algo contra as normas
@@ -82,7 +82,7 @@ de segurança da empresa. </p>
 
         {
             titulo: "3.2 Atos e Condições Inseguras",
-            audio: " ",
+            audio: "audios/modulo3-2.mp3",
             texto: `
     <p> Não Efetue a limpeza, lubrificação ou regulagem, com a máquina em movimento. Desligue a maquina antes de executar qualquer serviço e chame a pessoa responsável, 
     mesmo que isso venha acarretar</p>
@@ -108,7 +108,7 @@ de segurança da empresa. </p>
 
         {
             titulo: "3.3 Atos e Condições Inseguras",
-            audio: " ",
+            audio: "audios/modulo3-3.mp3",
             texto: `
     <p> Algumas áreas da empresa são consideradas áreas de risco (cabines elétricas, depósito de produtos químicos, etc...), SÓ PODENDO NELAS ENTRAR PESSOAS AUTORIZADAS. 
     Caso você não seja autorizado, não entre nessas áreas, pois além de estar incorrendo em risco físico, também estará cometendo uma falta grave. Caso você seja autorizado, 
@@ -132,7 +132,7 @@ de segurança da empresa. </p>
 
         {
             titulo: "3.4 Atos e Condições Inseguras",
-            audio: " ",
+            audio: "audios/modulo3-4.mp3",
             texto: `
                 
             <img src="img/atoInseguro10.png" class="imagem-lateral">
@@ -378,7 +378,7 @@ importantes.</p>
         {
         
             titulo: "11.1. Proteção dos olhos e da face",
-            audio: "audios/modulo11.mp3",
+            audio: "audios/modulo11-1.mp3",
             texto: `
     
     <img src="img/olhoseface.png" class="imagem-lateral imagem-ajuste-3">
@@ -536,7 +536,7 @@ respirador.</p>
 
         {
             titulo: "11.3 Uso dos protetores - PARTE 2",
-            audio: "",
+            audio: "audios/modulo11-3.mp3",
             texto: `
             
             <h2>COLOCANDO O RESPIRADOR SEMI FACIAL</h2>
@@ -626,7 +626,7 @@ acidentes de trabalho com prejuízos aos pés. </p>
 
 {
     titulo: "12. Recomendações Finais",
-    audio: "audios/modulo11.mp3",
+    audio: "audios/modulo12.mp3",
     texto: `
     
     <p>Os acidentes nunca acontecem por acaso, eles são provocados. Uma das
@@ -1050,6 +1050,20 @@ function getAvatarHTML() {
     `;
 }
 
+async function iniciarSistema() {
+    // Ao abrir o site, a sessão anterior não será reutilizada.
+    localStorage.removeItem('integracao_token');
+    localStorage.removeItem('integracao_usuario');
+
+    // Mantém o progresso salvo no PostgreSQL,
+    // mas força o usuário a fazer login novamente.
+    estado.nomeUsuario = '';
+    estado.etapaAtual = 0;
+    estado.parteAtual = 0;
+
+    renderHome();
+}
+
 function init() {
     pararLeitura();
     atualizarTopbar();
@@ -1061,6 +1075,75 @@ function init() {
     } else {
         renderConclusao();
     }
+}
+
+function renderPainelAdmin() {
+    app.innerHTML = `
+        <div class="main-content">
+            <div class="container">
+
+                <h2 style="text-align: center; color: var(--primary-color);">
+                    Painel do Administrador
+                </h2>
+
+                <p style="text-align: center;">
+                    Cadastre um novo colaborador para acessar o treinamento.
+                </p>
+
+                <form id="form-cadastro-colaborador" style="max-width: 500px; margin: 30px auto;">
+
+                    <input
+                        type="text"
+                        id="admin-nome"
+                        placeholder="Nome completo"
+                        required
+                        style="width: 100%; margin-bottom: 12px;"
+                    >
+
+                    <input
+                        type="email"
+                        id="admin-email"
+                        placeholder="E-mail"
+                        required
+                        style="width: 100%; margin-bottom: 12px;"
+                    >
+
+                    <input
+                        type="password"
+                        id="admin-senha"
+                        placeholder="Senha"
+                        required
+                        minlength="6"
+                        style="width: 100%; margin-bottom: 12px;"
+                    >
+
+                    <button
+                        type="submit"
+                        class="btn"
+                        style="width: 100%;"
+                    >
+                        CADASTRAR COLABORADOR
+                    </button>
+
+                    <p
+                        id="admin-mensagem"
+                        style="
+                            display: none;
+                            margin-top: 20px;
+                            text-align: center;
+                            font-weight: bold;
+                        "
+                    ></p>
+
+                </form>
+
+            </div>
+        </div>
+    `;
+
+    const formulario = document.getElementById('form-cadastro-colaborador');
+
+    formulario.addEventListener('submit', cadastrarColaborador);
 }
 
 function atualizarTopbar() {
@@ -1319,8 +1402,53 @@ function renderHome() {
                 <p id="texto-modulo">${formatarTextoEmSpans(textoBoasVindas.texto)}</p>
 
                 <form id="form-login" class="form-oculto" onsubmit="iniciarIntegracao(event)">
-                    <input type="text" id="nome" placeholder="Digite seu nome completo..." oninput="validarNome()" required>
-                    <button type="submit" class="btn" id="btn-iniciar" disabled>COMEÇAR TREINAMENTO</button>
+
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="Digite seu e-mail..."
+                        required
+                        autocomplete="username"
+                        oninput="validarLogin()"
+                    >
+
+                    <input
+                        type="password"
+                        id="senha"
+                        placeholder="Digite sua senha..."
+                        required
+                        autocomplete="current-password"
+                        oninput="validarLogin()"
+                    >
+
+                    <input
+                        type="text"
+                        id="nome"
+                        placeholder="Digite seu nome completo..."
+                        required
+                        autocomplete="name"
+                        oninput="validarLogin()"
+                    >
+
+                    <button
+                        type="submit"
+                        class="btn"
+                        id="btn-iniciar"
+                        disabled
+                    >
+                        COMEÇAR TREINAMENTO
+                    </button>
+
+                     <p
+                         id="erro-login"
+                         style="
+                             display: none;
+                             margin-top: 12px;
+                             color: #d32f2f;
+                             font-weight: 600;
+                         "
+                     ></p>
+
                 </form>
             </div>
         </div>
@@ -1336,19 +1464,119 @@ function liberarFormularioLogin() {
     if (form) form.classList.replace('form-oculto', 'form-visivel');
 }
 
-function validarNome() {
-    const input = document.getElementById('nome').value.trim();
+function validarLogin() {
+    const email = document.getElementById('email').value.trim();
+    const senha = document.getElementById('senha').value;
+    const nome = document.getElementById('nome').value.trim();
     const btn = document.getElementById('btn-iniciar');
-    btn.disabled = input.length < 3;
+
+    const emailValido = email.includes('@') && email.includes('.');
+    const senhaValida = senha.length >= 6;
+    const nomeValido = nome.length >= 3;
+
+    btn.disabled = !(emailValido && senhaValida && nomeValido);
 }
 
-function iniciarIntegracao(e) {
+async function iniciarIntegracao(e) {
     e.preventDefault();
-    estado.nomeUsuario = document.getElementById('nome').value.trim();
-    estado.etapaAtual = 1;
-    if (estado.maiorEtapa < 1) estado.maiorEtapa = 1;
-    salvarEstado();
-    init();
+
+    const email = document.getElementById('email').value.trim();
+    const senha = document.getElementById('senha').value;
+    const nome = document.getElementById('nome').value.trim();
+
+    const btn = document.getElementById('btn-iniciar');
+    const erroLogin = document.getElementById('erro-login');
+
+    erroLogin.style.display = 'none';
+    erroLogin.textContent = '';
+
+    btn.disabled = true;
+    btn.textContent = 'ENTRANDO...';
+
+    try {
+        const resposta = await fetch('http://localhost:3000/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email,
+                senha: senha
+            })
+        });
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(dados.erro || 'Não foi possível realizar o login.');
+        }
+
+        // Guarda o token de autenticação
+        localStorage.setItem('integracao_token', dados.token);
+
+        // Dados reais vindos do banco
+        localStorage.setItem(
+            'integracao_usuario',
+            JSON.stringify(dados.usuario)
+        );
+
+        // O nome oficial vem do banco
+        estado.nomeUsuario = dados.usuario.nome || nome;
+
+        if (dados.usuario.perfil === 'admin') {
+            renderPainelAdmin();
+            return;
+        }
+
+        /*
+         * ==========================================
+         * USUÁRIO QUE JÁ CONCLUIU O TREINAMENTO
+         * ==========================================
+         */
+        if (dados.usuario.treinamento_concluido) {
+
+            estado.etapaAtual = modulos.length + 1;
+            estado.parteAtual = 0;
+            estado.maiorEtapa = modulos.length + 1;
+
+            salvarEstado();
+
+            init();
+
+            return;
+        }
+
+        /*
+         * ==========================================
+         * USUÁRIO NORMAL
+         * ==========================================
+         */
+
+        estado.etapaAtual = 1;
+        estado.parteAtual = 0;
+        estado.maiorEtapa = 1;
+
+        // Limpa o progresso local de outro usuário.
+        partesLiberadas = {};
+
+        localStorage.removeItem('integracao_partes_liberadas');
+
+        salvarEstado();
+
+        await carregarProgressoServidor();
+
+        init();
+
+    } catch (erro) {
+
+        console.error('Erro no login:', erro);
+
+        erroLogin.textContent = erro.message;
+        erroLogin.style.display = 'block';
+
+        btn.disabled = false;
+        btn.textContent = 'COMEÇAR TREINAMENTO';
+    }
 }
 
 function atualizarProgressoVisual() {
@@ -1502,6 +1730,12 @@ function mudarParte(numEtapa, numParte) {
 }
 
 function mudarModulo(numEtapa) {
+
+    // Não permite acessar módulo bloqueado.
+    if (numEtapa > estado.maiorEtapa) {
+        return;
+    }
+
     estado.etapaAtual = numEtapa;
     estado.parteAtual = 0;
 
@@ -1509,61 +1743,129 @@ function mudarModulo(numEtapa) {
     init();
 }
 
-function avancarEtapa() {
-
+async function avancarEtapa() {
     const moduloAtual = modulos[estado.etapaAtual - 1];
 
-    // Se o módulo possui partes
-    if (moduloAtual.partes) {
-
-        // Ainda existem partes pela frente
-        if (estado.parteAtual < moduloAtual.partes.length - 1) {
-    estado.parteAtual++;
-
-    // Libera a nova parte
-    const numeroModulo = estado.etapaAtual;
-
-    partesLiberadas[numeroModulo] = Math.max(
-        partesLiberadas[numeroModulo] ?? 0,
-        estado.parteAtual
-    );
-
-    localStorage.setItem(
-        'integracao_partes_liberadas',
-        JSON.stringify(partesLiberadas)
-    );
-
-    salvarEstado();
-    init();
-
-
-    window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-});
-
-return;
-    
-}
-
-        // Terminou todas as partes
-        estado.parteAtual = 0;
+    if (!moduloAtual) {
+        return;
     }
 
-    // Vai para o próximo módulo
+    /*
+     * ==========================================
+     * MÓDULO COM PARTES
+     * ==========================================
+     */
+    if (moduloAtual.partes) {
+
+        /*
+         * Salva no banco a parte que acabou de ser concluída.
+         *
+         * O frontend usa índice 0, 1, 2...
+         * O banco usa 1, 2, 3...
+         */
+        await salvarProgressoServidor(
+            estado.etapaAtual,
+            estado.parteAtual + 1,
+            true
+        );
+
+        /*
+         * Ainda existem partes pela frente.
+         */
+        if (
+            estado.parteAtual <
+            moduloAtual.partes.length - 1
+        ) {
+            estado.parteAtual++;
+
+            const numeroModulo = estado.etapaAtual;
+
+            partesLiberadas[numeroModulo] = Math.max(
+                partesLiberadas[numeroModulo] ?? 0,
+                estado.parteAtual
+            );
+
+            localStorage.setItem(
+                'integracao_partes_liberadas',
+                JSON.stringify(partesLiberadas)
+            );
+
+            salvarEstado();
+            init();
+
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+
+            return;
+        }
+
+        /*
+         * Última parte do módulo.
+         * Volta o índice da parte para 0
+         * antes de avançar para o próximo módulo.
+         */
+        else {
+            estado.parteAtual = 0;
+        }
+    }
+
+    /*
+     * ==========================================
+     * MÓDULO SEM PARTES
+     * ==========================================
+     *
+     * Para módulos normais, o banco usa parte = 1.
+     */
+    else {
+        await salvarProgressoServidor(
+            estado.etapaAtual,
+            1,
+            true
+        );
+    }
+
+    /*
+     * ==========================================
+     * CONCLUSÃO DO TREINAMENTO
+     * ==========================================
+     *
+     * Se acabou de concluir o último módulo,
+     * marca o treinamento como concluído no banco.
+     */
+    if (estado.etapaAtual === modulos.length) {
+        const concluido = await concluirTreinamentoServidor();
+
+        if (!concluido) {
+            console.error(
+                '❌ Não foi possível registrar a conclusão do treinamento.'
+            );
+
+            return;
+        }
+    }
+
+    /*
+     * ==========================================
+     * VAI PARA O PRÓXIMO MÓDULO
+     * ==========================================
+     */
+
     estado.etapaAtual++;
 
     if (estado.etapaAtual > estado.maiorEtapa) {
         estado.maiorEtapa = estado.etapaAtual;
     }
 
-  salvarEstado();
-init();
+    salvarEstado();
 
-window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-});
+    init();
+
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
 }
 
 function renderConclusao() {
@@ -1619,11 +1921,541 @@ function gerarPDF() {
     }).from(elemento).save().then(() => area.style.display = 'none');
 }
 
+async function salvarProgressoServidor(modulo, parte, concluido = true) {
+    const token = localStorage.getItem('integracao_token');
+
+    if (!token) {
+        console.warn(
+            'Token não encontrado. Progresso não enviado ao servidor.'
+        );
+        return;
+    }
+
+    try {
+
+        const resposta = await fetch(
+            'http://localhost:3000/api/progresso',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    modulo: modulo,
+                    parte: parte,
+                    concluido: concluido
+                })
+            }
+        );
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(
+                dados.erro || 'Erro ao salvar progresso.'
+            );
+        }
+
+        console.log(
+            '✅ Progresso salvo no servidor:',
+            dados.progresso
+        );
+
+    } catch (erro) {
+
+        console.error(
+            '❌ Erro ao salvar progresso no servidor:',
+            erro
+        );
+    }
+}
+
+async function concluirTreinamentoServidor() {
+    const token = localStorage.getItem('integracao_token');
+
+    if (!token) {
+        console.error('❌ Token não encontrado.');
+        return false;
+    }
+
+    try {
+        const resposta = await fetch(
+            'http://localhost:3000/api/progresso/concluir',
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(
+                dados.erro || 'Erro ao concluir treinamento.'
+            );
+        }
+
+        console.log('🎓 Treinamento marcado como concluído no servidor.');
+
+        return true;
+
+    } catch (erro) {
+        console.error(
+            '❌ Erro ao concluir treinamento no servidor:',
+            erro
+        );
+
+        return false;
+    }
+}
+
 function salvarEstado() {
     localStorage.setItem('integracao_nome', estado.nomeUsuario);
     localStorage.setItem('integracao_etapa', estado.etapaAtual);
     localStorage.setItem('integracao_parte', estado.parteAtual);
     localStorage.setItem('integracao_maior_etapa', estado.maiorEtapa);
+
+async function salvarProgressoServidor(modulo, parte, concluido = true) {
+    const token = localStorage.getItem('integracao_token');
+
+    if (!token) {
+        console.warn('Token não encontrado. Progresso não enviado ao servidor.');
+        return;
+    }
+
+    try {
+        const resposta = await fetch('http://localhost:3000/api/progresso', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                modulo: modulo,
+                parte: parte,
+                concluido: concluido
+            })
+        });
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(dados.erro || 'Erro ao salvar progresso.');
+        }
+
+        console.log('✅ Progresso salvo no servidor:', dados.progresso);
+
+    } catch (erro) {
+        console.error('❌ Erro ao salvar progresso no servidor:', erro);
+    }
+}
+}
+
+async function carregarProgressoServidor() {
+
+    const token = localStorage.getItem('integracao_token');
+
+    if (!token) {
+        console.warn('Token não encontrado.');
+        return;
+    }
+
+    try {
+
+        const resposta = await fetch(
+            'http://localhost:3000/api/progresso',
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(
+                dados.erro || 'Erro ao carregar progresso.'
+            );
+        }
+
+        const progresso = dados.progresso || [];
+
+        console.log(
+            '📚 Progresso recebido:',
+            progresso
+        );
+
+        /*
+         * Nenhum progresso salvo.
+         */
+        if (progresso.length === 0) {
+
+            console.log(
+                'ℹ️ Usuário ainda não possui progresso salvo.'
+            );
+
+            return;
+        }
+
+        /*
+         * ==========================================
+         * LIMPA O CONTROLE DE PARTES
+         * ==========================================
+         */
+
+        partesLiberadas = {};
+
+        /*
+         * Guarda as partes concluídas de cada módulo.
+         *
+         * Exemplo:
+         *
+         * {
+         *   3: [1, 2],
+         *   5: [1]
+         * }
+         */
+
+        const concluidosPorModulo = {};
+
+        progresso.forEach(item => {
+
+            if (!item.concluido) {
+                return;
+            }
+
+            const modulo = Number(item.modulo);
+            const parte = Number(item.parte);
+
+            if (!concluidosPorModulo[modulo]) {
+                concluidosPorModulo[modulo] = [];
+            }
+
+            if (
+                !concluidosPorModulo[modulo].includes(parte)
+            ) {
+                concluidosPorModulo[modulo].push(parte);
+            }
+
+        });
+
+        /*
+         * ==========================================
+         * RECONSTRÓI AS PARTES LIBERADAS
+         * ==========================================
+         */
+
+        Object.keys(concluidosPorModulo).forEach(
+            numeroModulo => {
+
+                const modulo = Number(numeroModulo);
+
+                const partesConcluidas =
+                    concluidosPorModulo[modulo];
+
+                if (partesConcluidas.length === 0) {
+                    return;
+                }
+
+                /*
+                 * Como o banco usa:
+                 *
+                 * parte 1 = índice 0
+                 * parte 2 = índice 1
+                 * parte 3 = índice 2
+                 *
+                 * O maior número concluído indica
+                 * qual índice pode ser acessado.
+                 */
+
+                partesLiberadas[modulo] =
+                    Math.max(...partesConcluidas);
+
+            }
+        );
+
+        localStorage.setItem(
+            'integracao_partes_liberadas',
+            JSON.stringify(partesLiberadas)
+        );
+
+        /*
+         * ==========================================
+         * PROCURA EXATAMENTE ONDE O ALUNO DEVE VOLTAR
+         * ==========================================
+         */
+
+        let moduloParaAbrir = null;
+        let parteParaAbrir = 0;
+
+        for (
+            let numeroModulo = 1;
+            numeroModulo <= modulos.length;
+            numeroModulo++
+        ) {
+
+            const modulo = modulos[numeroModulo - 1];
+
+            const partesConcluidas =
+                concluidosPorModulo[numeroModulo] || [];
+
+            /*
+             * ======================================
+             * MÓDULO COM PARTES
+             * ======================================
+             */
+
+            if (modulo.partes) {
+
+                const totalPartes =
+                    modulo.partes.length;
+
+                /*
+                 * Procura a primeira parte ainda
+                 * não concluída.
+                 */
+
+                let primeiraParteNaoConcluida = -1;
+
+                for (
+                    let i = 1;
+                    i <= totalPartes;
+                    i++
+                ) {
+
+                    if (!partesConcluidas.includes(i)) {
+
+                        primeiraParteNaoConcluida = i;
+
+                        break;
+                    }
+                }
+
+                /*
+                 * Encontrou uma parte pendente.
+                 */
+                if (
+                    primeiraParteNaoConcluida !== -1
+                ) {
+
+                    moduloParaAbrir = numeroModulo;
+
+                    /*
+                     * Banco é 1-based.
+                     * Frontend é 0-based.
+                     */
+                    parteParaAbrir =
+                        primeiraParteNaoConcluida - 1;
+
+                    break;
+                }
+
+                /*
+                 * Todas as partes desse módulo
+                 * foram concluídas.
+                 *
+                 * Continua procurando o próximo módulo.
+                 */
+
+                continue;
+            }
+
+            /*
+             * ======================================
+             * MÓDULO NORMAL, SEM PARTES
+             * ======================================
+             */
+
+            const moduloConcluido =
+                partesConcluidas.includes(1);
+
+            if (!moduloConcluido) {
+
+                moduloParaAbrir = numeroModulo;
+                parteParaAbrir = 0;
+
+                break;
+            }
+        }
+
+        /*
+         * ==========================================
+         * DEFINE O DESTINO FINAL
+         * ==========================================
+         */
+
+        if (moduloParaAbrir !== null) {
+
+            estado.etapaAtual =
+                moduloParaAbrir;
+
+            estado.parteAtual =
+                parteParaAbrir;
+
+            /*
+             * Libera somente até o módulo atual.
+             */
+            estado.maiorEtapa =
+                moduloParaAbrir;
+
+            /*
+             * Todos os módulos anteriores já foram
+             * concluídos, portanto também ficam liberados.
+             */
+
+            salvarEstado();
+
+            console.log(
+                '✅ Progresso restaurado!'
+            );
+
+            console.log(
+                '📍 Módulo atual:',
+                estado.etapaAtual
+            );
+
+            console.log(
+                '📖 Parte atual:',
+                estado.parteAtual + 1
+            );
+
+            console.log(
+                '🔓 Maior etapa:',
+                estado.maiorEtapa
+            );
+
+        } else {
+
+            /*
+             * ======================================
+             * TREINAMENTO COMPLETAMENTE CONCLUÍDO
+             * ======================================
+             */
+
+            estado.etapaAtual =
+                modulos.length + 1;
+
+            estado.parteAtual = 0;
+
+            estado.maiorEtapa =
+                modulos.length + 1;
+
+            salvarEstado();
+
+            console.log(
+                '🎉 Treinamento já estava completamente concluído!'
+            );
+        }
+
+    } catch (erro) {
+
+        console.error(
+            '❌ Erro ao carregar progresso:',
+            erro
+        );
+    }
+}
+
+async function carregarProgressoServidor() {
+    const token = localStorage.getItem('integracao_token');
+
+    if (!token) {
+        console.warn('Token não encontrado.');
+        return;
+    }
+
+    try {
+        const resposta = await fetch(
+            'http://localhost:3000/api/progresso',
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(
+                dados.erro || 'Erro ao carregar progresso.'
+            );
+        }
+
+        const progresso = dados.progresso || [];
+
+        console.log('📚 Progresso recebido:', progresso);
+
+        if (progresso.length === 0) {
+            console.log('ℹ️ Nenhum progresso salvo ainda.');
+            return;
+        }
+
+        /*
+         * Restaura as partes liberadas.
+         */
+        progresso.forEach(item => {
+
+            if (!item.concluido) {
+                return;
+            }
+
+            const modulo = Number(item.modulo);
+            const parte = Number(item.parte);
+
+            if (!partesLiberadas[modulo]) {
+                partesLiberadas[modulo] = 0;
+            }
+
+            partesLiberadas[modulo] = Math.max(
+                partesLiberadas[modulo],
+                parte
+            );
+        });
+
+        /*
+         * Descobre o maior módulo com progresso.
+         */
+        const modulosComProgresso = progresso
+            .filter(item => item.concluido)
+            .map(item => Number(item.modulo));
+
+        if (modulosComProgresso.length > 0) {
+
+            const maiorModulo = Math.max(
+                ...modulosComProgresso
+            );
+
+            estado.maiorEtapa = Math.max(
+                estado.maiorEtapa,
+                maiorModulo + 1
+            );
+
+            estado.etapaAtual = Math.min(
+                maiorModulo + 1,
+                modulos.length
+            );
+        }
+
+        salvarEstado();
+
+        console.log('✅ Progresso restaurado!');
+        console.log('📍 Módulo atual:', estado.etapaAtual);
+        console.log('🔓 Maior etapa:', estado.maiorEtapa);
+
+    } catch (erro) {
+
+        console.error(
+            '❌ Erro ao carregar progresso:',
+            erro
+        );
+    }
 }
 
 function confirmarReset() {
@@ -1705,4 +2537,73 @@ function fecharMenuMobile() {
     overlay.classList.remove('menu-mobile-aberto');
 }
 
-init();
+async function cadastrarColaborador(event) {
+    event.preventDefault();
+
+    const nome = document.getElementById('admin-nome').value.trim();
+    const email = document.getElementById('admin-email').value.trim();
+    const senha = document.getElementById('admin-senha').value;
+
+    const mensagem = document.getElementById('admin-mensagem');
+    const botao = document.querySelector('#form-cadastro-colaborador button');
+
+    mensagem.style.display = 'none';
+    mensagem.textContent = '';
+
+    botao.disabled = true;
+    botao.textContent = 'CADASTRANDO...';
+
+    try {
+        const token = localStorage.getItem('integracao_token');
+
+        if (!token) {
+            throw new Error('Sessão do administrador não encontrada.');
+        }
+
+        const resposta = await fetch(
+            'http://localhost:3000/api/usuarios',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    nome: nome,
+                    email: email,
+                    senha: senha,
+                    perfil: 'colaborador'
+                })
+            }
+        );
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(
+                dados.erro || 'Não foi possível cadastrar o colaborador.'
+            );
+        }
+
+        mensagem.textContent = '✅ Colaborador cadastrado com sucesso.';
+        mensagem.style.color = 'green';
+        mensagem.style.display = 'block';
+
+        document.getElementById('form-cadastro-colaborador').reset();
+
+    } catch (erro) {
+
+        console.error('Erro ao cadastrar colaborador:', erro);
+
+        mensagem.textContent = '❌ ' + erro.message;
+        mensagem.style.color = 'red';
+        mensagem.style.display = 'block';
+
+    } finally {
+
+        botao.disabled = false;
+        botao.textContent = 'CADASTRAR COLABORADOR';
+    }
+}
+
+iniciarSistema();

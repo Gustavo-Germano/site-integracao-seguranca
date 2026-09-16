@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Painel Administrativo</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #f2f4f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .painel {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.10);
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .subtitulo {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            margin-bottom: 18px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: #1f6feb;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #mensagem {
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .erro {
+            color: #c62828;
+        }
+
+        .sucesso {
+            color: #2e7d32;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="painel">
+
+        <h1>PAINEL DO RH</h1>
+
+        <p class="subtitulo">
+            Cadastro de colaboradores
+        </p>
+
+        <form id="form-admin">
+
+            <label for="email-admin">
+                E-mail do administrador
+            </label>
+
+            <input
+                type="email"
+                id="email-admin"
+                placeholder="admin@email.com"
+                required
+            >
+
+            <label for="senha-admin">
+                Senha do administrador
+            </label>
+
+            <input
+                type="password"
+                id="senha-admin"
+                placeholder="Senha"
+                required
+            >
+
+            <hr style="margin: 25px 0; border: none; border-top: 1px solid #ddd;">
+
+            <label for="nome-colaborador">
+                Nome do colaborador
+            </label>
+
+            <input
+                type="text"
+                id="nome-colaborador"
+                placeholder="Nome completo"
+                required
+            >
+
+            <label for="email-colaborador">
+                E-mail do colaborador
+            </label>
+
+            <input
+                type="email"
+                id="email-colaborador"
+                placeholder="colaborador@email.com"
+                required
+            >
+
+            <label for="senha-colaborador">
+                Senha do colaborador
+            </label>
+
+            <input
+                type="password"
+                id="senha-colaborador"
+                placeholder="Crie uma senha"
+                required
+            >
+
+            <button type="submit" id="btn-cadastrar">
+                CADASTRAR COLABORADOR
+            </button>
+
+        </form>
+
+        <div id="mensagem"></div>
+
+        <hr style="margin: 25px 0; border: none; border-top: 1px solid #ddd;">
+
+        <h2 style="text-align: center; margin: 0 0 15px;">
+            COLABORADORES
+        </h2>
+
+        <button
+            type="button"
+            id="btn-carregar"
+            onclick="entrarPainel()"
+            style="margin-bottom: 20px;"
+        >
+            ENTRAR NO PAINEL
+        </button>
+
+        <div id="lista-colaboradores">
+            <p style="text-align: center; color: #666;">
+                Entre no painel para visualizar os colaboradores.
+            </p>
+        </div>
+
+    </div>
+
+    <script>
+        const API = 'http://localhost:3000';
+
+        document
+            .getElementById('form-admin')
+            .addEventListener('submit', cadastrarColaborador);
+
+
+        async function entrarPainel() {
+
+            const emailAdmin =
+                document.getElementById('email-admin').value.trim();
+
+            const senhaAdmin =
+                document.getElementById('senha-admin').value;
+
+            const btn = document.getElementById('btn-carregar');
+            const mensagem = document.getElementById('mensagem');
+
+            if (!emailAdmin || !senhaAdmin) {
+                mensagem.textContent =
+                    'Informe o e-mail e a senha do administrador.';
+                mensagem.className = 'erro';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'ENTRANDO...';
+            mensagem.textContent = '';
+            mensagem.className = '';
+
+            try {
+
+                const respostaLogin = await fetch(
+                    `${API}/api/auth/login`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: emailAdmin,
+                            senha: senhaAdmin
+                        })
+                    }
+                );
+
+                const dadosLogin =
+                    await respostaLogin.json();
+
+                if (!respostaLogin.ok) {
+                    throw new Error(
+                        dadosLogin.erro ||
+                        'E-mail ou senha do administrador inválidos.'
+                    );
+                }
+
+                if (!dadosLogin.usuario ||
+                    dadosLogin.usuario.perfil !== 'admin') {
+
+                    throw new Error(
+                        'Este usuário não possui permissão de administrador.'
+                    );
+                }
+
+                localStorage.setItem(
+                    'integracao_admin_token',
+                    dadosLogin.token
+                );
+
+                tokenAdmin = dadosLogin.token;
+
+                mensagem.textContent =
+                    '✓ Acesso administrativo autorizado.';
+                mensagem.className = 'sucesso';
+
+                await carregarColaboradores();
+
+                btn.textContent = 'ATUALIZAR COLABORADORES';
+
+            } catch (erro) {
+
+                console.error('Erro no acesso administrativo:', erro);
+
+                mensagem.textContent =
+                    '❌ ' + erro.message;
+                mensagem.className = 'erro';
+
+                btn.textContent = 'ENTRAR NO PAINEL';
+
+            } finally {
+
+                btn.disabled = false;
+
+            }
+        }
+
+
+        async function cadastrarColaborador(event) {
+
+            event.preventDefault();
+
+            const emailAdmin =
+                document.getElementById('email-admin').value.trim();
+
+            const senhaAdmin =
+                document.getElementById('senha-admin').value;
+
+            const nomeColaborador =
+                document.getElementById('nome-colaborador').value.trim();
+
+            const emailColaborador =
+                document.getElementById('email-colaborador').value.trim();
+
+            const senhaColaborador =
+                document.getElementById('senha-colaborador').value;
+
+            const btn =
+                document.getElementById('btn-cadastrar');
+
+            const mensagem =
+                document.getElementById('mensagem');
+
+
+            mensagem.textContent = '';
+            mensagem.className = '';
+
+            btn.disabled = true;
+            btn.textContent = 'AUTENTICANDO...';
+
+
+            try {
+
+                /*
+                 * ==========================================
+                 * 1. LOGIN DO ADMINISTRADOR
+                 * ==========================================
+                 */
+
+                const respostaLogin = await fetch(
+                    `${API}/api/auth/login`,
+                    {
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+
+                        body: JSON.stringify({
+                            email: emailAdmin,
+                            senha: senhaAdmin
+                        })
+                    }
+                );
+
+
+                const dadosLogin =
+                    await respostaLogin.json();
+
+
+                if (!respostaLogin.ok) {
+
+                    throw new Error(
+                        dadosLogin.erro ||
+                        'E-mail ou senha do administrador inválidos.'
+                    );
+
+                }
+
+
+                /*
+                 * ==========================================
+                 * 2. CONFIRMA SE É ADMIN
+                 * ==========================================
+                 */
+
+                if (dadosLogin.usuario.perfil !== 'admin') {
+
+                    throw new Error(
+                        'Este usuário não possui permissão de administrador.'
+                    );
+
+                }
+
+
+                /*
+                 * ==========================================
+                 * 3. PEGA O TOKEN
+                 * ==========================================
+                 */
+
+                const token = dadosLogin.token;
+                tokenAdmin = token;
+
+
+                btn.textContent = 'CADASTRANDO...';
+
+
+                /*
+                 * ==========================================
+                 * 4. CADASTRA O COLABORADOR
+                 * ==========================================
+                 */
+
+                const respostaCadastro = await fetch(
+                    `${API}/api/usuarios`,
+                    {
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+
+                        body: JSON.stringify({
+
+                            nome: nomeColaborador,
+
+                            email: emailColaborador,
+
+                            senha: senhaColaborador,
+
+                            perfil: 'colaborador'
+
+                        })
+                    }
+                );
+
+
+                const dadosCadastro =
+                    await respostaCadastro.json();
+
+
+                if (!respostaCadastro.ok) {
+
+                    throw new Error(
+                        dadosCadastro.erro ||
+                        'Não foi possível cadastrar o colaborador.'
+                    );
+
+                }
+
+
+                /*
+                 * ==========================================
+                 * 5. SUCESSO
+                 * ==========================================
+                 */
+
+                mensagem.textContent =
+                    '✓ Colaborador cadastrado com sucesso!';
+
+                mensagem.className = 'sucesso';
+
+
+                document.getElementById(
+                    'nome-colaborador'
+                ).value = '';
+
+                document.getElementById(
+                    'email-colaborador'
+                ).value = '';
+
+                document.getElementById(
+                    'senha-colaborador'
+                ).value = '';
+
+                localStorage.setItem(
+                    'integracao_admin_token',
+                    token
+                );
+
+                await carregarColaboradores();
+
+
+            } catch (erro) {
+
+                console.error(
+                    'Erro no cadastro:',
+                    erro
+                );
+
+                mensagem.textContent =
+                    '❌ ' + erro.message;
+
+                mensagem.className = 'erro';
+
+            } finally {
+
+                btn.disabled = false;
+
+                btn.textContent =
+                    'CADASTRAR COLABORADOR';
+
+            }
+
+        }
+
+        async function carregarColaboradores() {
+
+    const token = localStorage.getItem('integracao_admin_token');
+
+    if (!token) {
+        return;
+    }
+
+    const lista = document.getElementById('lista-colaboradores');
+
+    lista.innerHTML = '<p>Carregando colaboradores...</p>';
+
+    try {
+
+        const resposta = await fetch(
+            'http://localhost:3000/api/usuarios',
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(
+                dados.erro || 'Erro ao carregar colaboradores.'
+            );
+        }
+
+        const colaboradores = dados.usuarios.filter(
+            usuario => usuario.perfil === 'colaborador'
+        );
+
+        if (colaboradores.length === 0) {
+            lista.innerHTML = '<p>Nenhum colaborador cadastrado.</p>';
+            return;
+        }
+
+        lista.innerHTML = colaboradores.map(usuario => {
+
+            const status = usuario.ativo
+                ? 'ATIVO'
+                : 'DESATIVADO';
+
+            const treinamento = usuario.treinamento_concluido
+                ? 'CONCLUÍDO'
+                : 'EM ANDAMENTO';
+
+            const percentual = usuario.treinamento_concluido
+                ? 100
+                : Math.round((Number(usuario.ultimo_modulo) / 12) * 100);
+
+            const botaoTexto = usuario.ativo
+                ? 'DESATIVAR'
+                : 'ATIVAR';
+
+            return `
+                <div class="colaborador-card">
+
+                    <h3>${usuario.nome}</h3>
+
+                    <p>
+                        <strong>Email:</strong>
+                        ${usuario.email}
+                    </p>
+
+                    <p>
+                        <strong>Status:</strong>
+                        ${status}
+                    </p>
+
+                    <p>
+                        <strong>Treinamento:</strong>
+                        ${treinamento}
+                    </p>
+
+                    <p>
+                        <strong>Progresso:</strong>
+                        ${usuario.treinamento_concluido
+                            ? '12 de 12 módulos'
+                            : `${usuario.ultimo_modulo} de 12 módulos`}
+                    </p>
+
+                    <div style="
+                        width: 100%;
+                        height: 10px;
+                        background: #e0e0e0;
+                        border-radius: 10px;
+                        overflow: hidden;
+                        margin: 8px 0 18px;
+                    ">
+                    <div style="
+                        width: ${percentual}%;
+                        height: 100%;
+                        background: #1f6feb;
+                        border-radius: 10px;
+                    "></div>
+                </div>
+
+                <p style="text-align:center; margin-top:-10px;">
+                    ${percentual}%
+                </p>
+
+                    <button
+                        onclick="alterarStatusUsuario(${usuario.id}, ${!usuario.ativo})"
+                    >
+                        ${botaoTexto}
+                    </button>
+
+                </div>
+            `;
+
+        }).join('');
+
+    } catch (erro) {
+
+        console.error('Erro:', erro);
+
+        lista.innerHTML = `
+            <p style="color:red;">
+                ${erro.message}
+            </p>
+        `;
+    }
+}
+
+async function alterarStatusUsuario(id, novoStatus) {
+
+    const token = tokenAdmin || localStorage.getItem('integracao_admin_token');
+
+    if (!token) {
+        alert('Sessão administrativa não encontrada.');
+        return;
+    }
+
+    const acao = novoStatus
+        ? 'ativar'
+        : 'desativar';
+
+    const confirmar = confirm(
+        `Deseja realmente ${acao} este colaborador?`
+    );
+
+    if (!confirmar) {
+        return;
+    }
+
+    try {
+
+        const resposta = await fetch(
+            `http://localhost:3000/api/usuarios/${id}/status`,
+            {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    ativo: novoStatus
+                })
+            }
+        );
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(
+                dados.erro || 'Erro ao alterar status.'
+            );
+        }
+
+        alert(dados.mensagem);
+
+        carregarColaboradores();
+
+    } catch (erro) {
+
+        console.error('Erro:', erro);
+
+        alert(erro.message);
+    }
+}
+    </script>
+
+</body>
+</html>
+
+<hr style="margin: 40px 0;">

@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import { testarBanco, testarUsuarios } from "./db.js";
 import usuariosRouter from "./routes/usuarios.js";
 import authRouter from "./routes/auth.js";
+import progressoRouter from "./routes/progresso.js";
 
 dotenv.config();
 
@@ -18,16 +19,26 @@ const PORT = 3000;
 // CONFIGURAÇÕES
 // ========================================
 
-app.use(helmet());
-
 app.use(cors({
-    origin: "http://localhost:5500",
+    origin: function (origem, callback) {
+        const origensPermitidas = [
+            "http://localhost:5500",
+            "http://127.0.0.1:5500"
+        ];
+
+        if (!origem || origensPermitidas.includes(origem)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Origem não permitida pelo CORS."));
+        }
+    },
     credentials: true
 }));
 
 app.use(express.json());
 app.use("/api/usuarios", usuariosRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/progresso", progressoRouter);
 
 
 // ========================================

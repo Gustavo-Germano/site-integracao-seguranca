@@ -16,9 +16,9 @@ router.post("/login", async (req, res) => {
         }
 
         const resultado = await pool.query(
-            `SELECT id, nome, email, senha, perfil, ativo
-             FROM usuarios
-             WHERE email = $1`,
+           `SELECT id, nome, email, senha, perfil, ativo, treinamento_concluido
+            FROM usuarios
+            WHERE email = $1`,
             [email]
         );
 
@@ -65,7 +65,8 @@ router.post("/login", async (req, res) => {
                 id: usuario.id,
                 nome: usuario.nome,
                 email: usuario.email,
-                perfil: usuario.perfil
+                perfil: usuario.perfil,
+                treinamento_concluido: usuario.treinamento_concluido
             }
         });
 

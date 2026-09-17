@@ -12,19 +12,22 @@ dotenv.config();
 
 const app = express();
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 
 // ========================================
 // CONFIGURAÇÕES
 // ========================================
 
+const frontendUrl = process.env.FRONTEND_URL;
+
 app.use(cors({
     origin: function (origem, callback) {
         const origensPermitidas = [
             "http://localhost:5500",
-            "http://127.0.0.1:5500"
-        ];
+            "http://127.0.0.1:5500",
+            frontendUrl
+        ].filter(Boolean);
 
         if (!origem || origensPermitidas.includes(origem)) {
             callback(null, true);
@@ -75,7 +78,7 @@ app.get("/api/health", (req, res) => {
 // INICIAR SERVIDOR
 // ========================================
 
-app.listen(PORT, async () => {
+app.listen(PORT, "0.0.0.0", async () => {
 
     console.log("");
     console.log("========================================");

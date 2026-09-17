@@ -1,3 +1,5 @@
+const API_URL = 'https://site-integracao-seguranca.onrender.com';
+
 const modulos = [
   {
     titulo: "1. Ao recebedor deste:",
@@ -1494,7 +1496,7 @@ async function iniciarIntegracao(e) {
     btn.textContent = 'ENTRANDO...';
 
     try {
-        const resposta = await fetch('http://localhost:3000/api/auth/login', {
+        const resposta = await fetch(`${API_URL}/api/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -1934,7 +1936,7 @@ async function salvarProgressoServidor(modulo, parte, concluido = true) {
     try {
 
         const resposta = await fetch(
-            'http://localhost:3000/api/progresso',
+            `${API_URL}/api/progresso`,
             {
                 method: 'POST',
                 headers: {
@@ -1981,7 +1983,7 @@ async function concluirTreinamentoServidor() {
 
     try {
         const resposta = await fetch(
-            'http://localhost:3000/api/progresso/concluir',
+            `${API_URL}/api/progresso/concluir`,
             {
                 method: 'POST',
                 headers: {
@@ -2027,7 +2029,7 @@ async function salvarProgressoServidor(modulo, parte, concluido = true) {
     }
 
     try {
-        const resposta = await fetch('http://localhost:3000/api/progresso', {
+        const resposta = await fetch(`${API_URL}/api/progresso`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -2066,7 +2068,7 @@ async function carregarProgressoServidor() {
     try {
 
         const resposta = await fetch(
-            'http://localhost:3000/api/progresso',
+            `${API_URL}/api/progresso`,
             {
                 method: 'GET',
                 headers: {
@@ -2371,7 +2373,7 @@ async function carregarProgressoServidor() {
 
     try {
         const resposta = await fetch(
-            'http://localhost:3000/api/progresso',
+            `${API_URL}/api/progresso`,
             {
                 method: 'GET',
                 headers: {
@@ -2561,7 +2563,7 @@ async function cadastrarColaborador(event) {
         }
 
         const resposta = await fetch(
-            'http://localhost:3000/api/usuarios',
+            `${API_URL}/api/progresso`,
             {
                 method: 'POST',
                 headers: {

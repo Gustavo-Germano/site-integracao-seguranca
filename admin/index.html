@@ -197,7 +197,7 @@
     </div>
 
     <script>
-        const API = 'http://localhost:3000';
+        const API ='https://site-integracao-seguranca.onrender.com';
 
         document
             .getElementById('form-admin')
@@ -509,7 +509,7 @@
     try {
 
         const resposta = await fetch(
-            'http://localhost:3000/api/usuarios',
+            `${API}/api/usuarios`,
             {
                 method: 'GET',
                 headers: {
@@ -647,7 +647,7 @@ async function alterarStatusUsuario(id, novoStatus) {
     try {
 
         const resposta = await fetch(
-            `http://localhost:3000/api/usuarios/${id}/status`,
+            `${API}/api/usuarios/${id}/status`,
             {
                 method: 'PATCH',
                 headers: {

@@ -51,7 +51,7 @@ export async function testarBanco() {
 export async function testarUsuarios() {
     try {
         const resultado = await pool.query(
-            "SELECT * FROM usuarios"
+            "SELECT * FROM public.usuarios"
         );
 
         console.log("========================================");

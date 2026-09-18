@@ -1593,11 +1593,26 @@ input[type="text"]:focus { border-color: var(--secondary-color); }
 
     /* Menu pode rolar horizontalmente */
     .menu-list {
-        flex-direction: row;
-        overflow-x: auto;
-        gap: 8px;
-        padding-bottom: 5px;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        gap: 0;
     }
+
+    .menu-list .menu-item {
+        display: flex;
+        width: 100%;
+        flex-shrink: 0;
+        box-sizing: border-box;
+    }
+
+    .menu-list .subparte-item {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
 
     .menu-item {
         min-width: max-content;
@@ -1639,6 +1654,7 @@ input[type="text"]:focus { border-color: var(--secondary-color); }
         font-size: 14px;
         padding: 13px 18px;
     }
+}
 
     /* Rodapé */
     /* Créditos Fixos no Canto Inferior Direito */
@@ -1698,7 +1714,6 @@ input[type="text"]:focus { border-color: var(--secondary-color); }
     .credits-logo {
         height: 13px;
     }
-}
 
 /* =====================================================
             MENU MOBILE

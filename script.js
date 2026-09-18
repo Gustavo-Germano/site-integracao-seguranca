@@ -1377,68 +1377,49 @@ function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = fal
         );
     };
 
-    tocadorAudio.play().catch(() => {
+    console.log("=== TESTE ÁUDIO ===");
+    console.log("src:", tocadorAudio.src);
+    console.log("readyState:", tocadorAudio.readyState);
+    console.log("networkState:", tocadorAudio.networkState);
+    console.log("paused:", tocadorAudio.paused);
+    console.log("duration:", tocadorAudio.duration);
+    console.log("currentTime:", tocadorAudio.currentTime);
+    console.log("muted:", tocadorAudio.muted);
+    console.log("volume:", tocadorAudio.volume);
 
-    const iniciarAudioComInteracao = async () => {
+    tocadorAudio.play()
+    .then(() => {
+        console.log("=== ÁUDIO INICIOU ===");
+        console.log("paused:", tocadorAudio.paused);
+        console.log("currentTime:", tocadorAudio.currentTime);
+    })
+    .catch((erro) => {
+        console.log("=== ÁUDIO BLOQUEADO/ERRO ===");
+        console.log("nome:", erro?.name);
+        console.log("mensagem:", erro?.message);
 
-        try {
-            document.removeEventListener(
-                'click',
-                iniciarAudioComInteracao
-            );
+        const iniciarAudioComInteracao = async () => {
+            try {
+                await tocadorAudio.play();
 
-            document.removeEventListener(
-                'touchstart',
-                iniciarAudioComInteracao
-            );
+                console.log("=== ÁUDIO INICIOU APÓS INTERAÇÃO ===");
+                console.log("currentTime:", tocadorAudio.currentTime);
 
-            document.removeEventListener(
-                'pointerdown',
-                iniciarAudioComInteracao
-            );
-
-            document.removeEventListener(
-                'keydown',
-                iniciarAudioComInteracao
-            );
-
-            await tocadorAudio.play();
-
-        } catch (erro) {
-            console.log(
-                "Aguardando interação para iniciar o áudio:",
-                erro
-            );
-        }
-    };
-
-    document.addEventListener(
-        'pointerdown',
-        iniciarAudioComInteracao,
-        { once: true }
-    );
-
-    document.addEventListener(
-        'click',
-        iniciarAudioComInteracao,
-        { once: true }
-    );
-
-    document.addEventListener(
-        'touchstart',
-        iniciarAudioComInteracao,
-        { once: true }
-    );
-
-    document.addEventListener(
-        'keydown',
-        iniciarAudioComInteracao,
-        { once: true }
-    );
-
-});
-
+            } catch (erro2) {
+                console.log("=== FALHA APÓS INTERAÇÃO ===");
+                console.log("nome:", erro2?.name);
+                console.log("mensagem:", erro2?.message);
             }
+        };
+
+        document.addEventListener(
+            "pointerdown",
+            iniciarAudioComInteracao,
+            { once: true }
+        );
+    });
+
+        }
 
 function alternarAudio() {
     if (!tocadorAudio || !tocadorAudio.src) return;

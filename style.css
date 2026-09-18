@@ -220,10 +220,24 @@ p {
     opacity: 1; visibility: visible; transform: translateY(0);
 }
 
-input[type="text"] {
-    width: 100%; padding: 14px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 16px; outline: none; margin-bottom: 15px; transition: 0.2s;
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+    margin-bottom: 15px;
+    transition: 0.2s;
 }
-input[type="text"]:focus { border-color: var(--secondary-color); }
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+    border-color: var(--secondary-color);
+}
 
 .btn {
     background-color: var(--secondary-color); color: white; border: none; padding: 14px 24px; border-radius: 8px;

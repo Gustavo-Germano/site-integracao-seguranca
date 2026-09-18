@@ -1377,58 +1377,66 @@ function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = fal
         );
     };
 
+    tocadorAudio.play().catch(() => {
 
-    tocadorAudio.play()
-        .then(() => {
+    const iniciarAudioComInteracao = async () => {
 
-            console.log('Áudio inicial iniciado automaticamente.');
-
-        })
-        .catch(() => {
-
-            console.log(
-                'Autoplay bloqueado. Aguardando primeira interação.'
+        try {
+            document.removeEventListener(
+                'click',
+                iniciarAudioComInteracao
             );
 
-            const iniciarAudioComInteracao = () => {
+            document.removeEventListener(
+                'touchstart',
+                iniciarAudioComInteracao
+            );
 
-                if (!tocadorAudio) return;
-
-                tocadorAudio.currentTime = 0;
-
-                tocadorAudio.play()
-                    .then(() => {
-
-                        console.log(
-                            'Áudio iniciado após interação.'
-                        );
-
-                    })
-                    .catch((erro) => {
-
-                        console.error(
-                            'Não foi possível iniciar o áudio:',
-                            erro
-                        );
-
-                    });
-            };
-
-
-            document.addEventListener(
+            document.removeEventListener(
                 'pointerdown',
-                iniciarAudioComInteracao,
-                { once: true }
+                iniciarAudioComInteracao
             );
 
-
-            document.addEventListener(
+            document.removeEventListener(
                 'keydown',
-                iniciarAudioComInteracao,
-                { once: true }
+                iniciarAudioComInteracao
             );
 
-        });
+            await tocadorAudio.play();
+
+        } catch (erro) {
+            console.log(
+                "Aguardando interação para iniciar o áudio:",
+                erro
+            );
+        }
+    };
+
+    document.addEventListener(
+        'pointerdown',
+        iniciarAudioComInteracao,
+        { once: true }
+    );
+
+    document.addEventListener(
+        'click',
+        iniciarAudioComInteracao,
+        { once: true }
+    );
+
+    document.addEventListener(
+        'touchstart',
+        iniciarAudioComInteracao,
+        { once: true }
+    );
+
+    document.addEventListener(
+        'keydown',
+        iniciarAudioComInteracao,
+        { once: true }
+    );
+
+});
 
             }
 

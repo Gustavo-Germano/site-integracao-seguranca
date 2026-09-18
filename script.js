@@ -1160,8 +1160,13 @@ function atualizarTopbar() {
         document.getElementById('btn-reset');
 
     const estaNoTreinamento =
-        !!estado.nomeUsuario &&
-        estado.etapaAtual > 0;
+    !!estado.nomeUsuario &&
+    estado.etapaAtual > 0;
+
+    const podeReiniciarCurso =
+    !!estado.nomeUsuario &&
+    estado.etapaAtual >= 1 &&
+    estado.etapaAtual <= modulos.length;
 
     if (estaNoTreinamento) {
 
@@ -1173,8 +1178,8 @@ function atualizarTopbar() {
 
         if (btnReset) {
             btnReset.style.display =
-                'block';
-        }
+                podeReiniciarCurso ? 'block' : 'none';
+}
 
         document.body.classList.remove(
             'modo-login'
@@ -1211,10 +1216,18 @@ function formatarTextoEmSpans(texto) {
 formatarTextoEmSpans.contador = 0;
 
 function alternarBloqueioUI(bloquear) {
+
     const btn = document.getElementById('btn-avancar');
-    const menuItems = document.querySelectorAll('.menu-item.liberado');
-    if (btn) btn.disabled = bloquear;
-    menuItems.forEach(el => bloquear ? el.classList.add('ui-bloqueada') : el.classList.remove('ui-bloqueada'));
+
+    // O botão CONTINUAR fica bloqueado durante a leitura.
+    if (btn) {
+        btn.disabled = bloquear;
+    }
+
+    // O menu NUNCA é bloqueado pelo áudio.
+    // O próprio mudarModulo() / mudarParte()
+    // continua responsável por impedir acesso
+    // a módulos e partes que ainda não foram liberados.
 }
 
 function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = false) {
@@ -1815,6 +1828,14 @@ if (m.partes && estaLiberado) {
 }
 
 function mudarParte(numEtapa, numParte) {
+        if (
+        !estado.nomeUsuario ||
+        estado.etapaAtual === 0 ||
+        estado.etapaAtual > modulos.length
+    ) {
+        return;
+    }
+
     const modulo = modulos[numEtapa - 1];
 
     if (!modulo || !modulo.partes) return;
@@ -1834,8 +1855,26 @@ function mudarParte(numEtapa, numParte) {
 
 function mudarModulo(numEtapa) {
 
-    // Não permite acessar módulo bloqueado.
+    // Usuário precisa estar autenticado.
+    if (!estado.nomeUsuario) {
+        return;
+    }
+
+    // Nunca permite acessar módulos fora do treinamento.
+    if (
+        numEtapa < 1 ||
+        numEtapa > modulos.length
+    ) {
+        return;
+    }
+
+    // Nunca permite acessar módulo bloqueado.
     if (numEtapa > estado.maiorEtapa) {
+        return;
+    }
+
+    // Nunca permite voltar aos módulos depois da conclusão.
+    if (estado.etapaAtual > modulos.length) {
         return;
     }
 
@@ -1843,6 +1882,7 @@ function mudarModulo(numEtapa) {
     estado.parteAtual = 0;
 
     salvarEstado();
+    fecharMenuMobile();
     init();
 }
 

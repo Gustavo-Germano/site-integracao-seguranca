@@ -1420,6 +1420,8 @@ function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = fal
 
 });
 
+}
+
 function alternarAudio() {
     if (!tocadorAudio || !tocadorAudio.src) return;
 
@@ -2730,4 +2732,3 @@ async function cadastrarColaborador(event) {
 }
 
 iniciarSistema();
-}

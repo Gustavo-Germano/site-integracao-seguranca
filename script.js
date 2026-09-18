@@ -1371,44 +1371,66 @@ function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = fal
             robo.classList.remove('falando');
         }
 
-        console.error('Erro ao carregar ou reproduzir o áudio:', caminhoAudio);
+        console.error(
+            'Erro ao carregar ou reproduzir o áudio:',
+            caminhoAudio
+        );
     };
 
-    tocadorAudio.play().catch(() => {
 
-    console.log('Autoplay bloqueado. Aguardando interação do usuário.');
+    tocadorAudio.play()
+        .then(() => {
 
-    const iniciarAudioComInteracao = () => {
+            console.log('Áudio inicial iniciado automaticamente.');
 
-        if (!tocadorAudio) return;
+        })
+        .catch(() => {
 
-        tocadorAudio.currentTime = 0;
+            console.log(
+                'Autoplay bloqueado. Aguardando primeira interação.'
+            );
 
-        tocadorAudio.play()
-            .then(() => {
-                console.log('Áudio iniciado após interação do usuário.');
-            })
-            .catch((erro) => {
-                console.error('Não foi possível iniciar o áudio:', erro);
-            });
+            const iniciarAudioComInteracao = () => {
 
-    };
+                if (!tocadorAudio) return;
 
-    document.addEventListener(
-        'pointerdown',
-        iniciarAudioComInteracao,
-        { once: true }
-    );
+                tocadorAudio.currentTime = 0;
 
-    document.addEventListener(
-        'keydown',
-        iniciarAudioComInteracao,
-        { once: true }
-    );
+                tocadorAudio.play()
+                    .then(() => {
 
-});
+                        console.log(
+                            'Áudio iniciado após interação.'
+                        );
 
-    }
+                    })
+                    .catch((erro) => {
+
+                        console.error(
+                            'Não foi possível iniciar o áudio:',
+                            erro
+                        );
+
+                    });
+            };
+
+
+            document.addEventListener(
+                'pointerdown',
+                iniciarAudioComInteracao,
+                { once: true }
+            );
+
+
+            document.addEventListener(
+                'keydown',
+                iniciarAudioComInteracao,
+                { once: true }
+            );
+
+        });
+
+            }
 
 function alternarAudio() {
     if (!tocadorAudio || !tocadorAudio.src) return;

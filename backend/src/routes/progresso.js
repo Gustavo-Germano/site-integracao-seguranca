@@ -91,4 +91,35 @@ router.post("/concluir", autenticar, async (req, res) => {
     }
 });
 
+router.post("/reiniciar", autenticar, async (req, res) => {
+
+    try {
+
+        await pool.query(
+            `DELETE FROM public.progresso
+             WHERE usuario_id = $1`,
+            [req.usuario.id]
+        );
+
+        res.json({
+            mensagem:
+                "Progresso reiniciado com sucesso."
+        });
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao reiniciar progresso:",
+            erro
+        );
+
+        res.status(500).json({
+            erro:
+                "Erro interno do servidor."
+        });
+
+    }
+
+});
+
 export default router;

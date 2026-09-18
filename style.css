@@ -1888,6 +1888,32 @@ input[type="text"]:focus { border-color: var(--secondary-color); }
     }
 }
 
+/* =========================================
+   TOPBAR MOBILE
+   ========================================= */
+
+@media (max-width: 768px) {
+
+    /* Durante o login, mantém o nome do sistema */
+    body.modo-login .topbar-logo {
+        display: flex;
+    }
+
+    /* Durante o treinamento, deixa somente o colaborador */
+    body:not(.modo-login) .topbar-logo {
+        display: none;
+    }
+
+    body:not(.modo-login) .topbar {
+        justify-content: flex-end;
+    }
+
+    body:not(.modo-login) .topbar-user {
+        margin-left: auto;
+    }
+
+}
+
 
 /* Certificado */
 .certificate-card { background: #fff; border: 10px solid var(--primary-color); padding: 40px; text-align: center; }

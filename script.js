@@ -1149,13 +1149,50 @@ function renderPainelAdmin() {
 }
 
 function atualizarTopbar() {
-    const userBox = document.getElementById('topbar-user');
-    const userName = document.getElementById('topbar-nome');
-    if (estado.nomeUsuario && estado.etapaAtual > 0) {
-        userName.innerText = estado.nomeUsuario;
-        userBox.style.display = 'flex';
+
+    const userBox =
+        document.getElementById('topbar-user');
+
+    const userName =
+        document.getElementById('topbar-nome');
+
+    const btnReset =
+        document.getElementById('btn-reset');
+
+    const estaNoTreinamento =
+        !!estado.nomeUsuario &&
+        estado.etapaAtual > 0;
+
+    if (estaNoTreinamento) {
+
+        userName.innerText =
+            estado.nomeUsuario;
+
+        userBox.style.display =
+            'flex';
+
+        if (btnReset) {
+            btnReset.style.display =
+                'block';
+        }
+
+        document.body.classList.remove(
+            'modo-login'
+        );
+
     } else {
-        userBox.style.display = 'none';
+
+        userBox.style.display =
+            'none';
+
+        if (btnReset) {
+            btnReset.style.display =
+                'none';
+        }
+
+        document.body.classList.add(
+            'modo-login'
+        );
     }
 }
 
@@ -1208,6 +1245,9 @@ function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = fal
     pararLeitura();
 
     tocadorAudio = new Audio(caminhoAudio);
+
+    tocadorAudio.currentTime = 0;
+    tocadorAudio.load();
 
     // Remove as tags HTML apenas para calcular as palavras visíveis
     const textoSemTags = textoCompleto.replace(/<[^>]*>/g, " ");
@@ -1336,19 +1376,49 @@ function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = fal
     };
 
     tocadorAudio.play().catch(() => {
-        alternarBloqueioUI(false);
 
-        const robo = document.getElementById('robo-avatar');
+    const iniciarAudioComInteracao = () => {
 
-        if (robo) {
-            robo.classList.remove('falando');
-        }
+        document.removeEventListener(
+            'click',
+            iniciarAudioComInteracao
+        );
 
-        if (ehTelaInicial) {
-            liberarFormularioLogin();
-        }
-    });
-}
+        document.removeEventListener(
+            'touchstart',
+            iniciarAudioComInteracao
+        );
+
+        document.removeEventListener(
+            'keydown',
+            iniciarAudioComInteracao
+        );
+
+        tocadorAudio.currentTime = 0;
+
+        tocadorAudio.play().catch(() => {});
+
+    };
+
+    document.addEventListener(
+        'click',
+        iniciarAudioComInteracao,
+        { once: true }
+    );
+
+    document.addEventListener(
+        'touchstart',
+        iniciarAudioComInteracao,
+        { once: true }
+    );
+
+    document.addEventListener(
+        'keydown',
+        iniciarAudioComInteracao,
+        { once: true }
+    );
+
+});
 
 function alternarAudio() {
     if (!tocadorAudio || !tocadorAudio.src) return;
@@ -1455,9 +1525,13 @@ function renderHome() {
             </div>
         </div>
     `;
-    setTimeout(() => { 
-        tocarAudioESincronizar(textoBoasVindas.audio, textoBoasVindas.texto, true) 
-}, 500);
+    setTimeout(() => {
+    tocarAudioESincronizar(
+        textoBoasVindas.audio,
+        textoBoasVindas.texto,
+        true
+    );
+}, 100);
 
 }
 
@@ -2504,9 +2578,56 @@ function fecharModalReset() {
 }
 
 // Função que realmente limpa o progresso e recarrega a página
-function executarReset() {
-    localStorage.clear();
-    location.reload();
+async function executarReset() {
+
+    try {
+
+        const token =
+            localStorage.getItem(
+                'integracao_token'
+            );
+
+        if (token) {
+
+            await fetch(
+                `${API_URL}/api/progresso/reiniciar`,
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Authorization':
+                            `Bearer ${token}`
+                    }
+                }
+            );
+
+        }
+
+    } catch (erro) {
+
+        console.error(
+            'Erro ao reiniciar progresso no servidor:',
+            erro
+        );
+
+    }
+
+    estado.etapaAtual = 1;
+    estado.parteAtual = 0;
+    estado.maiorEtapa = 1;
+
+    partesLiberadas = {};
+
+    localStorage.setItem(
+        'integracao_partes_liberadas',
+        '{}'
+    );
+
+    salvarEstado();
+
+    fecharModalReset();
+
+    init();
 }
 
 // =====================================================
@@ -2609,3 +2730,4 @@ async function cadastrarColaborador(event) {
 }
 
 iniciarSistema();
+}

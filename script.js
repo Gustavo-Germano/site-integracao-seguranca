@@ -1378,12 +1378,7 @@ function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = fal
     const iniciarAudioComInteracao = () => {
 
         document.removeEventListener(
-            'click',
-            iniciarAudioComInteracao
-        );
-
-        document.removeEventListener(
-            'touchstart',
+            'pointerdown',
             iniciarAudioComInteracao
         );
 
@@ -1399,13 +1394,7 @@ function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = fal
     };
 
     document.addEventListener(
-        'click',
-        iniciarAudioComInteracao,
-        { once: true }
-    );
-
-    document.addEventListener(
-        'touchstart',
+        'pointerdown',
         iniciarAudioComInteracao,
         { once: true }
     );
@@ -1417,7 +1406,9 @@ function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = fal
     );
 
 });
-}
+
+    }
+
 
 function alternarAudio() {
     if (!tocadorAudio || !tocadorAudio.src) return;

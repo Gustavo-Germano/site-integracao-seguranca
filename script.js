@@ -1362,6 +1362,7 @@ function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = fal
     };
 
     tocadorAudio.onerror = () => {
+
         alternarBloqueioUI(false);
 
         const robo = document.getElementById('robo-avatar');
@@ -1375,21 +1376,21 @@ function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = fal
 
     tocadorAudio.play().catch(() => {
 
+    console.log('Autoplay bloqueado. Aguardando interação do usuário.');
+
     const iniciarAudioComInteracao = () => {
 
-        document.removeEventListener(
-            'pointerdown',
-            iniciarAudioComInteracao
-        );
-
-        document.removeEventListener(
-            'keydown',
-            iniciarAudioComInteracao
-        );
+        if (!tocadorAudio) return;
 
         tocadorAudio.currentTime = 0;
 
-        tocadorAudio.play().catch(() => {});
+        tocadorAudio.play()
+            .then(() => {
+                console.log('Áudio iniciado após interação do usuário.');
+            })
+            .catch((erro) => {
+                console.error('Não foi possível iniciar o áudio:', erro);
+            });
 
     };
 
@@ -1408,7 +1409,6 @@ function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = fal
 });
 
     }
-
 
 function alternarAudio() {
     if (!tocadorAudio || !tocadorAudio.src) return;

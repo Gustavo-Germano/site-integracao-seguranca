@@ -1377,28 +1377,21 @@ function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = fal
 
     tocadorAudio.play().catch(() => {
 
-    const iniciarAudioComInteracao = () => {
-
-        document.removeEventListener(
-            'click',
-            iniciarAudioComInteracao
+    tocadorAudio
+    .play()
+    .then(() => {
+        console.log('Boas-vindas iniciadas automaticamente.');
+    })
+    .catch((erro) => {
+        console.warn(
+            'O navegador bloqueou o áudio automático:',
+            erro
         );
 
-        document.removeEventListener(
-            'touchstart',
-            iniciarAudioComInteracao
-        );
-
-        document.removeEventListener(
-            'keydown',
-            iniciarAudioComInteracao
-        );
-
-        tocadorAudio.currentTime = 0;
-
-        tocadorAudio.play().catch(() => {});
-
-    };
+        if (ehTelaInicial) {
+            liberarFormularioLogin();
+        }
+    });
 
     document.addEventListener(
         'click',

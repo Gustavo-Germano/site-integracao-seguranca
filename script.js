@@ -1476,6 +1476,14 @@ function renderHome() {
                 <h2 style="color: var(--primary-color);">Integração de Segurança</h2>
                 <p id="texto-modulo">${formatarTextoEmSpans(textoBoasVindas.texto)}</p>
 
+                <button
+                    id="btn-ouvir-boas-vindas"
+                    class="btn-ouvir-boas-vindas"
+                    type="button"
+                >
+                    🔊 OUVIR BOAS-VINDAS
+                </button>
+
                 <form id="form-login" class="form-oculto" onsubmit="iniciarIntegracao(event)">
 
                     <input
@@ -1528,13 +1536,29 @@ function renderHome() {
             </div>
         </div>
     `;
+    if (window.innerWidth <= 768) {
+    const btnBoasVindas = document.getElementById('btn-ouvir-boas-vindas');
+
+    if (btnBoasVindas) {
+        btnBoasVindas.addEventListener('click', () => {
+            btnBoasVindas.style.display = 'none';
+
+            tocarAudioESincronizar(
+                textoBoasVindas.audio,
+                textoBoasVindas.texto,
+                true
+            );
+        }, { once: true });
+    }
+} else {
     setTimeout(() => {
-    tocarAudioESincronizar(
-        textoBoasVindas.audio,
-        textoBoasVindas.texto,
-        true
-    );
-}, 100);
+        tocarAudioESincronizar(
+            textoBoasVindas.audio,
+            textoBoasVindas.texto,
+            true
+        );
+    }, 100);
+}
 
 }
 

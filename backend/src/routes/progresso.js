@@ -101,6 +101,14 @@ router.post("/reiniciar", autenticar, async (req, res) => {
             [req.usuario.id]
         );
 
+        await pool.query(
+            `UPDATE public.usuarios
+             SET treinamento_concluido = FALSE,
+                 atualizado_em = CURRENT_TIMESTAMP
+             WHERE id = $1`,
+            [req.usuario.id]
+        );
+
         res.json({
             mensagem:
                 "Progresso reiniciado com sucesso."

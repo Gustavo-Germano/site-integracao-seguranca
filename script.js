@@ -1244,18 +1244,9 @@ function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = fal
 };
     pararLeitura();
 
-    tocadorAudio = new Audio();
+    tocadorAudio = new Audio(caminhoAudio);
 
-    tocadorAudio.src = new URL(
-        caminhoAudio,
-        window.location.href
-    ).href;
-
-    tocadorAudio.preload = "auto";
-    tocadorAudio.autoplay = true;
-    tocadorAudio.volume = 1;
-    tocadorAudio.muted = false;
-
+    tocadorAudio.currentTime = 0;
     tocadorAudio.load();
 
     // Remove as tags HTML apenas para calcular as palavras visíveis
@@ -1276,11 +1267,6 @@ function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = fal
     const tempoDeAjuste = 0.1;
 
     tocadorAudio.ontimeupdate = () => {
-
-    // Só sincroniza o grifo enquanto o áudio estiver realmente tocando.
-    if (tocadorAudio.paused || tocadorAudio.ended) {
-        return;
-    }
 
     const robo = document.getElementById('robo-avatar');
 
@@ -1391,54 +1377,50 @@ function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = fal
         );
     };
 
-    const iniciarAudioAutomaticamente = () => {
+    
+tocadorAudio.play().catch(() => {
 
-    const tentativa = tocadorAudio.play();
+    const iniciarAudioComInteracao = () => {
 
-    if (tentativa !== undefined) {
+        document.removeEventListener(
+            'click',
+            iniciarAudioComInteracao
+        );
 
-        tentativa
-            .then(() => {
+        document.removeEventListener(
+            'touchstart',
+            iniciarAudioComInteracao
+        );
 
-                console.log("Áudio iniciado automaticamente.");
+        document.removeEventListener(
+            'keydown',
+            iniciarAudioComInteracao
+        );
 
-                const robo = document.getElementById('robo-avatar');
+        tocadorAudio.currentTime = 0;
 
-                if (robo) {
-                    robo.classList.add('falando');
-                }
+        tocadorAudio.play().catch(() => {});
+    };
 
-            })
-            .catch((erro) => {
-
-                console.log(
-                    "Autoplay bloqueado pelo navegador:",
-                    erro.name
-                );
-
-                // Não grifa nenhuma palavra enquanto o áudio não estiver tocando.
-                document
-                    .querySelectorAll('.palavra.lendo')
-                    .forEach(el => el.classList.remove('lendo'));
-
-            });
-    }
-};
-
-if (document.readyState === "loading") {
-
-    window.addEventListener(
-        "load",
-        iniciarAudioAutomaticamente,
+    document.addEventListener(
+        'click',
+        iniciarAudioComInteracao,
         { once: true }
     );
 
-} else {
+    document.addEventListener(
+        'touchstart',
+        iniciarAudioComInteracao,
+        { once: true }
+    );
 
-    iniciarAudioAutomaticamente();
+    document.addEventListener(
+        'keydown',
+        iniciarAudioComInteracao,
+        { once: true }
+    );
 
-}
-
+});
         }
 
 function alternarAudio() {
@@ -1546,13 +1528,13 @@ function renderHome() {
             </div>
         </div>
     `;
-    requestAnimationFrame(() => {
+    setTimeout(() => {
     tocarAudioESincronizar(
         textoBoasVindas.audio,
         textoBoasVindas.texto,
         true
     );
-});
+}, 100);
 
 }
 

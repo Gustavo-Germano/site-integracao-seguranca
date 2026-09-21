@@ -1493,24 +1493,14 @@ function renderHome() {
                 <p id="texto-modulo">${formatarTextoEmSpans(textoBoasVindas.texto)}</p>
 
                 <button
-                  type="button"
-                id="btn-ouvir-boas-vindas"
-                style="
-                    display: none;
-                    margin: 22px auto;
-                    padding: 14px 24px;
-                    border: none;
-                    border-radius: 12px;
-                    background: var(--primary-color);
-                    color: #fff;
-                    font-size: 16px;
-                    font-weight: 700;
-                    cursor: pointer;
-                    box-shadow: 0 4px 12px rgba(0,0,0,.15);
-                "
-            >
-                🔊 OUVIR BOAS-VINDAS  
-            </button>
+                    <button
+                    id="btn-ouvir-boas-vindas"
+                    class="btn-iniciar-treinamento"
+                    type="button"
+                    <span class="btn-iniciar-icone">🔊</span>
+                    >
+                    <span>INICIAR TREINAMENTO</span>
+                </button>
 
                 <form id="form-login" class="form-oculto" onsubmit="iniciarIntegracao(event)">
 

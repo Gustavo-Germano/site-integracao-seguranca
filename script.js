@@ -1495,21 +1495,10 @@ function renderHome() {
                 <button
                     type="button"
                     id="btn-ouvir-boas-vindas"
-                 style="
-                    display: none;
-                    margin: 22px auto;
-                    padding: 14px 24px;
-                    border: none;
-                    border-radius: 12px;
-                    background: var(--primary-color);
-                    color: #fff;
-                    font-size: 16px;
-                    font-weight: 700;
-                    cursor: pointer;
-                    box-shadow: 0 4px 12px rgba(0,0,0,.15);
-                "
-
-                    🔊 OUVIR BOAS-VINDAS
+                    class="btn-iniciar-treinamento"
+                >
+                    <span class="btn-iniciar-icone">🔊</span>
+                    <span>INICIAR TREINAMENTO</span>
                 </button>
 
                 <form id="form-login" class="form-oculto" onsubmit="iniciarIntegracao(event)">
@@ -1566,27 +1555,24 @@ function renderHome() {
     `;
     if (window.innerWidth <= 768) {
     
-        const btnBoasVindas =
-    document.getElementById('btn-ouvir-boas-vindas');
+    const btnBoasVindas =
+        document.getElementById('btn-ouvir-boas-vindas');
 
     if (btnBoasVindas) {
 
-        btnBoasVindas.addEventListener(
-            'click',
-            () => {
+        btnBoasVindas.addEventListener('click', () => {
 
-                btnBoasVindas.style.display = 'none';
+            btnBoasVindas.style.display = 'none';
 
-                tocarAudioESincronizar(
-                    textoBoasVindas.audio,
-                    textoBoasVindas.texto,
-                    true
-                );
-
-            },
-            { once: true }
+            tocarAudioESincronizar(
+                textoBoasVindas.audio,
+                textoBoasVindas.texto,
+                true
         );
-    }
+
+    }, { once: true });
+
+    } 
 }
 
 }

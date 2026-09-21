@@ -1554,9 +1554,6 @@ function renderHome() {
         </div>
     `;
 
-    if (window.innerWidth <= 768) {
-    
-}
 
 const btnBoasVindas =
     document.getElementById('btn-ouvir-boas-vindas');
@@ -1582,6 +1579,7 @@ if (btnBoasVindas) {
     );
 }
 }
+
 function liberarFormularioLogin() {
     const form = document.getElementById('form-login');
     if (form) form.classList.replace('form-oculto', 'form-visivel');

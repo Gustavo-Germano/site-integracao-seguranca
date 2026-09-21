@@ -673,7 +673,10 @@ risco a sua segurança, solicite a manutenção imediata ou substituição.</p>
 
 ];
 const textoBoasVindas = {
-    texto: "Olá! Seja muito bem-vindo ao nosso treinamento de Integração de Segurança. É uma satisfação enorme ter você em nossa equipe. Para começarmos, por favor, insira o seu nome completo abaixo.",
+    texto: ` 
+    <p>"Olá! Seja muito bem-vindo ao nosso treinamento de Integração de Segurança. É uma satisfação enorme ter você em nossa equipe. 
+    Para começarmos, por favor, insira o seu nome completo abaixo. (LINHA 676, CORRIGIR ESCRITA E INTEGRAR E-MAIL PRA RETORNAR ACESSO)",</p>
+    `,
     audio: "audios/boas-vindas.mp3"
 };
 
@@ -1490,12 +1493,24 @@ function renderHome() {
                 <p id="texto-modulo">${formatarTextoEmSpans(textoBoasVindas.texto)}</p>
 
                 <button
-                    id="btn-ouvir-boas-vindas"
-                    class="btn-ouvir-boas-vindas"
-                    type="button"
-                >
-                    🔊 OUVIR BOAS-VINDAS
-                </button>
+                  type="button"
+                id="btn-ouvir-boas-vindas"
+                style="
+                    display: none;
+                    margin: 22px auto;
+                    padding: 14px 24px;
+                    border: none;
+                    border-radius: 12px;
+                    background: var(--primary-color);
+                    color: #fff;
+                    font-size: 16px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+                "
+            >
+                🔊 OUVIR BOAS-VINDAS  
+            </button>
 
                 <form id="form-login" class="form-oculto" onsubmit="iniciarIntegracao(event)">
 

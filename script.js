@@ -1555,31 +1555,31 @@ function renderHome() {
         </div>
     `;
     if (window.innerWidth <= 768) {
-    const btnBoasVindas = document.getElementById('btn-ouvir-boas-vindas');
+    
+        const btnBoasVindas =
+    document.getElementById('btn-ouvir-boas-vindas');
 
     if (btnBoasVindas) {
-        btnBoasVindas.addEventListener('click', () => {
-            btnBoasVindas.style.display = 'none';
 
-            tocarAudioESincronizar(
-                textoBoasVindas.audio,
-                textoBoasVindas.texto,
-                true
-            );
-        }, { once: true });
-    }
-} else {
-    setTimeout(() => {
-        tocarAudioESincronizar(
-            textoBoasVindas.audio,
-            textoBoasVindas.texto,
-            true
+        btnBoasVindas.addEventListener(
+            'click',
+            () => {
+
+                btnBoasVindas.style.display = 'none';
+
+                tocarAudioESincronizar(
+                    textoBoasVindas.audio,
+                    textoBoasVindas.texto,
+                    true
+                );
+
+            },
+            { once: true }
         );
-    }, 100);
+    }
 }
 
 }
-
 function liberarFormularioLogin() {
     const form = document.getElementById('form-login');
     if (form) form.classList.replace('form-oculto', 'form-visivel');

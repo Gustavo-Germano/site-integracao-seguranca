@@ -1553,14 +1553,19 @@ function renderHome() {
             </div>
         </div>
     `;
+
     if (window.innerWidth <= 768) {
     
     const btnBoasVindas =
-        document.getElementById('btn-ouvir-boas-vindas');
+    document.getElementById('btn-ouvir-boas-vindas');
 
-    if (btnBoasVindas) {
+if (btnBoasVindas) {
 
-        btnBoasVindas.addEventListener('click', () => {
+    btnBoasVindas.style.display = 'inline-flex';
+
+    btnBoasVindas.addEventListener(
+        'click',
+        () => {
 
             btnBoasVindas.style.display = 'none';
 
@@ -1568,11 +1573,12 @@ function renderHome() {
                 textoBoasVindas.audio,
                 textoBoasVindas.texto,
                 true
-        );
+            );
 
-    }, { once: true });
-
-    } 
+        },
+        { once: true }
+    );
+}
 }
 
 }

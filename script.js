@@ -1556,7 +1556,9 @@ function renderHome() {
 
     if (window.innerWidth <= 768) {
     
-    const btnBoasVindas =
+}
+
+const btnBoasVindas =
     document.getElementById('btn-ouvir-boas-vindas');
 
 if (btnBoasVindas) {
@@ -1579,8 +1581,6 @@ if (btnBoasVindas) {
         { once: true }
     );
 }
-}
-
 }
 function liberarFormularioLogin() {
     const form = document.getElementById('form-login');

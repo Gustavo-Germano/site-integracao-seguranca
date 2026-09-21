@@ -7,50 +7,72 @@ const router = express.Router();
 
 router.post("/login", async (req, res) => {
     try {
-        const { email, senha } = req.body;
+        const { email, usuario, senha } = req.body;
 
-        if (!email || !senha) {
+        const identificador = (email || usuario || "")
+            .trim()
+            .toLowerCase();
+
+        if (!identificador || !senha) {
             return res.status(400).json({
-                erro: "Email e senha são obrigatórios."
+                erro: "Usuário/e-mail e senha são obrigatórios."
             });
         }
 
         const resultado = await pool.query(
-           `SELECT id, nome, email, senha, perfil, ativo, treinamento_concluido
-            FROM public.usuarios
-            WHERE email = $1`,
-            [email]
+            `SELECT
+                id,
+                nome,
+                email,
+                usuario_login,
+                senha,
+                perfil,
+                ativo,
+                treinamento_concluido
+             FROM public.usuarios
+             WHERE LOWER(email) = $1
+                OR LOWER(usuario_login) = $1
+             LIMIT 1`,
+            [identificador]
         );
 
         if (resultado.rows.length === 0) {
             return res.status(401).json({
-                erro: "Email ou senha inválidos."
+                erro: "Usuário ou senha inválidos."
             });
         }
 
-        const usuario = resultado.rows[0];
+        const usuarioBanco = resultado.rows[0];
 
-        if (!usuario.ativo) {
+        if (!usuarioBanco.ativo) {
             return res.status(403).json({
-                erro: "Usuário desativado."
+                erro: "Este usuário está desativado. Procure o RH."
             });
         }
 
         const senhaCorreta = await bcrypt.compare(
             senha,
-            usuario.senha
+            usuarioBanco.senha
         );
 
         if (!senhaCorreta) {
             return res.status(401).json({
-                erro: "Email ou senha inválidos."
+                erro: "Usuário ou senha inválidos."
             });
         }
 
+        // Registra o último acesso
+        await pool.query(
+            `UPDATE public.usuarios
+             SET ultimo_login = CURRENT_TIMESTAMP
+             WHERE id = $1`,
+            [usuarioBanco.id]
+        );
+
         const token = jwt.sign(
             {
-                id: usuario.id,
-                perfil: usuario.perfil
+                id: usuarioBanco.id,
+                perfil: usuarioBanco.perfil
             },
             process.env.JWT_SECRET,
             {
@@ -62,11 +84,14 @@ router.post("/login", async (req, res) => {
             mensagem: "Login realizado com sucesso.",
             token,
             usuario: {
-                id: usuario.id,
-                nome: usuario.nome,
-                email: usuario.email,
-                perfil: usuario.perfil,
-                treinamento_concluido: usuario.treinamento_concluido
+                id: usuarioBanco.id,
+                nome: usuarioBanco.nome,
+                email: usuarioBanco.email,
+                usuario_login: usuarioBanco.usuario_login,
+                perfil: usuarioBanco.perfil,
+                ativo: usuarioBanco.ativo,
+                treinamento_concluido:
+                    usuarioBanco.treinamento_concluido
             }
         });
 

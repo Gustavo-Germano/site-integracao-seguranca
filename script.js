@@ -1056,12 +1056,43 @@ function getAvatarHTML() {
 }
 
 async function iniciarSistema() {
-    // Ao abrir o site, a sessão anterior não será reutilizada.
-    localStorage.removeItem('integracao_token');
-    localStorage.removeItem('integracao_usuario');
+    const token = localStorage.getItem('integracao_token');
+    const usuarioSalvo = localStorage.getItem('integracao_usuario');
 
-    // Mantém o progresso salvo no PostgreSQL,
-    // mas força o usuário a fazer login novamente.
+    if (token && usuarioSalvo) {
+        try {
+            const usuario = JSON.parse(usuarioSalvo);
+
+            estado.nomeUsuario = usuario.nome || '';
+            estado.etapaAtual = Number(usuario.modulo_atual) || 1;
+            estado.parteAtual = Number(usuario.parte_atual) || 0;
+
+            // Se o treinamento já foi concluído,
+            // o usuário permanece no estado final.
+            if (usuario.treinamento_concluido === true) {
+                estado.etapaAtual = modulos.length + 1;
+                estado.parteAtual = 0;
+                estado.maiorEtapa = modulos.length;
+                renderConclusao();
+                return;
+            }
+
+            await carregarProgressoServidor();
+
+            init();
+            return;
+
+        } catch (erro) {
+            console.error(
+                'Erro ao restaurar sessão:',
+                erro
+            );
+
+            localStorage.removeItem('integracao_token');
+            localStorage.removeItem('integracao_usuario');
+        }
+    }
+
     estado.nomeUsuario = '';
     estado.etapaAtual = 0;
     estado.parteAtual = 0;
@@ -1488,9 +1519,17 @@ function renderHome() {
     app.innerHTML = `
         <div class="main-content">
             <div class="container" style="text-align: center;">
-                ${getAvatarHTML()}
-                <h2 style="color: var(--primary-color);">Integração de Segurança</h2>
-                <p id="texto-modulo">${formatarTextoEmSpans(textoBoasVindas.texto)}</p>
+                <div id="conteudo-boas-vindas" style="display: none;">
+                    ${getAvatarHTML()}
+
+                    <h2 style="color: var(--primary-color);">
+                        Integração de Segurança
+                    </h2>
+
+                    <p id="texto-modulo">
+                        ${formatarTextoEmSpans(textoBoasVindas.texto)}
+                    </p>
+                </div>
 
                 <button
                     type="button"
@@ -1523,10 +1562,10 @@ function renderHome() {
 
                     <input
                         type="text"
-                        id="nome"
-                        placeholder="Digite seu nome completo..."
+                        id="email"
+                        placeholder="Usuário ou e-mail..."
                         required
-                        autocomplete="name"
+                        autocomplete="username"
                         oninput="validarLogin()"
                     >
 
@@ -1567,6 +1606,13 @@ if (btnBoasVindas) {
 
             btnBoasVindas.style.display = 'none';
 
+            const conteudoBoasVindas =
+                document.getElementById('conteudo-boas-vindas');
+
+            if (conteudoBoasVindas) {
+                conteudoBoasVindas.style.display = 'block';
+            }
+
             tocarAudioESincronizar(
                 textoBoasVindas.audio,
                 textoBoasVindas.texto,
@@ -1586,24 +1632,21 @@ function liberarFormularioLogin() {
 }
 
 function validarLogin() {
-    const email = document.getElementById('email').value.trim();
+    const login = document.getElementById('email').value.trim();
     const senha = document.getElementById('senha').value;
-    const nome = document.getElementById('nome').value.trim();
     const btn = document.getElementById('btn-iniciar');
 
-    const emailValido = email.includes('@') && email.includes('.');
+    const loginValido = login.length >= 3;
     const senhaValida = senha.length >= 6;
-    const nomeValido = nome.length >= 3;
 
-    btn.disabled = !(emailValido && senhaValida && nomeValido);
+    btn.disabled = !(loginValido && senhaValida);
 }
 
 async function iniciarIntegracao(e) {
     e.preventDefault();
 
-    const email = document.getElementById('email').value.trim();
+    const login = document.getElementById('email').value.trim();
     const senha = document.getElementById('senha').value;
-    const nome = document.getElementById('nome').value.trim();
 
     const btn = document.getElementById('btn-iniciar');
     const erroLogin = document.getElementById('erro-login');
@@ -1621,7 +1664,7 @@ async function iniciarIntegracao(e) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                email: email,
+                login: login,
                 senha: senha
             })
         });
@@ -1642,7 +1685,7 @@ async function iniciarIntegracao(e) {
         );
 
         // O nome oficial vem do banco
-        estado.nomeUsuario = dados.usuario.nome || nome;
+        estado.nomeUsuario = dados.usuario.nome;
 
         if (dados.usuario.perfil === 'admin') {
             renderPainelAdmin();
@@ -2148,6 +2191,33 @@ async function concluirTreinamentoServidor() {
 
         console.log('🎓 Treinamento marcado como concluído no servidor.');
 
+        const usuarioSalvo = localStorage.getItem('integracao_usuario');
+
+        if (usuarioSalvo) {
+            try {
+                const usuario = JSON.parse(usuarioSalvo);
+            
+                usuario.treinamento_concluido = true;
+                usuario.modulo_atual = modulos.length + 1;
+                usuario.parte_atual = 0;
+            
+                localStorage.setItem(
+                    'integracao_usuario',
+                    JSON.stringify(usuario)
+                );
+            
+            } catch (erro) {
+                console.error(
+                    'Erro ao atualizar usuário salvo:',
+                    erro
+                );
+            }
+        }
+
+        estado.etapaAtual = modulos.length + 1;
+        estado.parteAtual = 0;
+        estado.maiorEtapa = modulos.length;
+
         return true;
 
     } catch (erro) {
@@ -2202,312 +2272,6 @@ async function salvarProgressoServidor(modulo, parte, concluido = true) {
 }
 }
 
-async function carregarProgressoServidor() {
-
-    const token = localStorage.getItem('integracao_token');
-
-    if (!token) {
-        console.warn('Token não encontrado.');
-        return;
-    }
-
-    try {
-
-        const resposta = await fetch(
-            `${API_URL}/api/progresso`,
-            {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            }
-        );
-
-        const dados = await resposta.json();
-
-        if (!resposta.ok) {
-            throw new Error(
-                dados.erro || 'Erro ao carregar progresso.'
-            );
-        }
-
-        const progresso = dados.progresso || [];
-
-        console.log(
-            '📚 Progresso recebido:',
-            progresso
-        );
-
-        /*
-         * Nenhum progresso salvo.
-         */
-        if (progresso.length === 0) {
-
-            console.log(
-                'ℹ️ Usuário ainda não possui progresso salvo.'
-            );
-
-            return;
-        }
-
-        /*
-         * ==========================================
-         * LIMPA O CONTROLE DE PARTES
-         * ==========================================
-         */
-
-        partesLiberadas = {};
-
-        /*
-         * Guarda as partes concluídas de cada módulo.
-         *
-         * Exemplo:
-         *
-         * {
-         *   3: [1, 2],
-         *   5: [1]
-         * }
-         */
-
-        const concluidosPorModulo = {};
-
-        progresso.forEach(item => {
-
-            if (!item.concluido) {
-                return;
-            }
-
-            const modulo = Number(item.modulo);
-            const parte = Number(item.parte);
-
-            if (!concluidosPorModulo[modulo]) {
-                concluidosPorModulo[modulo] = [];
-            }
-
-            if (
-                !concluidosPorModulo[modulo].includes(parte)
-            ) {
-                concluidosPorModulo[modulo].push(parte);
-            }
-
-        });
-
-        /*
-         * ==========================================
-         * RECONSTRÓI AS PARTES LIBERADAS
-         * ==========================================
-         */
-
-        Object.keys(concluidosPorModulo).forEach(
-            numeroModulo => {
-
-                const modulo = Number(numeroModulo);
-
-                const partesConcluidas =
-                    concluidosPorModulo[modulo];
-
-                if (partesConcluidas.length === 0) {
-                    return;
-                }
-
-                /*
-                 * Como o banco usa:
-                 *
-                 * parte 1 = índice 0
-                 * parte 2 = índice 1
-                 * parte 3 = índice 2
-                 *
-                 * O maior número concluído indica
-                 * qual índice pode ser acessado.
-                 */
-
-                partesLiberadas[modulo] =
-                    Math.max(...partesConcluidas);
-
-            }
-        );
-
-        localStorage.setItem(
-            'integracao_partes_liberadas',
-            JSON.stringify(partesLiberadas)
-        );
-
-        /*
-         * ==========================================
-         * PROCURA EXATAMENTE ONDE O ALUNO DEVE VOLTAR
-         * ==========================================
-         */
-
-        let moduloParaAbrir = null;
-        let parteParaAbrir = 0;
-
-        for (
-            let numeroModulo = 1;
-            numeroModulo <= modulos.length;
-            numeroModulo++
-        ) {
-
-            const modulo = modulos[numeroModulo - 1];
-
-            const partesConcluidas =
-                concluidosPorModulo[numeroModulo] || [];
-
-            /*
-             * ======================================
-             * MÓDULO COM PARTES
-             * ======================================
-             */
-
-            if (modulo.partes) {
-
-                const totalPartes =
-                    modulo.partes.length;
-
-                /*
-                 * Procura a primeira parte ainda
-                 * não concluída.
-                 */
-
-                let primeiraParteNaoConcluida = -1;
-
-                for (
-                    let i = 1;
-                    i <= totalPartes;
-                    i++
-                ) {
-
-                    if (!partesConcluidas.includes(i)) {
-
-                        primeiraParteNaoConcluida = i;
-
-                        break;
-                    }
-                }
-
-                /*
-                 * Encontrou uma parte pendente.
-                 */
-                if (
-                    primeiraParteNaoConcluida !== -1
-                ) {
-
-                    moduloParaAbrir = numeroModulo;
-
-                    /*
-                     * Banco é 1-based.
-                     * Frontend é 0-based.
-                     */
-                    parteParaAbrir =
-                        primeiraParteNaoConcluida - 1;
-
-                    break;
-                }
-
-                /*
-                 * Todas as partes desse módulo
-                 * foram concluídas.
-                 *
-                 * Continua procurando o próximo módulo.
-                 */
-
-                continue;
-            }
-
-            /*
-             * ======================================
-             * MÓDULO NORMAL, SEM PARTES
-             * ======================================
-             */
-
-            const moduloConcluido =
-                partesConcluidas.includes(1);
-
-            if (!moduloConcluido) {
-
-                moduloParaAbrir = numeroModulo;
-                parteParaAbrir = 0;
-
-                break;
-            }
-        }
-
-        /*
-         * ==========================================
-         * DEFINE O DESTINO FINAL
-         * ==========================================
-         */
-
-        if (moduloParaAbrir !== null) {
-
-            estado.etapaAtual =
-                moduloParaAbrir;
-
-            estado.parteAtual =
-                parteParaAbrir;
-
-            /*
-             * Libera somente até o módulo atual.
-             */
-            estado.maiorEtapa =
-                moduloParaAbrir;
-
-            /*
-             * Todos os módulos anteriores já foram
-             * concluídos, portanto também ficam liberados.
-             */
-
-            salvarEstado();
-
-            console.log(
-                '✅ Progresso restaurado!'
-            );
-
-            console.log(
-                '📍 Módulo atual:',
-                estado.etapaAtual
-            );
-
-            console.log(
-                '📖 Parte atual:',
-                estado.parteAtual + 1
-            );
-
-            console.log(
-                '🔓 Maior etapa:',
-                estado.maiorEtapa
-            );
-
-        } else {
-
-            /*
-             * ======================================
-             * TREINAMENTO COMPLETAMENTE CONCLUÍDO
-             * ======================================
-             */
-
-            estado.etapaAtual =
-                modulos.length + 1;
-
-            estado.parteAtual = 0;
-
-            estado.maiorEtapa =
-                modulos.length + 1;
-
-            salvarEstado();
-
-            console.log(
-                '🎉 Treinamento já estava completamente concluído!'
-            );
-        }
-
-    } catch (erro) {
-
-        console.error(
-            '❌ Erro ao carregar progresso:',
-            erro
-        );
-    }
-}
 
 async function carregarProgressoServidor() {
     const token = localStorage.getItem('integracao_token');
@@ -2540,14 +2304,32 @@ async function carregarProgressoServidor() {
 
         console.log('📚 Progresso recebido:', progresso);
 
+        /*
+         * =====================================================
+         * NENHUM PROGRESSO
+         * =====================================================
+         */
+
         if (progresso.length === 0) {
-            console.log('ℹ️ Nenhum progresso salvo ainda.');
+            partesLiberadas = {};
+
+            estado.etapaAtual = 1;
+            estado.parteAtual = 0;
+            estado.maiorEtapa = 1;
+
+            salvarEstado();
+
             return;
         }
 
         /*
-         * Restaura as partes liberadas.
+         * =====================================================
+         * RESTAURA AS PARTES CONCLUÍDAS
+         * =====================================================
          */
+
+        partesLiberadas = {};
+
         progresso.forEach(item => {
 
             if (!item.concluido) {
@@ -2568,34 +2350,153 @@ async function carregarProgressoServidor() {
         });
 
         /*
-         * Descobre o maior módulo com progresso.
+         * =====================================================
+         * DESCOBRE EXATAMENTE ONDE O COLABORADOR DEVE VOLTAR
+         * =====================================================
          */
-        const modulosComProgresso = progresso
-            .filter(item => item.concluido)
-            .map(item => Number(item.modulo));
 
-        if (modulosComProgresso.length > 0) {
+        let moduloAtual = 1;
+        let parteAtual = 0;
+        let maiorEtapa = 1;
 
-            const maiorModulo = Math.max(
-                ...modulosComProgresso
-            );
+        for (let i = 0; i < modulos.length; i++) {
 
-            estado.maiorEtapa = Math.max(
-                estado.maiorEtapa,
-                maiorModulo + 1
-            );
+            const numeroModulo = i + 1;
+            const modulo = modulos[i];
 
-            estado.etapaAtual = Math.min(
-                maiorModulo + 1,
+            const partesDoModulo = modulo.partes
+                ? modulo.partes.length
+                : 1;
+
+            const ultimaParteConcluida =
+                partesLiberadas[numeroModulo] ?? 0;
+
+            /*
+             * Nenhuma parte deste módulo foi concluída.
+             * É aqui que o usuário deve continuar.
+             */
+            if (ultimaParteConcluida === 0) {
+                moduloAtual = numeroModulo;
+                parteAtual = 0;
+                break;
+            }
+
+            /*
+             * O módulo possui partes.
+             */
+            if (modulo.partes) {
+
+                /*
+                 * Ainda existem partes não concluídas.
+                 *
+                 * Exemplo:
+                 * parte 1 concluída
+                 * parte 2 é a próxima
+                 *
+                 * Como o frontend usa índice 0:
+                 * banco = 1
+                 * frontend = 1
+                 */
+                if (ultimaParteConcluida < partesDoModulo) {
+
+                    moduloAtual = numeroModulo;
+                    parteAtual = ultimaParteConcluida;
+
+                    maiorEtapa = numeroModulo;
+
+                    break;
+                }
+
+                /*
+                 * Todas as partes deste módulo foram concluídas.
+                 * Libera o próximo módulo.
+                 */
+                maiorEtapa = numeroModulo + 1;
+
+                moduloAtual = Math.min(
+                    numeroModulo + 1,
+                    modulos.length
+                );
+
+                parteAtual = 0;
+
+                continue;
+            }
+
+            /*
+             * =================================================
+             * MÓDULO SEM PARTES
+             * =================================================
+             */
+
+            maiorEtapa = numeroModulo + 1;
+
+            moduloAtual = Math.min(
+                numeroModulo + 1,
                 modulos.length
             );
+
+            parteAtual = 0;
         }
+
+        /*
+         * =====================================================
+         * PROTEÇÃO CONTRA VALORES INVÁLIDOS
+         * =====================================================
+         */
+
+        if (moduloAtual < 1) {
+            moduloAtual = 1;
+        }
+
+        if (moduloAtual > modulos.length) {
+            moduloAtual = modulos.length;
+            parteAtual = 0;
+        }
+
+        /*
+         * =====================================================
+         * APLICA O ESTADO RESTAURADO
+         * =====================================================
+         */
+
+        estado.etapaAtual = moduloAtual;
+        estado.parteAtual = parteAtual;
+        estado.maiorEtapa = Math.min(
+            Math.max(maiorEtapa, moduloAtual),
+            modulos.length
+        );
+
+        /*
+         * Guarda novamente as partes liberadas
+         * no navegador para o menu/trilha.
+         */
+
+        localStorage.setItem(
+            'integracao_partes_liberadas',
+            JSON.stringify(partesLiberadas)
+        );
 
         salvarEstado();
 
-        console.log('✅ Progresso restaurado!');
-        console.log('📍 Módulo atual:', estado.etapaAtual);
-        console.log('🔓 Maior etapa:', estado.maiorEtapa);
+        console.log(
+            '✅ Progresso restaurado!'
+        );
+
+        console.log(
+            '📍 Módulo atual:',
+            estado.etapaAtual
+        );
+
+        console.log(
+            '📖 Parte atual:',
+            estado.parteAtual
+        );
+
+        console.log(
+            '🔓 Maior etapa:',
+            estado.maiorEtapa
+        );
 
     } catch (erro) {
 
@@ -2606,12 +2507,25 @@ async function carregarProgressoServidor() {
     }
 }
 
-function confirmarReset() {
+async function confirmarReset() {
     const certeza = confirm("⚠️ Tem certeza que deseja reiniciar o treinamento?\n\nTodo o seu progresso atual e dados salvos serão apagados!");
     
     if (certeza) {
-        localStorage.clear();
-        location.reload();
+        await fetch(
+            `${API_URL}/api/progresso/reiniciar`,
+            {
+                method: "POST",
+                headers: {
+                    Authorization:
+                        `Bearer ${token}`
+                }
+            }
+        );
+            localStorage.removeItem("integracao_etapa");
+            localStorage.removeItem("integracao_parte");
+            localStorage.removeItem("integracao_maior_etapa");
+       
+            location.reload();
     }
 }
 

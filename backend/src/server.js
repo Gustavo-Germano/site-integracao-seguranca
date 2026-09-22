@@ -6,6 +6,7 @@ import { testarBanco, testarUsuarios } from "./db.js";
 import usuariosRouter from "./routes/usuarios.js";
 import authRouter from "./routes/auth.js";
 import progressoRouter from "./routes/progresso.js";
+import rhRouter from "./routes/rh.js";
 
 dotenv.config();
 
@@ -42,7 +43,7 @@ app.use(express.json());
 app.use("/api/usuarios", usuariosRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/progresso", progressoRouter);
-
+app.use("/api/rh", rhRouter);
 
 // ========================================
 // ROTA PRINCIPAL

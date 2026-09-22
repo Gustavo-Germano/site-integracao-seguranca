@@ -7,11 +7,9 @@ const router = express.Router();
 
 router.post("/login", async (req, res) => {
     try {
-        const { email, usuario, senha } = req.body;
+        const { login, email, senha } = req.body;
 
-        const identificador = (email || usuario || "")
-            .trim()
-            .toLowerCase();
+        const identificador = (login || email || "").trim().toLowerCase();
 
         if (!identificador || !senha) {
             return res.status(400).json({
@@ -20,59 +18,66 @@ router.post("/login", async (req, res) => {
         }
 
         const resultado = await pool.query(
-            `SELECT
+            `
+            SELECT
                 id,
                 nome,
                 email,
-                usuario_login,
                 senha,
                 perfil,
+                role,
                 ativo,
-                treinamento_concluido
-             FROM public.usuarios
-             WHERE LOWER(email) = $1
-                OR LOWER(usuario_login) = $1
-             LIMIT 1`,
+                usuario_login,
+                treinamento_concluido,
+                modulo_atual,
+                parte_atual
+            FROM public.usuarios
+            WHERE LOWER(email) = $1
+               OR LOWER(usuario_login) = $1
+            LIMIT 1
+            `,
             [identificador]
         );
 
         if (resultado.rows.length === 0) {
             return res.status(401).json({
-                erro: "Usuário ou senha inválidos."
+                erro: "Usuário/e-mail ou senha inválidos."
             });
         }
 
-        const usuarioBanco = resultado.rows[0];
+        const usuario = resultado.rows[0];
 
-        if (!usuarioBanco.ativo) {
+        if (!usuario.ativo) {
             return res.status(403).json({
-                erro: "Este usuário está desativado. Procure o RH."
+                erro: "Usuário desativado."
             });
         }
 
         const senhaCorreta = await bcrypt.compare(
             senha,
-            usuarioBanco.senha
+            usuario.senha
         );
 
         if (!senhaCorreta) {
             return res.status(401).json({
-                erro: "Usuário ou senha inválidos."
+                erro: "Usuário/e-mail ou senha inválidos."
             });
         }
 
-        // Registra o último acesso
         await pool.query(
-            `UPDATE public.usuarios
-             SET ultimo_login = CURRENT_TIMESTAMP
-             WHERE id = $1`,
-            [usuarioBanco.id]
+            `
+            UPDATE public.usuarios
+            SET ultimo_login = CURRENT_TIMESTAMP
+            WHERE id = $1
+            `,
+            [usuario.id]
         );
 
         const token = jwt.sign(
             {
-                id: usuarioBanco.id,
-                perfil: usuarioBanco.perfil
+                id: usuario.id,
+                perfil: usuario.perfil,
+                role: usuario.role
             },
             process.env.JWT_SECRET,
             {
@@ -80,25 +85,35 @@ router.post("/login", async (req, res) => {
             }
         );
 
-        res.json({
+        return res.json({
             mensagem: "Login realizado com sucesso.",
+
             token,
+
             usuario: {
-                id: usuarioBanco.id,
-                nome: usuarioBanco.nome,
-                email: usuarioBanco.email,
-                usuario_login: usuarioBanco.usuario_login,
-                perfil: usuarioBanco.perfil,
-                ativo: usuarioBanco.ativo,
+                id: usuario.id,
+                nome: usuario.nome,
+                email: usuario.email,
+                perfil: usuario.perfil,
+                role: usuario.role,
+                usuario_login: usuario.usuario_login,
+
                 treinamento_concluido:
-                    usuarioBanco.treinamento_concluido
+                    usuario.treinamento_concluido,
+
+                modulo_atual:
+                    usuario.modulo_atual,
+
+                parte_atual:
+                    usuario.parte_atual
             }
         });
 
     } catch (erro) {
+
         console.error("Erro no login:", erro);
 
-        res.status(500).json({
+        return res.status(500).json({
             erro: "Erro interno do servidor."
         });
     }

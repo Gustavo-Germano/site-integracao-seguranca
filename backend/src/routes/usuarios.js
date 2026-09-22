@@ -1,186 +1,387 @@
 import express from "express";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { pool } from "../db.js";
-import { autenticar, permitirPerfis } from "../middleware/auth.js";
+
+import {
+    autenticar,
+    permitirRoles
+} from "../middleware/auth.js";
 
 const router = express.Router();
+
+
+/*
+|--------------------------------------------------------------------------
+| GERAR USUÁRIO E SENHA DO COLABORADOR
+|--------------------------------------------------------------------------
+|
+| O RH informa apenas:
+|
+| - nome
+| - email
+|
+| O backend gera:
+|
+| - usuario_login
+| - senha temporária
+|
+*/
 
 router.post(
     "/",
     autenticar,
-    permitirPerfis("admin"),
+    permitirRoles("rh", "admin"),
     async (req, res) => {
-    try {
-        const { nome, email, senha, perfil } = req.body;
 
-        if (!nome || !email || !senha) {
-            return res.status(400).json({
-                erro: "Nome, email e senha são obrigatórios."
-            });
-        }
+        try {
 
-        const senhaHash = await bcrypt.hash(senha, 10);
-
-        const resultado = await pool.query(
-            `INSERT INTO usuarios
-            (nome, email, senha, perfil)
-            VALUES ($1, $2, $3, $4)
-            RETURNING id, nome, email, perfil, ativo, criado_em`,
-            [
+            const {
                 nome,
-                email,
-                senhaHash,
-                perfil || "colaborador"
-            ]
-        );
+                email
+            } = req.body;
 
-        res.status(201).json({
-            mensagem: "Usuário criado com sucesso.",
-            usuario: resultado.rows[0]
-        });
 
-    } catch (erro) {
+            /*
+             * VALIDAÇÃO
+             */
+            if (!nome || !email) {
 
-        if (erro.code === "23505") {
-            return res.status(409).json({
-                erro: "Este email já está cadastrado."
-            });
-        }
-
-        console.error("Erro ao criar usuário:", erro);
-
-        res.status(500).json({
-            erro: "Erro interno do servidor."
-        });
-    }
-});
-
-router.get(
-    "/",
-    autenticar,
-    permitirPerfis("admin"),
-    async (req, res) => {
-        try {
-            const resultado = await pool.query(`
-                SELECT
-                    u.id,
-                    u.nome,
-                    u.email,
-                    u.perfil,
-                    u.ativo,
-                    u.treinamento_concluido,
-                    u.criado_em,
-                    COALESCE(
-                        (
-                            SELECT MAX(p.modulo)
-                            FROM progresso p
-                            WHERE p.usuario_id = u.id
-                              AND p.concluido = TRUE
-                        ),
-                        0
-                    ) AS ultimo_modulo
-                FROM usuarios u
-                ORDER BY u.criado_em DESC
-            `);
-
-            res.json({
-                usuarios: resultado.rows
-            });
-
-        } catch (erro) {
-            console.error("Erro ao listar usuários:", erro);
-
-            res.status(500).json({
-                erro: "Erro interno do servidor."
-            });
-        }
-    }
-);
-
-router.patch(
-    "/:id/status",
-    autenticar,
-    permitirPerfis("admin"),
-    async (req, res) => {
-        try {
-            const { id } = req.params;
-            const { ativo } = req.body;
-
-            if (typeof ativo !== "boolean") {
                 return res.status(400).json({
-                    erro: "O campo ativo deve ser true ou false."
+                    erro:
+                        "Nome e email são obrigatórios."
                 });
+
             }
 
-            const resultado = await pool.query(
-                `UPDATE usuarios
-                 SET ativo = $1
-                 WHERE id = $2
-                 RETURNING id, nome, email, perfil, ativo`,
-                [ativo, id]
+
+            /*
+             * NORMALIZA EMAIL
+             */
+            const emailNormalizado =
+                email.trim().toLowerCase();
+
+
+            /*
+             * VERIFICA SE EMAIL JÁ EXISTE
+             */
+            const emailExistente =
+                await pool.query(
+                    `
+                    SELECT id
+                    FROM public.usuarios
+                    WHERE LOWER(email) = $1
+                    `,
+                    [emailNormalizado]
+                );
+
+
+            if (emailExistente.rows.length > 0) {
+
+                return res.status(409).json({
+                    erro:
+                        "Este email já está cadastrado."
+                });
+
+            }
+
+
+            /*
+             * ==================================================
+             * GERAR USUÁRIO_LOGIN
+             * ==================================================
+             *
+             * Exemplo:
+             *
+             * João da Silva
+             * ↓
+             * joao.silva
+             */
+
+            const nomeBase =
+                nome
+                    .normalize("NFD")
+                    .replace(
+                        /[\u0300-\u036f]/g,
+                        ""
+                    )
+                    .toLowerCase()
+                    .replace(
+                        /[^a-z0-9]+/g,
+                        "."
+                    )
+                    .replace(
+                        /^\.+|\.+$/g,
+                        ""
+                    );
+
+
+            let usuarioLogin =
+                nomeBase || "colaborador";
+
+
+            /*
+             * ==================================================
+             * GARANTIR LOGIN ÚNICO
+             * ==================================================
+             */
+
+            let contador = 1;
+
+            while (true) {
+
+                const loginExistente =
+                    await pool.query(
+                        `
+                        SELECT id
+                        FROM public.usuarios
+                        WHERE usuario_login = $1
+                        `,
+                        [usuarioLogin]
+                    );
+
+
+                if (
+                    loginExistente.rows.length === 0
+                ) {
+
+                    break;
+
+                }
+
+
+                contador++;
+
+                usuarioLogin =
+                    `${nomeBase}.${contador}`;
+
+            }
+
+
+            /*
+             * ==================================================
+             * GERAR SENHA TEMPORÁRIA
+             * ==================================================
+             *
+             * 12 caracteres aleatórios.
+             */
+
+            const senhaTemporaria =
+                crypto
+                    .randomBytes(9)
+                    .toString("base64")
+                    .replace(
+                        /[^a-zA-Z0-9]/g,
+                        ""
+                    )
+                    .slice(0, 12);
+
+
+            /*
+             * ==================================================
+             * TRANSFORMAR SENHA EM HASH
+             * ==================================================
+             *
+             * A senha verdadeira NÃO é armazenada no banco.
+             */
+
+            const senhaHash =
+                await bcrypt.hash(
+                    senhaTemporaria,
+                    12
+                );
+
+
+            /*
+             * ==================================================
+             * CADASTRAR COLABORADOR
+             * ==================================================
+             */
+
+            const resultado =
+                await pool.query(
+                    `
+                    INSERT INTO public.usuarios
+                    (
+                        nome,
+                        email,
+                        usuario_login,
+                        senha,
+                        perfil,
+                        role,
+                        ativo,
+                        treinamento_concluido,
+                        modulo_atual,
+                        parte_atual
+                    )
+                    VALUES
+                    (
+                        $1,
+                        $2,
+                        $3,
+                        $4,
+                        'colaborador',
+                        'colaborador',
+                        TRUE,
+                        FALSE,
+                        1,
+                        0
+                    )
+                    RETURNING
+                        id,
+                        nome,
+                        email,
+                        usuario_login,
+                        perfil,
+                        role,
+                        ativo,
+                        treinamento_concluido,
+                        modulo_atual,
+                        parte_atual,
+                        criado_em
+                    `,
+                    [
+                        nome.trim(),
+                        emailNormalizado,
+                        usuarioLogin,
+                        senhaHash
+                    ]
+                );
+
+
+            /*
+             * ==================================================
+             * RESPOSTA PARA O RH
+             * ==================================================
+             *
+             * A senha temporária é enviada somente nesta
+             * resposta. Ela não é salva em texto no banco.
+             */
+
+            res.status(201).json({
+
+                mensagem:
+                    "Colaborador cadastrado com sucesso.",
+
+                usuario:
+                    resultado.rows[0],
+
+                credenciais: {
+
+                    usuario_login:
+                        usuarioLogin,
+
+                    senha_temporaria:
+                        senhaTemporaria
+
+                }
+
+            });
+
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao criar colaborador:",
+                erro
             );
 
-            if (resultado.rows.length === 0) {
-                return res.status(404).json({
-                    erro: "Usuário não encontrado."
+
+            /*
+             * Email ou usuario_login duplicado.
+             */
+            if (erro.code === "23505") {
+
+                return res.status(409).json({
+                    erro:
+                        "Email ou usuário já cadastrado."
                 });
+
             }
 
-            res.json({
-                mensagem: ativo
-                    ? "Usuário ativado com sucesso."
-                    : "Usuário desativado com sucesso.",
-                usuario: resultado.rows[0]
-            });
-
-        } catch (erro) {
-            console.error("Erro ao alterar status:", erro);
 
             res.status(500).json({
-                erro: "Erro interno do servidor."
+                erro:
+                    "Erro interno do servidor."
             });
+
         }
+
     }
 );
 
-router.get("/me", autenticar, async (req, res) => {
-    try {
-        const resultado = await pool.query(
-            `SELECT id, nome, email, perfil, ativo
-             FROM usuarios
-             WHERE id = $1`,
-            [req.usuario.id]
-        );
 
-        if (resultado.rows.length === 0) {
-            return res.status(404).json({
-                erro: "Usuário não encontrado."
-            });
-        }
-
-        res.json({
-            usuario: resultado.rows[0]
-        });
-
-    } catch (erro) {
-        console.error("Erro ao buscar usuário:", erro);
-
-        res.status(500).json({
-            erro: "Erro interno do servidor."
-        });
-    }
-});
+/*
+|--------------------------------------------------------------------------
+| USUÁRIO LOGADO
+|--------------------------------------------------------------------------
+*/
 
 router.get(
-    "/admin",
+    "/me",
     autenticar,
-    permitirPerfis("admin"),
     async (req, res) => {
-        res.json({
-            mensagem: "Acesso autorizado.",
-            usuario: req.usuario
-        });
+
+        try {
+
+            const resultado =
+                await pool.query(
+                    `
+                    SELECT
+                        id,
+                        nome,
+                        email,
+                        usuario_login,
+                        perfil,
+                        role,
+                        ativo,
+                        treinamento_concluido,
+                        modulo_atual,
+                        parte_atual,
+                        ultimo_login,
+                        criado_em,
+                        concluido_em
+                    FROM public.usuarios
+                    WHERE id = $1
+                    `,
+                    [req.usuario.id]
+                );
+
+
+            if (
+                resultado.rows.length === 0
+            ) {
+
+                return res.status(404).json({
+                    erro:
+                        "Usuário não encontrado."
+                });
+
+            }
+
+
+            res.json({
+                usuario:
+                    resultado.rows[0]
+            });
+
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao buscar usuário:",
+                erro
+            );
+
+            res.status(500).json({
+                erro:
+                    "Erro interno do servidor."
+            });
+
+        }
+
     }
 );
+
 
 export default router;

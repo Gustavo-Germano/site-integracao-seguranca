@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Integração de Segurança</title>
+    <title>Painel-Integração de Segurança</title>
 
     <link rel="stylesheet" href="../style.css">
 
@@ -472,7 +472,7 @@ button:disabled {
 
     <div class="painel">
 
-        <h1>PAINEL DO RH</h1>
+        <h1>PAINEL DO ADMINISTRADOR</h1>
 
         <p class="subtitulo">
             Cadastro de colaboradores
@@ -523,17 +523,6 @@ button:disabled {
                 type="email"
                 id="email-colaborador"
                 placeholder="colaborador@email.com"
-                required
-            >
-
-            <label for="senha-colaborador">
-                Senha do colaborador
-            </label>
-
-            <input
-                type="password"
-                id="senha-colaborador"
-                placeholder="Crie uma senha"
                 required
             >
 
@@ -663,13 +652,14 @@ button:disabled {
 
                 if (
                     !dadosLogin.usuario ||
-                    dadosLogin.usuario.perfil !== 'admin'
+                    !['rh', 'admin'].includes(
+                        dadosLogin.usuario.role
+                    )
                 ) {
 
                     throw new Error(
-                        'Este usuário não possui permissão de administrador.'
+                        'Este usuário não possui permissão para acessar o painel RH.'
                     );
-
                 }
 
 
@@ -723,269 +713,275 @@ button:disabled {
 
         }
 
-
         async function cadastrarColaborador(event) {
 
-            event.preventDefault();
+    event.preventDefault();
 
 
-            const emailAdmin =
-                document
-                    .getElementById('email-admin')
-                    .value
-                    .trim();
+    const emailAdmin =
+        document
+            .getElementById('email-admin')
+            .value
+            .trim();
 
 
-            const senhaAdmin =
-                document
-                    .getElementById('senha-admin')
-                    .value;
+    const senhaAdmin =
+        document
+            .getElementById('senha-admin')
+            .value;
 
 
-            const nomeColaborador =
-                document
-                    .getElementById('nome-colaborador')
-                    .value
-                    .trim();
+    const nomeColaborador =
+        document
+            .getElementById('nome-colaborador')
+            .value
+            .trim();
 
 
-            const emailColaborador =
-                document
-                    .getElementById('email-colaborador')
-                    .value
-                    .trim();
+    const emailColaborador =
+        document
+            .getElementById('email-colaborador')
+            .value
+            .trim();
 
 
-            const senhaColaborador =
-                document
-                    .getElementById('senha-colaborador')
-                    .value;
+    const btn =
+        document.getElementById(
+            'btn-cadastrar'
+        );
 
 
-            const btn =
-                document.getElementById(
-                    'btn-cadastrar'
-                );
+    const mensagem =
+        document.getElementById(
+            'mensagem'
+        );
 
 
-            const mensagem =
-                document.getElementById(
-                    'mensagem'
-                );
+    mensagem.textContent = '';
+    mensagem.className = '';
 
 
-            mensagem.textContent = '';
-
-            mensagem.className = '';
-
-
-            btn.disabled = true;
-
-            btn.textContent =
-                'AUTENTICANDO...';
+    btn.disabled = true;
+    btn.textContent =
+        'AUTENTICANDO...';
 
 
-            try {
+    try {
 
-                /*
-                 * ==========================================
-                 * 1. LOGIN DO ADMINISTRADOR
-                 * ==========================================
-                 */
+        /*
+         * ==================================================
+         * 1. LOGIN DO RH / ADMIN
+         * ==================================================
+         */
 
-                const respostaLogin =
-                    await fetch(
-                        `${API}/api/auth/login`,
-                        {
-                            method: 'POST',
+        const respostaLogin =
+            await fetch(
+                `${API}/api/auth/login`,
+                {
+                    method: 'POST',
 
-                            headers: {
-                                'Content-Type':
-                                    'application/json'
-                            },
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
 
-                            body: JSON.stringify({
-
-                                email:
-                                    emailAdmin,
-
-                                senha:
-                                    senhaAdmin
-
-                            })
-                        }
-                    );
-
-
-                const dadosLogin =
-                    await respostaLogin.json();
-
-
-                if (!respostaLogin.ok) {
-
-                    throw new Error(
-                        dadosLogin.erro ||
-                        'E-mail ou senha do administrador inválidos.'
-                    );
-
+                    body: JSON.stringify({
+                        email: emailAdmin,
+                        senha: senhaAdmin
+                    })
                 }
+            );
 
 
-                /*
-                 * ==========================================
-                 * 2. CONFIRMA SE É ADMIN
-                 * ==========================================
-                 */
-
-                if (
-                    dadosLogin.usuario.perfil !==
-                    'admin'
-                ) {
-
-                    throw new Error(
-                        'Este usuário não possui permissão de administrador.'
-                    );
-
-                }
+        const dadosLogin =
+            await respostaLogin.json();
 
 
-                /*
-                 * ==========================================
-                 * 3. PEGA O TOKEN
-                 * ==========================================
-                 */
+        if (!respostaLogin.ok) {
 
-                const token =
-                    dadosLogin.token;
-
-
-                tokenAdmin =
-                    token;
-
-
-                btn.textContent =
-                    'CADASTRANDO...';
-
-
-                /*
-                 * ==========================================
-                 * 4. CADASTRA O COLABORADOR
-                 * ==========================================
-                 */
-
-                const respostaCadastro =
-                    await fetch(
-                        `${API}/api/usuarios`,
-                        {
-                            method: 'POST',
-
-                            headers: {
-
-                                'Content-Type':
-                                    'application/json',
-
-                                'Authorization':
-                                    `Bearer ${token}`
-
-                            },
-
-                            body: JSON.stringify({
-
-                                nome:
-                                    nomeColaborador,
-
-                                email:
-                                    emailColaborador,
-
-                                senha:
-                                    senhaColaborador,
-
-                                perfil:
-                                    'colaborador'
-
-                            })
-                        }
-                    );
-
-
-                const dadosCadastro =
-                    await respostaCadastro.json();
-
-
-                if (!respostaCadastro.ok) {
-
-                    throw new Error(
-                        dadosCadastro.erro ||
-                        'Não foi possível cadastrar o colaborador.'
-                    );
-
-                }
-
-
-                /*
-                 * ==========================================
-                 * 5. SUCESSO
-                 * ==========================================
-                 */
-
-                mensagem.textContent =
-                    '✓ Colaborador cadastrado com sucesso!';
-
-                mensagem.className =
-                    'sucesso';
-
-
-                document.getElementById(
-                    'nome-colaborador'
-                ).value = '';
-
-
-                document.getElementById(
-                    'email-colaborador'
-                ).value = '';
-
-
-                document.getElementById(
-                    'senha-colaborador'
-                ).value = '';
-
-
-                localStorage.setItem(
-                    'integracao_admin_token',
-                    token
-                );
-
-
-                await carregarColaboradores();
-
-
-            } catch (erro) {
-
-                console.error(
-                    'Erro no cadastro:',
-                    erro
-                );
-
-
-                mensagem.textContent =
-                    '❌ ' + erro.message;
-
-
-                mensagem.className =
-                    'erro';
-
-
-            } finally {
-
-                btn.disabled = false;
-
-                btn.textContent =
-                    'CADASTRAR COLABORADOR';
-
-            }
+            throw new Error(
+                dadosLogin.erro ||
+                'Email ou senha inválidos.'
+            );
 
         }
 
+
+        /*
+         * ==================================================
+         * 2. CONFIRMAR RH / ADMIN
+         * ==================================================
+         */
+
+        if (
+            !dadosLogin.usuario ||
+            !['rh', 'admin'].includes(
+                dadosLogin.usuario.role
+            )
+        ) {
+
+            throw new Error(
+                'Você não possui permissão para cadastrar colaboradores.'
+            );
+
+        }
+
+
+        const token =
+            dadosLogin.token;
+
+
+        btn.textContent =
+            'GERANDO ACESSO...';
+
+
+        /*
+         * ==================================================
+         * 3. CADASTRAR COLABORADOR
+         * ==================================================
+         */
+
+        const respostaCadastro =
+            await fetch(
+                `${API}/api/usuarios`,
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json',
+
+                        'Authorization':
+                            `Bearer ${token}`
+                    },
+
+                    body: JSON.stringify({
+
+                        nome:
+                            nomeColaborador,
+
+                        email:
+                            emailColaborador
+
+                    })
+                }
+            );
+
+
+        const dadosCadastro =
+            await respostaCadastro.json();
+
+
+        if (!respostaCadastro.ok) {
+
+            throw new Error(
+                dadosCadastro.erro ||
+                'Não foi possível cadastrar o colaborador.'
+            );
+
+        }
+
+
+        /*
+         * ==================================================
+         * 4. MOSTRAR AS CREDENCIAIS GERADAS
+         * ==================================================
+         */
+
+        const loginGerado =
+            dadosCadastro
+                .credenciais
+                .usuario_login;
+
+
+        const senhaGerada =
+            dadosCadastro
+                .credenciais
+                .senha_temporaria;
+
+
+        mensagem.innerHTML = `
+            <strong>
+                ✓ COLABORADOR CADASTRADO
+            </strong>
+
+            <br><br>
+
+            Usuário:
+            <strong>
+                ${loginGerado}
+            </strong>
+
+            <br>
+
+            Senha temporária:
+            <strong>
+                ${senhaGerada}
+            </strong>
+
+            <br><br>
+
+            <small>
+                Guarde essas credenciais.
+                A senha não será exibida novamente.
+            </small>
+        `;
+
+
+        mensagem.className =
+            'sucesso';
+
+
+        /*
+         * Limpa somente os dados do colaborador.
+         */
+        document
+            .getElementById(
+                'nome-colaborador'
+            )
+            .value = '';
+
+
+        document
+            .getElementById(
+                'email-colaborador'
+            )
+            .value = '';
+
+
+        /*
+         * Atualiza a lista.
+         */
+        await carregarColaboradores();
+
+
+    } catch (erro) {
+
+        console.error(
+            'Erro no cadastro:',
+            erro
+        );
+
+
+        mensagem.textContent =
+            '❌ ' + erro.message;
+
+
+        mensagem.className =
+            'erro';
+
+
+    } finally {
+
+        btn.disabled = false;
+
+        btn.textContent =
+            'CADASTRAR COLABORADOR';
+
+    }
+
+}
+        
 
         async function carregarColaboradores() {
 
@@ -1014,20 +1010,15 @@ button:disabled {
 
             try {
 
-                const resposta =
-                    await fetch(
-                        `${API}/api/usuarios`,
-                        {
-                            method: 'GET',
-
-                            headers: {
-
-                                'Authorization':
-                                    `Bearer ${token}`
-
-                            }
+                const resposta = await fetch(
+                    `${API}/api/rh/usuarios/${id}/status`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
                         }
-                    );
+                    }
+                );
 
 
                 const dados =
@@ -1099,82 +1090,46 @@ button:disabled {
 
 
                             return `
-
                                 <div class="colaborador-card">
-
-                                    <h3>
-                                        ${usuario.nome}
-                                    </h3>
-
+                                
+                                    <h3>${usuario.nome}</h3>
+                                
                                     <p>
                                         <strong>Email:</strong>
                                         ${usuario.email}
                                     </p>
-
+                                
                                     <p>
                                         <strong>Status:</strong>
                                         ${status}
                                     </p>
-
+                                
                                     <p>
                                         <strong>Treinamento:</strong>
                                         ${treinamento}
                                     </p>
-
-                                    <p>
-                                        <strong>Progresso:</strong>
-                                        ${
-                                            usuario.treinamento_concluido
-                                                ? '12 de 12 módulos'
-                                                : `${usuario.ultimo_modulo} de 12 módulos`
-                                        }
-                                    </p>
-
-
-                                    <div style="
-                                        width: 100%;
-                                        height: 10px;
-                                        background: #e0e0e0;
-                                        border-radius: 10px;
-                                        overflow: hidden;
-                                        margin: 8px 0 18px;
-                                    ">
-
-                                        <div style="
-                                            width: ${percentual}%;
-                                            height: 100%;
-                                            background: #1f6feb;
-                                            border-radius: 10px;
-                                        "></div>
-
-                                    </div>
-
-
-                                    <p style="
-                                        text-align:center;
-                                        margin-top:-10px;
-                                    ">
-
-                                        ${percentual}%
-
-                                    </p>
-
-
+                                
                                     <button
-                                        onclick="
-                                            alterarStatusUsuario(
-                                                ${usuario.id},
-                                                ${!usuario.ativo}
-                                            )
+                                        onclick="alterarStatusUsuario(
+                                            ${usuario.id},
+                                            ${!usuario.ativo}
+                                        )"
+                                    >
+                                        ${botaoTexto}
+                                    </button>
+                                
+                                    <button
+                                        type="button"
+                                        onclick="resetarTreinamento(${usuario.id})"
+                                        style="
+                                            margin-top: 10px;
+                                            background: #f28c28;
                                         "
                                     >
-
-                                        ${botaoTexto}
-
+                                        RESETAR TREINAMENTO
                                     </button>
-
+                                
                                 </div>
-
                             `;
 
                         }
@@ -1311,6 +1266,76 @@ button:disabled {
             }
 
         }
+
+        async function resetarTreinamento(id) {
+
+    const token =
+        localStorage.getItem(
+            'integracao_admin_token'
+        );
+
+    if (!token) {
+
+        alert(
+            'Sessão administrativa não encontrada.'
+        );
+
+        return;
+    }
+
+    const confirmar = confirm(
+        'Deseja realmente resetar o treinamento deste colaborador?'
+    );
+
+    if (!confirmar) {
+        return;
+    }
+
+    try {
+
+        const resposta = await fetch(
+            `${API}/api/rh/usuarios/${id}/resetar-treinamento`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Authorization':
+                        `Bearer ${token}`
+                }
+            }
+        );
+
+        const dados =
+            await resposta.json();
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                dados.erro ||
+                'Erro ao resetar treinamento.'
+            );
+
+        }
+
+        alert(
+            dados.mensagem
+        );
+
+        await carregarColaboradores();
+
+    } catch (erro) {
+
+        console.error(
+            'Erro ao resetar treinamento:',
+            erro
+        );
+
+        alert(
+            erro.message
+        );
+
+    }
+}
 
     </script>
 

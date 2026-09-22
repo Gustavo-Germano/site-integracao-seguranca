@@ -1915,40 +1915,9 @@ input[type="password"]:focus {
         width: 100%;
         max-width: 100%;
     }
-}
 
-/* =========================================
-   TOPBAR MOBILE
-   ========================================= */
-
-@media (max-width: 768px) {
-
-    /* Durante o login, mantém o nome do sistema */
-    body.modo-login .topbar-logo {
-        display: flex;
-    }
-
-    /* Durante o treinamento, deixa somente o colaborador */
-    body:not(.modo-login) .topbar-logo {
-        display: none;
-    }
-
-    body:not(.modo-login) .topbar {
-        justify-content: flex-end;
-    }
-
-    body:not(.modo-login) .topbar-user {
-        margin-left: auto;
-    }
-
-}
-
-/* =========================================================
-   BOTÃO INICIAR TREINAMENTO
-   ========================================================= */
-
-.btn-iniciar-treinamento {
-    display: none;
+    .btn-iniciar-treinamento {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
@@ -2018,6 +1987,37 @@ input[type="password"]:focus {
         transform: translateY(-5px);
     }
 }
+}
+
+/* =========================================
+   TOPBAR MOBILE
+   ========================================= */
+
+@media (max-width: 768px) {
+
+    /* Durante o login, mantém o nome do sistema */
+    body.modo-login .topbar-logo {
+        display: flex;
+    }
+
+    /* Durante o treinamento, deixa somente o colaborador */
+    body:not(.modo-login) .topbar-logo {
+        display: none;
+    }
+
+    body:not(.modo-login) .topbar {
+        justify-content: flex-end;
+    }
+
+    body:not(.modo-login) .topbar-user {
+        margin-left: auto;
+    }
+
+}
+
+/* =========================================================
+   BOTÃO INICIAR TREINAMENTO
+   ========================================================= */
 
 
 /* =========================================================

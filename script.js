@@ -1118,39 +1118,50 @@ function renderPainelAdmin() {
         <div class="main-content">
             <div class="container">
 
-                <h2 style="text-align: center; color: var(--primary-color);">
+                <h2 style="
+                    text-align: center;
+                    color: var(--primary-color);
+                ">
                     Painel do Administrador
                 </h2>
 
-                <p style="text-align: center;">
-                    Cadastre um novo colaborador para acessar o treinamento.
+                <p style="
+                    text-align: center;
+                    margin-bottom: 25px;
+                ">
+                    Cadastre um novo colaborador.
+                    O sistema irá gerar automaticamente o usuário
+                    e a senha de acesso.
                 </p>
 
-                <form id="form-cadastro-colaborador" style="max-width: 500px; margin: 30px auto;">
+                <form
+                    id="form-cadastro-colaborador"
+                    style="
+                        max-width: 500px;
+                        margin: 30px auto;
+                    "
+                >
 
                     <input
                         type="text"
                         id="admin-nome"
-                        placeholder="Nome completo"
+                        placeholder="Nome completo do colaborador"
                         required
-                        style="width: 100%; margin-bottom: 12px;"
+                        style="
+                            width: 100%;
+                            margin-bottom: 12px;
+                        "
                     >
 
                     <input
                         type="email"
                         id="admin-email"
-                        placeholder="E-mail"
+                        placeholder="E-mail do colaborador"
                         required
-                        style="width: 100%; margin-bottom: 12px;"
-                    >
-
-                    <input
-                        type="password"
-                        id="admin-senha"
-                        placeholder="Senha"
-                        required
-                        minlength="6"
-                        style="width: 100%; margin-bottom: 12px;"
+                        style="
+                            width: 100%;
+                            margin-bottom: 12px;
+                        "
                     >
 
                     <button
@@ -1160,6 +1171,38 @@ function renderPainelAdmin() {
                     >
                         CADASTRAR COLABORADOR
                     </button>
+
+                    <div
+                        id="admin-credenciais"
+                        style="
+                            display: none;
+                            margin-top: 25px;
+                            padding: 20px;
+                            border-radius: 10px;
+                            background: #f5f5f5;
+                            text-align: center;
+                        "
+                    >
+
+                        <h3>
+                            ✅ Colaborador cadastrado
+                        </h3>
+
+                        <p>
+                            Entregue estas credenciais ao colaborador:
+                        </p>
+
+                        <p>
+                            <strong>Usuário:</strong>
+                            <span id="admin-usuario-gerado"></span>
+                        </p>
+
+                        <p>
+                            <strong>Senha temporária:</strong>
+                            <span id="admin-senha-gerada"></span>
+                        </p>
+
+                    </div>
 
                     <p
                         id="admin-mensagem"
@@ -1177,9 +1220,15 @@ function renderPainelAdmin() {
         </div>
     `;
 
-    const formulario = document.getElementById('form-cadastro-colaborador');
+    const formulario =
+        document.getElementById(
+            'form-cadastro-colaborador'
+        );
 
-    formulario.addEventListener('submit', cadastrarColaborador);
+    formulario.addEventListener(
+        'submit',
+        cadastrarColaborador
+    );
 }
 
 function atualizarTopbar() {
@@ -1540,12 +1589,16 @@ function renderHome() {
                     <span>INICIAR TREINAMENTO</span>
                 </button>
 
-                <form id="form-login" class="form-oculto" onsubmit="iniciarIntegracao(event)">
+                <form
+                    id="form-login"
+                    class="form-oculto"
+                    onsubmit="iniciarIntegracao(event)"
+                >
 
                     <input
-                        type="email"
-                        id="email"
-                        placeholder="Digite seu e-mail..."
+                        type="text"
+                        id="login"
+                        placeholder="Usuário ou e-mail..."
                         required
                         autocomplete="username"
                         oninput="validarLogin()"
@@ -1560,15 +1613,6 @@ function renderHome() {
                         oninput="validarLogin()"
                     >
 
-                    <input
-                        type="text"
-                        id="email"
-                        placeholder="Usuário ou e-mail..."
-                        required
-                        autocomplete="username"
-                        oninput="validarLogin()"
-                    >
-
                     <button
                         type="submit"
                         class="btn"
@@ -1578,15 +1622,15 @@ function renderHome() {
                         COMEÇAR TREINAMENTO
                     </button>
 
-                     <p
-                         id="erro-login"
-                         style="
-                             display: none;
-                             margin-top: 12px;
-                             color: #d32f2f;
-                             font-weight: 600;
-                         "
-                     ></p>
+                    <p
+                        id="erro-login"
+                        style="
+                            display: none;
+                            margin-top: 12px;
+                            color: #d32f2f;
+                            font-weight: 600;
+                        "
+                    ></p>
 
                 </form>
             </div>
@@ -1632,24 +1676,39 @@ function liberarFormularioLogin() {
 }
 
 function validarLogin() {
-    const login = document.getElementById('email').value.trim();
-    const senha = document.getElementById('senha').value;
-    const btn = document.getElementById('btn-iniciar');
+    const login =
+        document.getElementById('login').value.trim();
 
-    const loginValido = login.length >= 3;
-    const senhaValida = senha.length >= 6;
+    const senha =
+        document.getElementById('senha').value;
 
-    btn.disabled = !(loginValido && senhaValida);
+    const btn =
+        document.getElementById('btn-iniciar');
+
+    const loginValido =
+        login.length >= 3;
+
+    const senhaValida =
+        senha.length >= 6;
+
+    btn.disabled =
+        !(loginValido && senhaValida);
 }
 
 async function iniciarIntegracao(e) {
     e.preventDefault();
 
-    const login = document.getElementById('email').value.trim();
-    const senha = document.getElementById('senha').value;
+    const login =
+        document.getElementById('login').value.trim();
 
-    const btn = document.getElementById('btn-iniciar');
-    const erroLogin = document.getElementById('erro-login');
+    const senha =
+        document.getElementById('senha').value;
+
+    const btn =
+        document.getElementById('btn-iniciar');
+
+    const erroLogin =
+        document.getElementById('erro-login');
 
     erroLogin.style.display = 'none';
     erroLogin.textContent = '';
@@ -1658,50 +1717,72 @@ async function iniciarIntegracao(e) {
     btn.textContent = 'ENTRANDO...';
 
     try {
-        const resposta = await fetch(`${API_URL}/api/auth/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                login: login,
-                senha: senha
-            })
-        });
 
-        const dados = await resposta.json();
+        const resposta = await fetch(
+            `${API_URL}/api/auth/login`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+
+                body: JSON.stringify({
+                    login: login,
+                    senha: senha
+                })
+            }
+        );
+
+        const dados =
+            await resposta.json();
 
         if (!resposta.ok) {
-            throw new Error(dados.erro || 'Não foi possível realizar o login.');
+            throw new Error(
+                dados.erro ||
+                'Não foi possível realizar o login.'
+            );
         }
 
-        // Guarda o token de autenticação
-        localStorage.setItem('integracao_token', dados.token);
+        // Guarda o token
+        localStorage.setItem(
+            'integracao_token',
+            dados.token
+        );
 
-        // Dados reais vindos do banco
+        // Guarda os dados reais do usuário
         localStorage.setItem(
             'integracao_usuario',
             JSON.stringify(dados.usuario)
         );
 
-        // O nome oficial vem do banco
-        estado.nomeUsuario = dados.usuario.nome;
+        // Nome vem do banco
+        estado.nomeUsuario =
+            dados.usuario.nome || '';
 
-        if (dados.usuario.perfil === 'admin') {
+        // Administrador/RH
+        if (
+            dados.usuario.role === 'admin' ||
+            dados.usuario.role === 'rh' ||
+            dados.usuario.perfil === 'admin'
+        ) {
             renderPainelAdmin();
             return;
         }
 
-        /*
-         * ==========================================
-         * USUÁRIO QUE JÁ CONCLUIU O TREINAMENTO
-         * ==========================================
-         */
+        // ==========================================
+        // TREINAMENTO JÁ CONCLUÍDO
+        // ==========================================
+
         if (dados.usuario.treinamento_concluido) {
 
-            estado.etapaAtual = modulos.length + 1;
+            estado.etapaAtual =
+                modulos.length + 1;
+
             estado.parteAtual = 0;
-            estado.maiorEtapa = modulos.length + 1;
+
+            estado.maiorEtapa =
+                modulos.length;
 
             salvarEstado();
 
@@ -1710,20 +1791,19 @@ async function iniciarIntegracao(e) {
             return;
         }
 
-        /*
-         * ==========================================
-         * USUÁRIO NORMAL
-         * ==========================================
-         */
+        // ==========================================
+        // COLABORADOR NORMAL
+        // ==========================================
 
         estado.etapaAtual = 1;
         estado.parteAtual = 0;
         estado.maiorEtapa = 1;
 
-        // Limpa o progresso local de outro usuário.
         partesLiberadas = {};
 
-        localStorage.removeItem('integracao_partes_liberadas');
+        localStorage.removeItem(
+            'integracao_partes_liberadas'
+        );
 
         salvarEstado();
 
@@ -1733,13 +1813,21 @@ async function iniciarIntegracao(e) {
 
     } catch (erro) {
 
-        console.error('Erro no login:', erro);
+        console.error(
+            'Erro no login:',
+            erro
+        );
 
-        erroLogin.textContent = erro.message;
-        erroLogin.style.display = 'block';
+        erroLogin.textContent =
+            erro.message;
+
+        erroLogin.style.display =
+            'block';
 
         btn.disabled = false;
-        btn.textContent = 'COMEÇAR TREINAMENTO';
+
+        btn.textContent =
+            'COMEÇAR TREINAMENTO';
     }
 }
 

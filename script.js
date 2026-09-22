@@ -1553,7 +1553,7 @@ function renderHome() {
             </div>
         </div>
     `;
-
+}
 
 const btnBoasVindas =
     document.getElementById('btn-ouvir-boas-vindas');
@@ -1577,7 +1577,6 @@ if (btnBoasVindas) {
         },
         { once: true }
     );
-}
 }
 
 function liberarFormularioLogin() {

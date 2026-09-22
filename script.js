@@ -1580,15 +1580,69 @@ function renderHome() {
                     </p>
                 </div>
 
-                <button
-                    type="button"
-                    id="btn-ouvir-boas-vindas"
-                    class="btn-iniciar-treinamento"
+                <!-- PRIMEIRO ACESSO -->
+                <div
+                    id="primeiro-acesso"
+                    style="
+                        margin-top:20px;
+                        padding:20px;
+                        border-radius:12px;
+                        background:#f7f7f7;
+                    "
                 >
-                    <span class="btn-iniciar-icone">🔊</span>
-                    <span>INICIAR TREINAMENTO</span>
-                </button>
 
+                    <h3>PRIMEIRO ACESSO</h3>
+
+                    <p>
+                        Informe seu nome completo e seu e-mail.
+                        O sistema criará seu acesso automaticamente
+                        e enviará usuário e senha para o seu e-mail.
+                    </p>
+
+                    <form
+                        id="form-primeiro-acesso"
+                        onsubmit="solicitarPrimeiroAcesso(event)"
+                    >
+
+                        <input
+                            type="text"
+                            id="nome-primeiro-acesso"
+                            placeholder="Digite seu nome completo..."
+                            required
+                            autocomplete="name"
+                        >
+
+                        <input
+                            type="email"
+                            id="email-primeiro-acesso"
+                            placeholder="Digite seu e-mail..."
+                            required
+                            autocomplete="email"
+                        >
+
+                        <button
+                            type="submit"
+                            class="btn"
+                            id="btn-primeiro-acesso"
+                        >
+                            RECEBER MEU ACESSO
+                        </button>
+
+                        <p
+                            id="mensagem-primeiro-acesso"
+                            style="
+                                display:none;
+                                margin-top:12px;
+                                font-weight:600;
+                            "
+                        ></p>
+
+                    </form>
+
+                </div>
+
+
+                <!-- LOGIN NORMAL -->
                 <form
                     id="form-login"
                     class="form-oculto"
@@ -1625,13 +1679,16 @@ function renderHome() {
                     <p
                         id="erro-login"
                         style="
-                            display: none;
-                            margin-top: 12px;
-                            color: #d32f2f;
-                            font-weight: 600;
+                            display:none;
+                            margin-top:12px;
+                            color:#d32f2f;
+                            font-weight:600;
                         "
                     ></p>
 
+                </form>
+
+        </form>
                 </form>
             </div>
         </div>
@@ -1670,56 +1727,37 @@ if (btnBoasVindas) {
 
 }
 
-function liberarFormularioLogin() {
-    const form = document.getElementById('form-login');
-    if (form) form.classList.replace('form-oculto', 'form-visivel');
-}
+async function solicitarPrimeiroAcesso(event) {
+    event.preventDefault();
 
-function validarLogin() {
-    const login =
-        document.getElementById('login').value.trim();
+    const emailInput = document.getElementById(
+        'email-primeiro-acesso'
+    );
 
-    const senha =
-        document.getElementById('senha').value;
+    const botao = document.getElementById(
+        'btn-primeiro-acesso'
+    );
 
-    const btn =
-        document.getElementById('btn-iniciar');
+    const mensagem = document.getElementById(
+        'mensagem-primeiro-acesso'
+    );
 
-    const loginValido =
-        login.length >= 3;
+    const email = emailInput.value.trim();
 
-    const senhaValida =
-        senha.length >= 6;
+    if (!email) {
+        return;
+    }
 
-    btn.disabled =
-        !(loginValido && senhaValida);
-}
+    botao.disabled = true;
+    botao.textContent = 'ENVIANDO...';
 
-async function iniciarIntegracao(e) {
-    e.preventDefault();
-
-    const login =
-        document.getElementById('login').value.trim();
-
-    const senha =
-        document.getElementById('senha').value;
-
-    const btn =
-        document.getElementById('btn-iniciar');
-
-    const erroLogin =
-        document.getElementById('erro-login');
-
-    erroLogin.style.display = 'none';
-    erroLogin.textContent = '';
-
-    btn.disabled = true;
-    btn.textContent = 'ENTRANDO...';
+    mensagem.style.display = 'none';
+    mensagem.textContent = '';
 
     try {
 
         const resposta = await fetch(
-            `${API_URL}/api/auth/login`,
+            `${API_URL}/api/auth/primeiro-acesso`,
             {
                 method: 'POST',
 
@@ -1728,53 +1766,353 @@ async function iniciarIntegracao(e) {
                 },
 
                 body: JSON.stringify({
-                    login: login,
-                    senha: senha
+                    email
                 })
             }
         );
 
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(
+                dados.erro ||
+                'Não foi possível enviar seu acesso.'
+            );
+        }
+
+        mensagem.textContent =
+            'Seu acesso foi enviado para o seu e-mail. Confira sua caixa de entrada.';
+
+        mensagem.style.color = '#2e7d32';
+        mensagem.style.display = 'block';
+
+        document.getElementById(
+            'primeiro-acesso'
+        ).style.display = 'none';
+
+        liberarFormularioLogin();
+
+        const login = document.getElementById('login');
+
+        if (login) {
+            login.value = '';
+            login.focus();
+        }
+
+    } catch (erro) {
+
+        console.error(
+            'Erro no primeiro acesso:',
+            erro
+        );
+
+        mensagem.textContent =
+            erro.message;
+
+        mensagem.style.color = '#d32f2f';
+        mensagem.style.display = 'block';
+
+    } finally {
+
+        botao.disabled = false;
+        botao.textContent =
+            'RECEBER MEU ACESSO';
+    }
+}
+
+function liberarFormularioLogin() {
+    const form = document.getElementById('form-login');
+    if (form) form.classList.replace('form-oculto', 'form-visivel');
+}
+
+async function solicitarPrimeiroAcesso(event) {
+
+    event.preventDefault();
+
+    const emailInput =
+        document.getElementById(
+            'email-primeiro-acesso'
+        );
+
+    const botao =
+        document.getElementById(
+            'btn-primeiro-acesso'
+        );
+
+    const mensagem =
+        document.getElementById(
+            'mensagem-primeiro-acesso'
+        );
+
+    const email =
+        emailInput.value.trim();
+
+
+    mensagem.style.display = 'none';
+    mensagem.textContent = '';
+
+
+    botao.disabled = true;
+    botao.textContent = 'ENVIANDO...';
+
+
+    try {
+
+        const resposta =
+            await fetch(
+                `${API_URL}/api/auth/primeiro-acesso`,
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body: JSON.stringify({
+                        email
+                    })
+                }
+            );
+
+
         const dados =
             await resposta.json();
 
+
         if (!resposta.ok) {
+
+            throw new Error(
+                dados.erro ||
+                'Não foi possível gerar seu acesso.'
+            );
+        }
+
+
+        mensagem.textContent =
+            '✅ Acesso enviado para seu e-mail. Confira sua caixa de entrada e depois faça o login abaixo.';
+
+        mensagem.style.color =
+            '#2e7d32';
+
+        mensagem.style.display =
+            'block';
+
+
+        // Esconde primeiro acesso
+        const primeiroAcesso =
+            document.getElementById(
+                'primeiro-acesso'
+            );
+
+        if (primeiroAcesso) {
+            primeiroAcesso.style.display =
+                'none';
+        }
+
+
+        // Libera login normal
+        liberarFormularioLogin();
+
+
+        // Coloca o e-mail automaticamente
+        // no campo de login.
+        const login =
+            document.getElementById('login');
+
+        if (login) {
+            login.value = email;
+            validarLogin();
+        }
+
+    } catch (erro) {
+
+        console.error(
+            'Erro no primeiro acesso:',
+            erro
+        );
+
+
+        mensagem.textContent =
+            erro.message;
+
+        mensagem.style.color =
+            '#d32f2f';
+
+        mensagem.style.display =
+            'block';
+
+
+    } finally {
+
+        botao.disabled =
+            false;
+
+        botao.textContent =
+            'RECEBER MEU ACESSO';
+    }
+}
+
+function validarLogin() {
+
+    const login =
+        document
+            .getElementById('login')
+            .value
+            .trim();
+
+
+    const senha =
+        document
+            .getElementById('senha')
+            .value;
+
+
+    const btn =
+        document.getElementById(
+            'btn-iniciar'
+        );
+
+
+    const loginValido =
+        login.length >= 3;
+
+
+    const senhaValida =
+        senha.length >= 6;
+
+
+    btn.disabled =
+        !(loginValido && senhaValida);
+}
+
+async function iniciarIntegracao(e) {
+
+    e.preventDefault();
+
+
+    const login =
+        document
+            .getElementById('login')
+            .value
+            .trim();
+
+
+    const senha =
+        document
+            .getElementById('senha')
+            .value;
+
+
+    const btn =
+        document.getElementById(
+            'btn-iniciar'
+        );
+
+
+    const erroLogin =
+        document.getElementById(
+            'erro-login'
+        );
+
+
+    erroLogin.style.display =
+        'none';
+
+    erroLogin.textContent =
+        '';
+
+
+    btn.disabled = true;
+
+    btn.textContent =
+        'ENTRANDO...';
+
+
+    try {
+
+        const resposta =
+            await fetch(
+                `${API_URL}/api/auth/login`,
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body: JSON.stringify({
+                        login: login,
+                        senha: senha
+                    })
+                }
+            );
+
+
+        const dados =
+            await resposta.json();
+
+
+        if (!resposta.ok) {
+
             throw new Error(
                 dados.erro ||
                 'Não foi possível realizar o login.'
             );
         }
 
-        // Guarda o token
+
+        // -----------------------------------------
+        // SALVA TOKEN
+        // -----------------------------------------
+
         localStorage.setItem(
             'integracao_token',
             dados.token
         );
 
-        // Guarda os dados reais do usuário
+
+        // -----------------------------------------
+        // SALVA USUÁRIO
+        // -----------------------------------------
+
         localStorage.setItem(
             'integracao_usuario',
-            JSON.stringify(dados.usuario)
+            JSON.stringify(
+                dados.usuario
+            )
         );
 
-        // Nome vem do banco
+
+        // Nome oficial vindo do banco
         estado.nomeUsuario =
             dados.usuario.nome || '';
 
-        // Administrador/RH
+
+        // -----------------------------------------
+        // ADMIN / RH
+        // -----------------------------------------
+
         if (
             dados.usuario.role === 'admin' ||
-            dados.usuario.role === 'rh' ||
-            dados.usuario.perfil === 'admin'
+            dados.usuario.role === 'rh'
         ) {
+
             renderPainelAdmin();
+
             return;
         }
 
-        // ==========================================
-        // TREINAMENTO JÁ CONCLUÍDO
-        // ==========================================
 
-        if (dados.usuario.treinamento_concluido) {
+        // -----------------------------------------
+        // TREINAMENTO JÁ CONCLUÍDO
+        // -----------------------------------------
+
+        if (
+            dados.usuario
+                .treinamento_concluido
+        ) {
 
             estado.etapaAtual =
                 modulos.length + 1;
@@ -1784,6 +2122,7 @@ async function iniciarIntegracao(e) {
             estado.maiorEtapa =
                 modulos.length;
 
+
             salvarEstado();
 
             init();
@@ -1791,25 +2130,46 @@ async function iniciarIntegracao(e) {
             return;
         }
 
-        // ==========================================
-        // COLABORADOR NORMAL
-        // ==========================================
 
-        estado.etapaAtual = 1;
-        estado.parteAtual = 0;
-        estado.maiorEtapa = 1;
+        // -----------------------------------------
+        // RESTAURA PROGRESSO
+        // -----------------------------------------
+
+        estado.etapaAtual =
+            Number(
+                dados.usuario.modulo_atual
+            ) || 1;
+
+
+        estado.parteAtual =
+            Number(
+                dados.usuario.parte_atual
+            ) || 0;
+
+
+        estado.maiorEtapa =
+            Math.max(
+                estado.etapaAtual,
+                1
+            );
+
 
         partesLiberadas = {};
+
 
         localStorage.removeItem(
             'integracao_partes_liberadas'
         );
 
+
         salvarEstado();
+
 
         await carregarProgressoServidor();
 
+
         init();
+
 
     } catch (erro) {
 
@@ -1818,11 +2178,14 @@ async function iniciarIntegracao(e) {
             erro
         );
 
+
         erroLogin.textContent =
             erro.message;
 
+
         erroLogin.style.display =
             'block';
+
 
         btn.disabled = false;
 

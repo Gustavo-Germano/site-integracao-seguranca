@@ -1056,42 +1056,33 @@ function getAvatarHTML() {
 }
 
 async function iniciarSistema() {
-    const token = localStorage.getItem('integracao_token');
-    const usuarioSalvo = localStorage.getItem('integracao_usuario');
 
-    if (token && usuarioSalvo) {
-        try {
-            const usuario = JSON.parse(usuarioSalvo);
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
 
-            estado.nomeUsuario = usuario.nome || '';
-            estado.etapaAtual = Number(usuario.modulo_atual) || 1;
-            estado.parteAtual = Number(usuario.parte_atual) || 0;
+    const token =
+        params.get('acesso');
 
-            // Se o treinamento já foi concluído,
-            // o usuário permanece no estado final.
-            if (usuario.treinamento_concluido === true) {
-                estado.etapaAtual = modulos.length + 1;
-                estado.parteAtual = 0;
-                estado.maiorEtapa = modulos.length;
-                renderConclusao();
-                return;
-            }
 
-            await carregarProgressoServidor();
+    if (token) {
 
-            init();
-            return;
+        renderHome();
 
-        } catch (erro) {
-            console.error(
-                'Erro ao restaurar sessão:',
-                erro
-            );
-
-            localStorage.removeItem('integracao_token');
-            localStorage.removeItem('integracao_usuario');
-        }
+        return;
     }
+
+
+    if (
+        params.get('admin') === '1'
+    ) {
+
+        renderHome();
+
+        return;
+    }
+
 
     estado.nomeUsuario = '';
     estado.etapaAtual = 0;
@@ -1111,124 +1102,6 @@ function init() {
     } else {
         renderConclusao();
     }
-}
-
-function renderPainelAdmin() {
-    app.innerHTML = `
-        <div class="main-content">
-            <div class="container">
-
-                <h2 style="
-                    text-align: center;
-                    color: var(--primary-color);
-                ">
-                    Painel do Administrador
-                </h2>
-
-                <p style="
-                    text-align: center;
-                    margin-bottom: 25px;
-                ">
-                    Cadastre um novo colaborador.
-                    O sistema irá gerar automaticamente o usuário
-                    e a senha de acesso.
-                </p>
-
-                <form
-                    id="form-cadastro-colaborador"
-                    style="
-                        max-width: 500px;
-                        margin: 30px auto;
-                    "
-                >
-
-                    <input
-                        type="text"
-                        id="admin-nome"
-                        placeholder="Nome completo do colaborador"
-                        required
-                        style="
-                            width: 100%;
-                            margin-bottom: 12px;
-                        "
-                    >
-
-                    <input
-                        type="email"
-                        id="admin-email"
-                        placeholder="E-mail do colaborador"
-                        required
-                        style="
-                            width: 100%;
-                            margin-bottom: 12px;
-                        "
-                    >
-
-                    <button
-                        type="submit"
-                        class="btn"
-                        style="width: 100%;"
-                    >
-                        CADASTRAR COLABORADOR
-                    </button>
-
-                    <div
-                        id="admin-credenciais"
-                        style="
-                            display: none;
-                            margin-top: 25px;
-                            padding: 20px;
-                            border-radius: 10px;
-                            background: #f5f5f5;
-                            text-align: center;
-                        "
-                    >
-
-                        <h3>
-                            ✅ Colaborador cadastrado
-                        </h3>
-
-                        <p>
-                            Entregue estas credenciais ao colaborador:
-                        </p>
-
-                        <p>
-                            <strong>Usuário:</strong>
-                            <span id="admin-usuario-gerado"></span>
-                        </p>
-
-                        <p>
-                            <strong>Senha temporária:</strong>
-                            <span id="admin-senha-gerada"></span>
-                        </p>
-
-                    </div>
-
-                    <p
-                        id="admin-mensagem"
-                        style="
-                            display: none;
-                            margin-top: 20px;
-                            text-align: center;
-                            font-weight: bold;
-                        "
-                    ></p>
-
-                </form>
-
-            </div>
-        </div>
-    `;
-
-    const formulario =
-        document.getElementById(
-            'form-cadastro-colaborador'
-        );
-
-    formulario.addEventListener(
-        'submit',
-        cadastrarColaborador
-    );
 }
 
 function atualizarTopbar() {
@@ -1566,342 +1439,350 @@ function pararLeitura() {
 
 function renderHome() {
 
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    const token =
+        params.get('acesso');
+
+    const modoAdmin =
+        params.get('admin') === '1';
+
+
+    // =====================================================
+    // ADMIN
+    // =====================================================
+
+    if (modoAdmin) {
+
+        renderLoginAdmin();
+
+        return;
+    }
+
+
+    // =====================================================
+    // COLABORADOR
+    // =====================================================
+
+    if (!token) {
+
+        app.innerHTML = `
+
+            <div class="main-content">
+
+                <div
+                    class="container"
+                    style="
+                        max-width:600px;
+                        margin:80px auto;
+                        text-align:center;
+                    "
+                >
+
+                    <h2
+                        style="
+                            color:var(--primary-color);
+                        "
+                    >
+                        Integração de Segurança
+                    </h2>
+
+                    <p>
+                        Este treinamento deve ser
+                        acessado através do link
+                        fornecido pela empresa.
+                    </p>
+
+                    <p
+                        style="
+                            color:#d32f2f;
+                            font-weight:600;
+                        "
+                    >
+                        Link de acesso não informado.
+                    </p>
+
+                </div>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    validarAcessoLink(token);
+}
+
+async function validarAcessoLink(token) {
+
     app.innerHTML = `
 
-        <div
-            class="tela-acesso"
-            style="
-                min-height:100vh;
-                width:100%;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                padding:30px 20px;
-                box-sizing:border-box;
-            "
-        >
+        <div class="main-content">
 
             <div
+                class="container"
                 style="
-                    width:100%;
-                    max-width:620px;
-                    display:flex;
-                    flex-direction:column;
-                    gap:22px;
+                    max-width:600px;
+                    margin:80px auto;
+                    text-align:center;
                 "
             >
 
-                <!-- =========================================
-                     PRIMEIRO ACESSO
-                     ========================================= -->
+                <h2>
+                    Validando seu acesso...
+                </h2>
 
-                <div
-                    id="primeiro-acesso"
-                    style="
-                        padding:28px;
-                        border-radius:18px;
-                        background:#f7f7f7;
-                        box-shadow:0 5px 20px rgba(0,0,0,.10);
-                        text-align:left;
-                    "
-                >
-
-                    <h3
-                        style="
-                            margin:0 0 12px;
-                            color:var(--primary-color);
-                        "
-                    >
-                        PRIMEIRO ACESSO
-                    </h3>
-
-                    <p
-                        style="
-                            margin:0 0 20px;
-                            line-height:1.6;
-                        "
-                    >
-                        Ainda não possui acesso?
-                        Informe seu nome completo e seu e-mail.
-                        O sistema criará seu usuário e sua senha
-                        automaticamente e enviará os dados para
-                        o seu e-mail.
-                    </p>
-
-                    <form
-                        id="form-primeiro-acesso"
-                        onsubmit="solicitarPrimeiroAcesso(event)"
-                    >
-
-                        <input
-                            type="text"
-                            id="nome-primeiro-acesso"
-                            placeholder="Digite seu nome completo..."
-                            required
-                            autocomplete="name"
-                        >
-
-                        <input
-                            type="email"
-                            id="email-primeiro-acesso"
-                            placeholder="Digite seu e-mail..."
-                            required
-                            autocomplete="email"
-                        >
-
-                        <button
-                            type="submit"
-                            class="btn"
-                            id="btn-primeiro-acesso"
-                            style="width:100%;"
-                        >
-                            RECEBER MEU ACESSO
-                        </button>
-
-                    </form>
-
-                    <p
-                        id="mensagem-primeiro-acesso"
-                        style="
-                            display:none;
-                            margin:18px 0 0;
-                            font-weight:600;
-                            line-height:1.5;
-                        "
-                    ></p>
-
-                    <button
-                        type="button"
-                        id="btn-avancar-primeiro-acesso"
-                        class="btn"
-                        style="
-                            display:none;
-                            width:100%;
-                            margin-top:15px;
-                        "
-                        onclick="mostrarLogin()"
-                    >
-                        AVANÇAR ➡
-                    </button>
-
-                </div>
-
-
-                <!-- =========================================
-                     JÁ POSSUI ACESSO
-                     ========================================= -->
-
-                <div
-                    id="ja-possui-acesso"
-                    style="
-                        padding:28px;
-                        border-radius:18px;
-                        background:#f7f7f7;
-                        box-shadow:0 5px 20px rgba(0,0,0,.10);
-                        text-align:left;
-                    "
-                >
-
-                    <h3
-                        style="
-                            margin:0 0 12px;
-                            color:var(--primary-color);
-                        "
-                    >
-                        JÁ POSSUI ACESSO?
-                    </h3>
-
-                    <p
-                        style="
-                            margin:0 0 20px;
-                            line-height:1.6;
-                        "
-                    >
-                        Utilize o usuário e a senha
-                        enviados para o seu e-mail.
-                    </p>
-
-                    <button
-                        type="button"
-                        class="btn"
-                        style="width:100%;"
-                        onclick="mostrarLogin()"
-                    >
-                        AVANÇAR ➡
-                    </button>
-
-                </div>
-
-
-                <!-- =========================================
-                     LOGIN
-                     ========================================= -->
-
-                <div
-                    id="area-login"
-                    style="
-                        display:none;
-                        padding:28px;
-                        border-radius:18px;
-                        background:#f7f7f7;
-                        box-shadow:0 5px 20px rgba(0,0,0,.10);
-                        text-align:left;
-                    "
-                >
-
-                    <h3
-                        style="
-                            margin:0 0 12px;
-                            color:var(--primary-color);
-                        "
-                    >
-                        ACESSAR TREINAMENTO
-                    </h3>
-
-                    <p
-                        style="
-                            margin:0 0 20px;
-                            line-height:1.6;
-                        "
-                    >
-                        Digite o usuário e a senha
-                        recebidos no seu e-mail.
-                    </p>
-
-                    <form
-                        id="form-login"
-                        onsubmit="iniciarIntegracao(event)"
-                    >
-
-                        <input
-                            type="text"
-                            id="login"
-                            placeholder="Usuário ou e-mail..."
-                            required
-                            autocomplete="username"
-                            oninput="validarLogin()"
-                        >
-
-                        <input
-                            type="password"
-                            id="senha"
-                            placeholder="Digite sua senha..."
-                            required
-                            autocomplete="current-password"
-                            oninput="validarLogin()"
-                        >
-
-                        <button
-                            type="submit"
-                            class="btn"
-                            id="btn-iniciar"
-                            disabled
-                            style="width:100%;"
-                        >
-                            AVANÇAR ➡
-                        </button>
-
-                        <p
-                            id="erro-login"
-                            style="
-                                display:none;
-                                margin-top:12px;
-                                color:#d32f2f;
-                                font-weight:600;
-                            "
-                        ></p>
-
-                    </form>
-
-                </div>
+                <p>
+                    Aguarde um momento.
+                </p>
 
             </div>
 
         </div>
     `;
 
-}
-
-
-/* =====================================================
-   PRIMEIRO ACESSO
-   ===================================================== */
-
-async function solicitarPrimeiroAcesso(event) {
-
-    event.preventDefault();
-
-    const nomeInput =
-        document.getElementById(
-            'nome-primeiro-acesso'
-        );
-
-    const emailInput =
-        document.getElementById(
-            'email-primeiro-acesso'
-        );
-
-    const botao =
-        document.getElementById(
-            'btn-primeiro-acesso'
-        );
-
-    const mensagem =
-        document.getElementById(
-            'mensagem-primeiro-acesso'
-        );
-
-    const nome =
-        nomeInput.value.trim();
-
-    const email =
-        emailInput.value.trim().toLowerCase();
-
-    if (!nome) {
-
-        mensagem.textContent =
-            'Digite seu nome completo.';
-
-        mensagem.style.color =
-            '#d32f2f';
-
-        mensagem.style.display =
-            'block';
-
-        return;
-    }
-
-    if (!email) {
-
-        mensagem.textContent =
-            'Digite seu e-mail.';
-
-        mensagem.style.color =
-            '#d32f2f';
-
-        mensagem.style.display =
-            'block';
-
-        return;
-    }
-
-    mensagem.style.display =
-        'none';
-
-    mensagem.textContent =
-        '';
-
-    botao.disabled =
-        true;
-
-    botao.textContent =
-        'ENVIANDO...';
 
     try {
 
         const resposta =
             await fetch(
-                `${API_URL}/api/auth/primeiro-acesso`,
+                `${API_URL}/api/auth/acesso`,
+                {
+                    method: 'GET',
+
+                    headers: {
+                        'Authorization':
+                            `Bearer ${token}`
+                    }
+                }
+            );
+
+
+        const dados =
+            await resposta.json();
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                dados.erro ||
+                'Este link não é válido.'
+            );
+        }
+
+
+        // -----------------------------------------
+        // GUARDA TOKEN
+        // -----------------------------------------
+
+        localStorage.setItem(
+            'integracao_token',
+            token
+        );
+
+
+        localStorage.setItem(
+            'integracao_usuario',
+            JSON.stringify(
+                dados.usuario
+            )
+        );
+
+
+        estado.nomeUsuario =
+            dados.usuario.nome ===
+            'Aguardando identificação'
+                ? ''
+                : dados.usuario.nome;
+
+
+        estado.etapaAtual =
+            Number(
+                dados.usuario.modulo_atual ||
+                1
+            );
+
+
+        estado.parteAtual =
+            Number(
+                dados.usuario.parte_atual ||
+                0
+            );
+
+
+        estado.maiorEtapa =
+            estado.etapaAtual;
+
+
+        // -----------------------------------------
+        // NOME AINDA NÃO INFORMADO
+        // -----------------------------------------
+
+        if (!estado.nomeUsuario) {
+
+            mostrarTelaNomeAcesso(
+                token
+            );
+
+            return;
+        }
+
+
+        // -----------------------------------------
+        // JÁ IDENTIFICADO
+        // -----------------------------------------
+
+        mostrarBotaoIniciarTreinamento();
+
+    } catch (erro) {
+
+        app.innerHTML = `
+
+            <div class="main-content">
+
+                <div
+                    class="container"
+                    style="
+                        max-width:600px;
+                        margin:80px auto;
+                        text-align:center;
+                    "
+                >
+
+                    <h2
+                        style="
+                            color:#d32f2f;
+                        "
+                    >
+                        Acesso indisponível
+                    </h2>
+
+                    <p>
+                        ${erro.message}
+                    </p>
+
+                    <p>
+                        Solicite um novo link à empresa.
+                    </p>
+
+                </div>
+
+            </div>
+        `;
+    }
+}
+
+function renderLoginAdmin() {
+
+    app.innerHTML = `
+
+        <div class="main-content">
+
+            <div
+                class="container"
+                style="
+                    max-width:500px;
+                    margin:70px auto;
+                    text-align:center;
+                "
+            >
+
+                <h2>
+                    Acesso administrativo
+                </h2>
+
+
+                <form
+                    id="form-login-admin"
+                    style="
+                        margin-top:30px;
+                    "
+                >
+
+                    <input
+                        type="text"
+                        id="admin-login"
+                        placeholder="Usuário ou e-mail"
+                        required
+                    >
+
+
+                    <input
+                        type="password"
+                        id="admin-senha-login"
+                        placeholder="Senha"
+                        required
+                    >
+
+
+                    <button
+                        type="submit"
+                        class="btn"
+                        style="width:100%;"
+                    >
+                        ENTRAR
+                    </button>
+
+
+                    <p
+                        id="erro-admin-login"
+                        style="
+                            display:none;
+                            color:#d32f2f;
+                            font-weight:600;
+                        "
+                    ></p>
+
+                </form>
+
+            </div>
+
+        </div>
+    `;
+
+
+    document
+        .getElementById(
+            'form-login-admin'
+        )
+        .addEventListener(
+            'submit',
+            loginAdministrador
+        );
+}
+
+async function loginAdministrador(event) {
+
+    event.preventDefault();
+
+
+    const login =
+        document.getElementById(
+            'admin-login'
+        ).value.trim();
+
+
+    const senha =
+        document.getElementById(
+            'admin-senha-login'
+        ).value;
+
+
+    const erro =
+        document.getElementById(
+            'erro-admin-login'
+        );
+
+
+    try {
+
+        const resposta =
+            await fetch(
+                `${API_URL}/api/auth/login`,
                 {
                     method: 'POST',
 
@@ -1910,132 +1791,245 @@ async function solicitarPrimeiroAcesso(event) {
                             'application/json'
                     },
 
-                    body: JSON.stringify({
-                        nome,
-                        email
-                    })
+                    body:
+                        JSON.stringify({
+                            login,
+                            senha
+                        })
                 }
             );
 
+
         const dados =
             await resposta.json();
+
 
         if (!resposta.ok) {
 
             throw new Error(
                 dados.erro ||
-                'Não foi possível criar seu acesso.'
+                'Login inválido.'
             );
         }
 
-        mensagem.textContent =
-            '✅ Acesso criado e enviado para seu e-mail. Confira sua caixa de entrada.';
 
-        mensagem.style.color =
-            '#2e7d32';
+        if (
+            dados.usuario.role !== 'admin' &&
+            dados.usuario.role !== 'rh'
+        ) {
 
-        mensagem.style.display =
-            'block';
-
-        const primeiroAcesso =
-            document.getElementById(
-                'primeiro-acesso'
+            throw new Error(
+                'Este acesso não é administrativo.'
             );
-
-        if (primeiroAcesso) {
-
-            primeiroAcesso.style.display =
-                'none';
         }
 
-        liberarFormularioLogin();
 
-        const login =
-            document.getElementById(
-                'login'
-            );
-
-        if (login) {
-
-            login.value =
-                email;
-
-            validarLogin();
-        }
-
-    } catch (erro) {
-
-        console.error(
-            'Erro no primeiro acesso:',
-            erro
+        localStorage.setItem(
+            'integracao_token',
+            dados.token
         );
 
-        mensagem.textContent =
-            erro.message;
 
-        mensagem.style.color =
-            '#d32f2f';
+        localStorage.setItem(
+            'integracao_usuario',
+            JSON.stringify(
+                dados.usuario
+            )
+        );
 
-        mensagem.style.display =
+
+        renderPainelAdmin();
+
+    } catch (e) {
+
+        erro.textContent =
+            e.message;
+
+        erro.style.display =
             'block';
-
-    } finally {
-
-        botao.disabled =
-            false;
-
-        botao.textContent =
-            'RECEBER MEU ACESSO';
     }
 }
 
-/* =====================================================
-   VALIDA LOGIN
-   ===================================================== */
+function mostrarTelaNomeAcesso(token) {
 
-function validarLogin() {
+    app.innerHTML = `
 
-    const campoLogin =
+        <div class="main-content">
+
+            <div
+                class="container"
+                style="
+                    max-width:600px;
+                    margin:60px auto;
+                    text-align:center;
+                "
+            >
+
+                <h2
+                    style="
+                        color:var(--primary-color);
+                    "
+                >
+                    Integração de Segurança
+                </h2>
+
+                <p>
+                    Informe seu nome completo
+                    para iniciar o treinamento.
+                </p>
+
+
+                <form
+                    id="form-nome-acesso"
+                    style="
+                        max-width:420px;
+                        margin:30px auto;
+                    "
+                >
+
+                    <input
+                        type="text"
+                        id="nome-acesso"
+                        placeholder="Seu nome completo..."
+                        required
+                        autocomplete="name"
+                    >
+
+
+                    <button
+                        type="submit"
+                        class="btn"
+                        style="
+                            width:100%;
+                            margin-top:15px;
+                        "
+                    >
+                        INICIAR TREINAMENTO
+                    </button>
+
+
+                    <p
+                        id="erro-acesso"
+                        style="
+                            display:none;
+                            color:#d32f2f;
+                            font-weight:600;
+                            margin-top:15px;
+                        "
+                    ></p>
+
+                </form>
+
+            </div>
+
+        </div>
+    `;
+
+
+    const form =
         document.getElementById(
-            'login'
+            'form-nome-acesso'
         );
 
-    const campoSenha =
-        document.getElementById(
-            'senha'
-        );
 
-    const btn =
-        document.getElementById(
-            'btn-iniciar'
-        );
+    form.addEventListener(
+        'submit',
+        async (event) => {
+
+            event.preventDefault();
 
 
-    if (
-        !campoLogin ||
-        !campoSenha ||
-        !btn
-    ) {
-        return;
-    }
+            const nome =
+                document
+                    .getElementById(
+                        'nome-acesso'
+                    )
+                    .value
+                    .trim();
 
 
-    const login =
-        campoLogin.value.trim();
-
-    const senha =
-        campoSenha.value;
-
-
-    const loginValido =
-        login.length >= 3;
-
-    const senhaValida =
-        senha.length >= 6;
+            const erro =
+                document.getElementById(
+                    'erro-acesso'
+                );
 
 
-    btn.disabled =
-        !(loginValido && senhaValida);
+            try {
+
+                const resposta =
+                    await fetch(
+                        `${API_URL}/api/auth/acesso/iniciar`,
+                        {
+                            method: 'POST',
+
+                            headers: {
+                                'Content-Type':
+                                    'application/json',
+
+                                'Authorization':
+                                    `Bearer ${token}`
+                            },
+
+                            body:
+                                JSON.stringify({
+                                    nome
+                                })
+                        }
+                    );
+
+
+                const dados =
+                    await resposta.json();
+
+
+                if (!resposta.ok) {
+
+                    throw new Error(
+                        dados.erro ||
+                        'Não foi possível iniciar o treinamento.'
+                    );
+                }
+
+
+                localStorage.setItem(
+                    'integracao_usuario',
+                    JSON.stringify(
+                        dados.usuario
+                    )
+                );
+
+
+                estado.nomeUsuario =
+                    dados.usuario.nome;
+
+                estado.etapaAtual =
+                    Number(
+                        dados.usuario.modulo_atual ||
+                        1
+                    );
+
+                estado.parteAtual =
+                    Number(
+                        dados.usuario.parte_atual ||
+                        0
+                    );
+
+                estado.maiorEtapa =
+                    estado.etapaAtual;
+
+
+                mostrarBotaoIniciarTreinamento();
+
+            } catch (e) {
+
+                erro.textContent =
+                    e.message;
+
+                erro.style.display =
+                    'block';
+            }
+        }
+    );
 }
 
 
@@ -3260,75 +3254,6 @@ function fecharMenuMobile() {
 
     sidebar.classList.remove('menu-mobile-aberto');
     overlay.classList.remove('menu-mobile-aberto');
-}
-
-async function cadastrarColaborador(event) {
-    event.preventDefault();
-
-    const nome = document.getElementById('admin-nome').value.trim();
-    const email = document.getElementById('admin-email').value.trim();
-    const senha = document.getElementById('admin-senha').value;
-
-    const mensagem = document.getElementById('admin-mensagem');
-    const botao = document.querySelector('#form-cadastro-colaborador button');
-
-    mensagem.style.display = 'none';
-    mensagem.textContent = '';
-
-    botao.disabled = true;
-    botao.textContent = 'CADASTRANDO...';
-
-    try {
-        const token = localStorage.getItem('integracao_token');
-
-        if (!token) {
-            throw new Error('Sessão do administrador não encontrada.');
-        }
-
-        const resposta = await fetch(
-            `${API_URL}/api/progresso`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    nome: nome,
-                    email: email,
-                    senha: senha,
-                    perfil: 'colaborador'
-                })
-            }
-        );
-
-        const dados = await resposta.json();
-
-        if (!resposta.ok) {
-            throw new Error(
-                dados.erro || 'Não foi possível cadastrar o colaborador.'
-            );
-        }
-
-        mensagem.textContent = '✅ Colaborador cadastrado com sucesso.';
-        mensagem.style.color = 'green';
-        mensagem.style.display = 'block';
-
-        document.getElementById('form-cadastro-colaborador').reset();
-
-    } catch (erro) {
-
-        console.error('Erro ao cadastrar colaborador:', erro);
-
-        mensagem.textContent = '❌ ' + erro.message;
-        mensagem.style.color = 'red';
-        mensagem.style.display = 'block';
-
-    } finally {
-
-        botao.disabled = false;
-        botao.textContent = 'CADASTRAR COLABORADOR';
-    }
 }
 
 iniciarSistema();

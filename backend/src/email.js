@@ -4,15 +4,15 @@ export async function enviarEmailAcesso({
     usuarioLogin,
     senhaTemporaria
 }) {
+    
     const apiKey = process.env.RESEND_API_KEY;
-    const emailFrom = process.env.EMAIL_FROM;
+
+    const emailFrom =
+        process.env.EMAIL_FROM?.trim() ||
+        "Integração de Segurança <onboarding@resend.dev>";
 
     if (!apiKey) {
         throw new Error("RESEND_API_KEY não configurada.");
-    }
-
-    if (!emailFrom) {
-        throw new Error("EMAIL_FROM não configurado.");
     }
 
     const resposta = await fetch("https://api.resend.com/emails", {

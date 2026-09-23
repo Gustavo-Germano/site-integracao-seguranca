@@ -324,19 +324,11 @@ router.post(
             // -----------------------------------------
 
             await enviarEmailAcesso({
-
                 nome: nomeFinal,
-
-                email: email,
-
-                usuarioLogin:
-                    usuarioLogin,
-
-                senhaTemporaria:
-                    senhaTemporaria
+                email,
+                usuarioLogin,
+                senhaTemporaria
             });
-
-
             // -----------------------------------------
             // CONFIRMA BANCO
             // -----------------------------------------

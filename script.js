@@ -1568,7 +1568,8 @@ function renderHome() {
     app.innerHTML = `
         <div class="main-content">
             <div class="container" style="text-align: center;">
-                <div id="conteudo-boas-vindas" style="display: none;">
+
+                <div id="conteudo-boas-vindas">
                     ${getAvatarHTML()}
 
                     <h2 style="color: var(--primary-color);">
@@ -1580,24 +1581,41 @@ function renderHome() {
                     </p>
                 </div>
 
-                <!-- PRIMEIRO ACESSO -->
+
+                <!-- ==========================================
+                     PRIMEIRO ACESSO
+                     ========================================== -->
+
                 <div
                     id="primeiro-acesso"
                     style="
-                        margin-top:20px;
-                        padding:20px;
-                        border-radius:12px;
-                        background:#f7f7f7;
+                        margin: 25px auto;
+                        padding: 25px;
+                        max-width: 600px;
+                        border-radius: 16px;
+                        background: #f7f7f7;
+                        box-shadow: 0 4px 15px rgba(0,0,0,.08);
                     "
                 >
 
-                    <h3>PRIMEIRO ACESSO</h3>
+                    <h3 style="
+                        color: var(--primary-color);
+                        margin-bottom: 10px;
+                    ">
+                        PRIMEIRO ACESSO
+                    </h3>
 
-                    <p>
+                    <p style="
+                        margin-bottom: 20px;
+                        line-height: 1.6;
+                    ">
+                        Ainda não possui acesso?
                         Informe seu nome completo e seu e-mail.
-                        O sistema criará seu acesso automaticamente
-                        e enviará usuário e senha para o seu e-mail.
+                        O sistema criará seu usuário e uma senha
+                        automaticamente e enviará os dados para
+                        o seu e-mail.
                     </p>
+
 
                     <form
                         id="form-primeiro-acesso"
@@ -1631,9 +1649,10 @@ function renderHome() {
                         <p
                             id="mensagem-primeiro-acesso"
                             style="
-                                display:none;
-                                margin-top:12px;
-                                font-weight:600;
+                                display: none;
+                                margin-top: 15px;
+                                font-weight: 600;
+                                line-height: 1.5;
                             "
                         ></p>
 
@@ -1642,192 +1661,99 @@ function renderHome() {
                 </div>
 
 
-                <!-- LOGIN NORMAL -->
-                <form
-                    id="form-login"
-                    class="form-oculto"
-                    onsubmit="iniciarIntegracao(event)"
+                <!-- ==========================================
+                     LOGIN NORMAL
+                     ========================================== -->
+
+                <div
+                    id="area-login"
+                    style="
+                        max-width: 600px;
+                        margin: 25px auto;
+                    "
                 >
 
-                    <input
-                        type="text"
-                        id="login"
-                        placeholder="Usuário ou e-mail..."
-                        required
-                        autocomplete="username"
-                        oninput="validarLogin()"
+                    <h3>
+                        JÁ POSSUI ACESSO?
+                    </h3>
+
+                    <p style="
+                        margin-bottom: 20px;
+                        line-height: 1.6;
+                    ">
+                        Utilize o usuário e a senha
+                        enviados para o seu e-mail.
+                    </p>
+
+
+                    <form
+                        id="form-login"
+                        class="form-oculto"
+                        onsubmit="iniciarIntegracao(event)"
                     >
 
-                    <input
-                        type="password"
-                        id="senha"
-                        placeholder="Digite sua senha..."
-                        required
-                        autocomplete="current-password"
-                        oninput="validarLogin()"
-                    >
+                        <input
+                            type="text"
+                            id="login"
+                            placeholder="Usuário ou e-mail..."
+                            required
+                            autocomplete="username"
+                            oninput="validarLogin()"
+                        >
 
-                    <button
-                        type="submit"
-                        class="btn"
-                        id="btn-iniciar"
-                        disabled
-                    >
-                        COMEÇAR TREINAMENTO
-                    </button>
+                        <input
+                            type="password"
+                            id="senha"
+                            placeholder="Digite sua senha..."
+                            required
+                            autocomplete="current-password"
+                            oninput="validarLogin()"
+                        >
 
-                    <p
-                        id="erro-login"
-                        style="
-                            display:none;
-                            margin-top:12px;
-                            color:#d32f2f;
-                            font-weight:600;
-                        "
-                    ></p>
+                        <button
+                            type="submit"
+                            class="btn"
+                            id="btn-iniciar"
+                            disabled
+                        >
+                            COMEÇAR TREINAMENTO
+                        </button>
 
-                </form>
+                        <p
+                            id="erro-login"
+                            style="
+                                display: none;
+                                margin-top: 12px;
+                                color: #d32f2f;
+                                font-weight: 600;
+                            "
+                        ></p>
 
-        </form>
-                </form>
+                    </form>
+
+                </div>
+
             </div>
         </div>
     `;
 
-const btnBoasVindas =
-    document.getElementById('btn-ouvir-boas-vindas');
-
-if (btnBoasVindas) {
-
-    btnBoasVindas.style.display = 'inline-flex';
-
-    btnBoasVindas.addEventListener(
-        'click',
-        () => {
-
-            btnBoasVindas.style.display = 'none';
-
-            const conteudoBoasVindas =
-                document.getElementById('conteudo-boas-vindas');
-
-            if (conteudoBoasVindas) {
-                conteudoBoasVindas.style.display = 'block';
-            }
-
-            tocarAudioESincronizar(
-                textoBoasVindas.audio,
-                textoBoasVindas.texto,
-                true
-            );
-
-        },
-        { once: true }
-    );
+    validarLogin();
 }
 
-}
+
+/* =====================================================
+   PRIMEIRO ACESSO
+   ===================================================== */
 
 async function solicitarPrimeiroAcesso(event) {
+
     event.preventDefault();
 
-    const emailInput = document.getElementById(
-        'email-primeiro-acesso'
-    );
 
-    const botao = document.getElementById(
-        'btn-primeiro-acesso'
-    );
-
-    const mensagem = document.getElementById(
-        'mensagem-primeiro-acesso'
-    );
-
-    const email = emailInput.value.trim();
-
-    if (!email) {
-        return;
-    }
-
-    botao.disabled = true;
-    botao.textContent = 'ENVIANDO...';
-
-    mensagem.style.display = 'none';
-    mensagem.textContent = '';
-
-    try {
-
-        const resposta = await fetch(
-            `${API_URL}/api/auth/primeiro-acesso`,
-            {
-                method: 'POST',
-
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-
-                body: JSON.stringify({
-                    email
-                })
-            }
-        );
-
-        const dados = await resposta.json();
-
-        if (!resposta.ok) {
-            throw new Error(
-                dados.erro ||
-                'Não foi possível enviar seu acesso.'
-            );
-        }
-
-        mensagem.textContent =
-            'Seu acesso foi enviado para o seu e-mail. Confira sua caixa de entrada.';
-
-        mensagem.style.color = '#2e7d32';
-        mensagem.style.display = 'block';
-
+    const nomeInput =
         document.getElementById(
-            'primeiro-acesso'
-        ).style.display = 'none';
-
-        liberarFormularioLogin();
-
-        const login = document.getElementById('login');
-
-        if (login) {
-            login.value = '';
-            login.focus();
-        }
-
-    } catch (erro) {
-
-        console.error(
-            'Erro no primeiro acesso:',
-            erro
+            'nome-primeiro-acesso'
         );
-
-        mensagem.textContent =
-            erro.message;
-
-        mensagem.style.color = '#d32f2f';
-        mensagem.style.display = 'block';
-
-    } finally {
-
-        botao.disabled = false;
-        botao.textContent =
-            'RECEBER MEU ACESSO';
-    }
-}
-
-function liberarFormularioLogin() {
-    const form = document.getElementById('form-login');
-    if (form) form.classList.replace('form-oculto', 'form-visivel');
-}
-
-async function solicitarPrimeiroAcesso(event) {
-
-    event.preventDefault();
 
     const emailInput =
         document.getElementById(
@@ -1844,16 +1770,56 @@ async function solicitarPrimeiroAcesso(event) {
             'mensagem-primeiro-acesso'
         );
 
+
+    const nome =
+        nomeInput.value.trim();
+
     const email =
-        emailInput.value.trim();
+        emailInput.value.trim().toLowerCase();
 
 
     mensagem.style.display = 'none';
     mensagem.textContent = '';
 
 
+    if (!nome || nome.length < 3) {
+
+        mensagem.textContent =
+            'Informe seu nome completo.';
+
+        mensagem.style.color =
+            '#d32f2f';
+
+        mensagem.style.display =
+            'block';
+
+        return;
+    }
+
+
+    if (
+        !email ||
+        !email.includes('@') ||
+        !email.includes('.')
+    ) {
+
+        mensagem.textContent =
+            'Informe um e-mail válido.';
+
+        mensagem.style.color =
+            '#d32f2f';
+
+        mensagem.style.display =
+            'block';
+
+        return;
+    }
+
+
     botao.disabled = true;
-    botao.textContent = 'ENVIANDO...';
+
+    botao.textContent =
+        'CRIANDO SEU ACESSO...';
 
 
     try {
@@ -1870,7 +1836,8 @@ async function solicitarPrimeiroAcesso(event) {
                     },
 
                     body: JSON.stringify({
-                        email
+                        nome: nome,
+                        email: email
                     })
                 }
             );
@@ -1884,13 +1851,16 @@ async function solicitarPrimeiroAcesso(event) {
 
             throw new Error(
                 dados.erro ||
-                'Não foi possível gerar seu acesso.'
+                'Não foi possível criar seu acesso.'
             );
         }
 
 
         mensagem.textContent =
-            '✅ Acesso enviado para seu e-mail. Confira sua caixa de entrada e depois faça o login abaixo.';
+            '✅ Acesso criado com sucesso! ' +
+            'Enviamos seu usuário e sua senha para o seu e-mail. ' +
+            'Confira também a pasta de spam ou lixo eletrônico.';
+
 
         mensagem.style.color =
             '#2e7d32';
@@ -1899,30 +1869,44 @@ async function solicitarPrimeiroAcesso(event) {
             'block';
 
 
-        // Esconde primeiro acesso
+        /*
+         * Esconde o formulário de primeiro acesso
+         */
         const primeiroAcesso =
             document.getElementById(
                 'primeiro-acesso'
             );
 
         if (primeiroAcesso) {
+
             primeiroAcesso.style.display =
                 'none';
         }
 
 
-        // Libera login normal
+        /*
+         * Libera o login normal
+         */
         liberarFormularioLogin();
 
 
-        // Coloca o e-mail automaticamente
-        // no campo de login.
+        /*
+         * Preenche o e-mail automaticamente
+         * no campo de login.
+         */
         const login =
-            document.getElementById('login');
+            document.getElementById(
+                'login'
+            );
 
         if (login) {
-            login.value = email;
+
+            login.value =
+                email;
+
             validarLogin();
+
+            login.focus();
         }
 
     } catch (erro) {
@@ -1934,14 +1918,15 @@ async function solicitarPrimeiroAcesso(event) {
 
 
         mensagem.textContent =
-            erro.message;
+            erro.message ||
+            'Não foi possível criar seu acesso.';
+
 
         mensagem.style.color =
             '#d32f2f';
 
         mensagem.style.display =
             'block';
-
 
     } finally {
 
@@ -1953,20 +1938,43 @@ async function solicitarPrimeiroAcesso(event) {
     }
 }
 
+
+/* =====================================================
+   LIBERA LOGIN NORMAL
+   ===================================================== */
+
+function liberarFormularioLogin() {
+
+    const form =
+        document.getElementById(
+            'form-login'
+        );
+
+    if (form) {
+
+        form.classList.replace(
+            'form-oculto',
+            'form-visivel'
+        );
+    }
+}
+
+
+/* =====================================================
+   VALIDA LOGIN
+   ===================================================== */
+
 function validarLogin() {
 
-    const login =
-        document
-            .getElementById('login')
-            .value
-            .trim();
+    const campoLogin =
+        document.getElementById(
+            'login'
+        );
 
-
-    const senha =
-        document
-            .getElementById('senha')
-            .value;
-
+    const campoSenha =
+        document.getElementById(
+            'senha'
+        );
 
     const btn =
         document.getElementById(
@@ -1974,9 +1982,24 @@ function validarLogin() {
         );
 
 
+    if (
+        !campoLogin ||
+        !campoSenha ||
+        !btn
+    ) {
+        return;
+    }
+
+
+    const login =
+        campoLogin.value.trim();
+
+    const senha =
+        campoSenha.value;
+
+
     const loginValido =
         login.length >= 3;
-
 
     const senhaValida =
         senha.length >= 6;
@@ -1985,6 +2008,11 @@ function validarLogin() {
     btn.disabled =
         !(loginValido && senhaValida);
 }
+
+
+/* =====================================================
+   LOGIN NORMAL
+   ===================================================== */
 
 async function iniciarIntegracao(e) {
 
@@ -1995,7 +2023,8 @@ async function iniciarIntegracao(e) {
         document
             .getElementById('login')
             .value
-            .trim();
+            .trim()
+            .toLowerCase();
 
 
     const senha =
@@ -2023,7 +2052,8 @@ async function iniciarIntegracao(e) {
         '';
 
 
-    btn.disabled = true;
+    btn.disabled =
+        true;
 
     btn.textContent =
         'ENTRANDO...';
@@ -2063,9 +2093,11 @@ async function iniciarIntegracao(e) {
         }
 
 
-        // -----------------------------------------
-        // SALVA TOKEN
-        // -----------------------------------------
+        /*
+         * ==========================================
+         * SALVA TOKEN
+         * ==========================================
+         */
 
         localStorage.setItem(
             'integracao_token',
@@ -2073,9 +2105,11 @@ async function iniciarIntegracao(e) {
         );
 
 
-        // -----------------------------------------
-        // SALVA USUÁRIO
-        // -----------------------------------------
+        /*
+         * ==========================================
+         * SALVA USUÁRIO
+         * ==========================================
+         */
 
         localStorage.setItem(
             'integracao_usuario',
@@ -2085,14 +2119,15 @@ async function iniciarIntegracao(e) {
         );
 
 
-        // Nome oficial vindo do banco
         estado.nomeUsuario =
             dados.usuario.nome || '';
 
 
-        // -----------------------------------------
-        // ADMIN / RH
-        // -----------------------------------------
+        /*
+         * ==========================================
+         * ADMIN / RH
+         * ==========================================
+         */
 
         if (
             dados.usuario.role === 'admin' ||
@@ -2105,9 +2140,11 @@ async function iniciarIntegracao(e) {
         }
 
 
-        // -----------------------------------------
-        // TREINAMENTO JÁ CONCLUÍDO
-        // -----------------------------------------
+        /*
+         * ==========================================
+         * TREINAMENTO JÁ CONCLUÍDO
+         * ==========================================
+         */
 
         if (
             dados.usuario
@@ -2117,7 +2154,8 @@ async function iniciarIntegracao(e) {
             estado.etapaAtual =
                 modulos.length + 1;
 
-            estado.parteAtual = 0;
+            estado.parteAtual =
+                0;
 
             estado.maiorEtapa =
                 modulos.length;
@@ -2131,9 +2169,11 @@ async function iniciarIntegracao(e) {
         }
 
 
-        // -----------------------------------------
-        // RESTAURA PROGRESSO
-        // -----------------------------------------
+        /*
+         * ==========================================
+         * RESTAURA PROGRESSO
+         * ==========================================
+         */
 
         estado.etapaAtual =
             Number(
@@ -2187,7 +2227,8 @@ async function iniciarIntegracao(e) {
             'block';
 
 
-        btn.disabled = false;
+        btn.disabled =
+            false;
 
         btn.textContent =
             'COMEÇAR TREINAMENTO';

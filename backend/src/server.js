@@ -7,6 +7,7 @@ import usuariosRouter from "./routes/usuarios.js";
 import authRouter from "./routes/auth.js";
 import progressoRouter from "./routes/progresso.js";
 import rhRouter from "./routes/rh.js";
+import acessosRoutes from "./routes/acessos.js";
 
 dotenv.config();
 
@@ -44,6 +45,7 @@ app.use("/api/usuarios", usuariosRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/progresso", progressoRouter);
 app.use("/api/rh", rhRouter);
+app.use("/api/acessos", acessosRoutes);
 
 // ========================================
 // ROTA PRINCIPAL

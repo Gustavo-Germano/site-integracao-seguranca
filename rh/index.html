@@ -899,28 +899,52 @@ button:disabled {
                 .credenciais
                 .senha_temporaria;
 
+        const linkTreinamento =
+            dadosCadastro.link_treinamento;
+
 
         mensagem.innerHTML = `
             <strong>
                 ✓ COLABORADOR CADASTRADO
             </strong>
-
+        
             <br><br>
-
+        
             Usuário:
             <strong>
                 ${loginGerado}
             </strong>
-
+        
             <br>
-
+        
             Senha temporária:
             <strong>
                 ${senhaGerada}
             </strong>
-
+        
             <br><br>
-
+        
+            <strong>Link do treinamento:</strong>
+        
+            <br>
+        
+            <a
+                href="${linkTreinamento}"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="
+                    display: inline-block;
+                    margin-top: 8px;
+                    color: #047857;
+                    font-weight: 700;
+                    word-break: break-all;
+                "
+            >
+                ${linkTreinamento}
+            </a>
+        
+            <br><br>
+        
             <small>
                 Guarde essas credenciais.
                 A senha não será exibida novamente.

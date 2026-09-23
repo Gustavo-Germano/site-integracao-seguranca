@@ -1091,16 +1091,219 @@ async function iniciarSistema() {
     renderHome();
 }
 
-function init() {
+async function verificarAcessoPorLink() {
+
+    const caminho =
+        window.location.pathname;
+
+
+    // Não é acesso por link
+    if (!caminho.startsWith("/acesso/")) {
+        return false;
+    }
+
+
+    // Pega o token depois de /acesso/
+    const token =
+        caminho
+            .split("/acesso/")[1]
+            ?.trim();
+
+
+    if (!token) {
+
+        app.innerHTML = `
+            <div class="main-content">
+                <div class="container" style="text-align:center;">
+
+                    <h2 style="color:#d32f2f;">
+                        Acesso inválido
+                    </h2>
+
+                    <p>
+                        O link de acesso está incompleto.
+                    </p>
+
+                </div>
+            </div>
+        `;
+
+        return true;
+    }
+
+
+    try {
+
+        const resposta =
+            await fetch(
+                `${API_URL}/api/acessos/verificar/${encodeURIComponent(token)}`
+            );
+
+
+        const dados =
+            await resposta.json();
+
+
+        // =================================================
+        // LINK INVÁLIDO / EXPIRADO / CONCLUÍDO
+        // =================================================
+
+        if (!resposta.ok) {
+
+            app.innerHTML = `
+                <div class="main-content">
+                    <div
+                        class="container"
+                        style="text-align:center;"
+                    >
+
+                        <h2 style="color:#d32f2f;">
+                            Acesso indisponível
+                        </h2>
+
+                        <p>
+                            ${
+                                dados.erro ||
+                                "Este link não é mais válido."
+                            }
+                        </p>
+
+                    </div>
+                </div>
+            `;
+
+            return true;
+        }
+
+
+        // =================================================
+        // LINK VÁLIDO
+        // =================================================
+
+        const usuario =
+            dados.usuario;
+
+
+        estado.nomeUsuario =
+            usuario.nome;
+
+
+        estado.etapaAtual =
+            Number(usuario.modulo_atual) || 1;
+
+
+        estado.parteAtual =
+            Number(usuario.parte_atual) || 0;
+
+
+        estado.maiorEtapa =
+            estado.etapaAtual;
+
+
+        // Guarda o token para salvar progresso depois
+        localStorage.setItem(
+            "integracao_link_token",
+            token
+        );
+
+
+        // Guarda os dados do usuário
+        localStorage.setItem(
+            "integracao_usuario",
+            JSON.stringify(usuario)
+        );
+
+
+        // Salva o estado local
+        salvarEstado();
+
+
+        // =================================================
+        // ENTRA DIRETO NO TREINAMENTO
+        // =================================================
+
+        renderLayout(
+            estado.etapaAtual - 1
+        );
+
+
+        return true;
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao verificar acesso por link:",
+            erro
+        );
+
+
+        app.innerHTML = `
+            <div class="main-content">
+                <div
+                    class="container"
+                    style="text-align:center;"
+                >
+
+                    <h2 style="color:#d32f2f;">
+                        Erro ao acessar treinamento
+                    </h2>
+
+                    <p>
+                        Não foi possível validar este acesso.
+                    </p>
+
+                </div>
+            </div>
+        `;
+
+
+        return true;
+    }
+}
+
+async function init() {
+
     pararLeitura();
+
     atualizarTopbar();
-    
-    if (!estado.nomeUsuario || estado.etapaAtual === 0) {
+
+
+    // =====================================================
+    // VERIFICA SE O ACESSO ATUAL É POR LINK
+    // =====================================================
+
+    const acessoPorLink =
+        await verificarAcessoPorLink();
+
+    if (acessoPorLink) {
+        return;
+    }
+
+
+    // =====================================================
+    // FLUXO NORMAL DO SITE
+    // =====================================================
+
+    if (
+        !estado.nomeUsuario ||
+        estado.etapaAtual === 0
+    ) {
+
         renderHome();
-    } else if (estado.etapaAtual <= modulos.length) {
-        renderLayout(estado.etapaAtual - 1);
+
+    } else if (
+        estado.etapaAtual <= modulos.length
+    ) {
+
+        renderLayout(
+            estado.etapaAtual - 1
+        );
+
     } else {
+
         renderConclusao();
+
     }
 }
 
@@ -3136,6 +3339,118 @@ async function confirmarReset() {
             localStorage.removeItem("integracao_maior_etapa");
        
             location.reload();
+    }
+}
+
+async function verificarAcessoPorLink() {
+
+    const caminho =
+        window.location.pathname;
+
+    if (!caminho.startsWith("/acesso/")) {
+        return false;
+    }
+
+
+    const token =
+        caminho.split("/acesso/")[1];
+
+
+    if (!token) {
+        return false;
+    }
+
+
+    try {
+
+        const resposta =
+            await fetch(
+                `${API_URL}/api/acessos/verificar/${token}`
+            );
+
+
+        const dados =
+            await resposta.json();
+
+
+        if (!resposta.ok) {
+
+            app.innerHTML = `
+                <div class="main-content">
+                    <div class="container" style="text-align:center;">
+
+                        <h2 style="color:#d32f2f;">
+                            Acesso indisponível
+                        </h2>
+
+                        <p>
+                            ${dados.erro || "Este link não é mais válido."}
+                        </p>
+
+                    </div>
+                </div>
+            `;
+
+            return true;
+        }
+
+
+        // Guarda o token temporariamente
+        localStorage.setItem(
+            "integracao_link_token",
+            token
+        );
+
+
+        // Guarda o usuário
+        estado.nomeUsuario =
+            dados.usuario.nome;
+
+        estado.etapaAtual =
+            dados.usuario.modulo_atual || 1;
+
+        estado.parteAtual =
+            dados.usuario.parte_atual || 0;
+
+
+        localStorage.setItem(
+            "integracao_usuario",
+            JSON.stringify(dados.usuario)
+        );
+
+
+        // Entra diretamente no treinamento
+        renderLayout(
+            estado.etapaAtual - 1
+        );
+
+
+        return true;
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao verificar acesso:",
+            erro
+        );
+
+        app.innerHTML = `
+            <div class="main-content">
+                <div class="container" style="text-align:center;">
+
+                    <h2 style="color:#d32f2f;">
+                        Erro ao acessar treinamento
+                    </h2>
+
+                    <p>
+                        Não foi possível validar este acesso.
+                    </p>
+
+                </div>
+            </div>
+        `;
+
+        return true;
     }
 }
 

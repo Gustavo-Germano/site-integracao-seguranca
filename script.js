@@ -1851,29 +1851,16 @@ async function solicitarPrimeiroAcesso(event) {
             'mensagem-primeiro-acesso'
         );
 
-    const botaoAvancar =
-        document.getElementById(
-            'btn-avancar-primeiro-acesso'
-        );
-
-
     const nome =
         nomeInput.value.trim();
 
     const email =
-        emailInput.value
-            .trim()
-            .toLowerCase();
+        emailInput.value.trim().toLowerCase();
 
-
-    mensagem.style.display = 'none';
-    mensagem.textContent = '';
-
-
-    if (!nome || nome.length < 3) {
+    if (!nome) {
 
         mensagem.textContent =
-            'Informe seu nome completo.';
+            'Digite seu nome completo.';
 
         mensagem.style.color =
             '#d32f2f';
@@ -1884,15 +1871,10 @@ async function solicitarPrimeiroAcesso(event) {
         return;
     }
 
-
-    if (
-        !email ||
-        !email.includes('@') ||
-        !email.includes('.')
-    ) {
+    if (!email) {
 
         mensagem.textContent =
-            'Informe um e-mail válido.';
+            'Digite seu e-mail.';
 
         mensagem.style.color =
             '#d32f2f';
@@ -1903,12 +1885,17 @@ async function solicitarPrimeiroAcesso(event) {
         return;
     }
 
+    mensagem.style.display =
+        'none';
 
-    botao.disabled = true;
+    mensagem.textContent =
+        '';
+
+    botao.disabled =
+        true;
 
     botao.textContent =
-        'CRIANDO SEU ACESSO...';
-
+        'ENVIANDO...';
 
     try {
 
@@ -1916,24 +1903,22 @@ async function solicitarPrimeiroAcesso(event) {
             await fetch(
                 `${API_URL}/api/auth/primeiro-acesso`,
                 {
-                    method:'POST',
+                    method: 'POST',
 
-                    headers:{
+                    headers: {
                         'Content-Type':
                             'application/json'
                     },
 
-                    body:JSON.stringify({
-                        nome: nome,
-                        email: email
+                    body: JSON.stringify({
+                        nome,
+                        email
                     })
                 }
             );
 
-
         const dados =
             await resposta.json();
-
 
         if (!resposta.ok) {
 
@@ -1943,12 +1928,8 @@ async function solicitarPrimeiroAcesso(event) {
             );
         }
 
-
         mensagem.textContent =
-            '✅ Seu acesso foi criado com sucesso! ' +
-            'Enviamos seu usuário e sua senha para o seu e-mail. ' +
-            'Confira também a pasta de spam ou lixo eletrônico.';
-
+            '✅ Acesso criado e enviado para seu e-mail. Confira sua caixa de entrada.';
 
         mensagem.style.color =
             '#2e7d32';
@@ -1956,21 +1937,31 @@ async function solicitarPrimeiroAcesso(event) {
         mensagem.style.display =
             'block';
 
+        const primeiroAcesso =
+            document.getElementById(
+                'primeiro-acesso'
+            );
 
-        botao.style.display =
-            'none';
+        if (primeiroAcesso) {
 
+            primeiroAcesso.style.display =
+                'none';
+        }
 
-        nomeInput.disabled =
-            true;
+        liberarFormularioLogin();
 
-        emailInput.disabled =
-            true;
+        const login =
+            document.getElementById(
+                'login'
+            );
 
+        if (login) {
 
-        botaoAvancar.style.display =
-            'block';
+            login.value =
+                email;
 
+            validarLogin();
+        }
 
     } catch (erro) {
 
@@ -1979,11 +1970,8 @@ async function solicitarPrimeiroAcesso(event) {
             erro
         );
 
-
         mensagem.textContent =
-            erro.message ||
-            'Não foi possível criar seu acesso.';
-
+            erro.message;
 
         mensagem.style.color =
             '#d32f2f';
@@ -1991,71 +1979,15 @@ async function solicitarPrimeiroAcesso(event) {
         mensagem.style.display =
             'block';
 
-
     } finally {
 
-        if (
-            mensagem.style.color !==
-            'rgb(46, 125, 50)'
-        ) {
-            botao.disabled = false;
+        botao.disabled =
+            false;
 
-            botao.textContent =
-                'RECEBER MEU ACESSO';
-        }
-
+        botao.textContent =
+            'RECEBER MEU ACESSO';
     }
 }
-
-
-/* =====================================================
-   MOSTRA LOGIN
-   ===================================================== */
-
-function mostrarLogin() {
-
-    const primeiroAcesso =
-        document.getElementById(
-            'primeiro-acesso'
-        );
-
-    const jaPossui =
-        document.getElementById(
-            'ja-possui-acesso'
-        );
-
-    const areaLogin =
-        document.getElementById(
-            'area-login'
-        );
-
-
-    if (primeiroAcesso) {
-        primeiroAcesso.style.display =
-            'none';
-    }
-
-    if (jaPossui) {
-        jaPossui.style.display =
-            'none';
-    }
-
-    if (areaLogin) {
-        areaLogin.style.display =
-            'block';
-    }
-
-
-    const login =
-        document.getElementById(
-            'login'
-        );
-
-    if (login) {
-        login.focus();
-    }
-}
-
 
 /* =====================================================
    VALIDA LOGIN

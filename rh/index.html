@@ -924,7 +924,9 @@ button:disabled {
         
             <br><br>
         
-            <strong>Link do treinamento:</strong>
+            <strong>
+                Link do treinamento:
+            </strong>
         
             <br>
         
@@ -1318,16 +1320,14 @@ button:disabled {
     try {
 
         const resposta = await fetch(
-            `${API}/api/rh/usuarios/${id}/resetar-treinamento`,
-            {
-                method: 'POST',
-
-                headers: {
-                    'Authorization':
-                        `Bearer ${token}`
-                }
+            `${API}/api/rh/usuarios`,
+        {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
-        );
+        }
+    );
 
         const dados =
             await resposta.json();

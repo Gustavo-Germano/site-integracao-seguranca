@@ -1565,57 +1565,68 @@ function pararLeitura() {
 }
 
 function renderHome() {
+
     app.innerHTML = `
-        <div class="main-content">
-            <div class="container" style="text-align: center;">
 
-                <div id="conteudo-boas-vindas">
-                    ${getAvatarHTML()}
+        <div
+            class="tela-acesso"
+            style="
+                min-height:100vh;
+                width:100%;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                padding:30px 20px;
+                box-sizing:border-box;
+            "
+        >
 
-                    <h2 style="color: var(--primary-color);">
-                        Integração de Segurança
-                    </h2>
+            <div
+                style="
+                    width:100%;
+                    max-width:620px;
+                    display:flex;
+                    flex-direction:column;
+                    gap:22px;
+                "
+            >
 
-                    <p id="texto-modulo">
-                        ${formatarTextoEmSpans(textoBoasVindas.texto)}
-                    </p>
-                </div>
-
-
-                <!-- ==========================================
+                <!-- =========================================
                      PRIMEIRO ACESSO
-                     ========================================== -->
+                     ========================================= -->
 
                 <div
                     id="primeiro-acesso"
                     style="
-                        margin: 25px auto;
-                        padding: 25px;
-                        max-width: 600px;
-                        border-radius: 16px;
-                        background: #f7f7f7;
-                        box-shadow: 0 4px 15px rgba(0,0,0,.08);
+                        padding:28px;
+                        border-radius:18px;
+                        background:#f7f7f7;
+                        box-shadow:0 5px 20px rgba(0,0,0,.10);
+                        text-align:left;
                     "
                 >
 
-                    <h3 style="
-                        color: var(--primary-color);
-                        margin-bottom: 10px;
-                    ">
+                    <h3
+                        style="
+                            margin:0 0 12px;
+                            color:var(--primary-color);
+                        "
+                    >
                         PRIMEIRO ACESSO
                     </h3>
 
-                    <p style="
-                        margin-bottom: 20px;
-                        line-height: 1.6;
-                    ">
+                    <p
+                        style="
+                            margin:0 0 20px;
+                            line-height:1.6;
+                        "
+                    >
                         Ainda não possui acesso?
                         Informe seu nome completo e seu e-mail.
-                        O sistema criará seu usuário e uma senha
+                        O sistema criará seu usuário e sua senha
                         automaticamente e enviará os dados para
                         o seu e-mail.
                     </p>
-
 
                     <form
                         id="form-primeiro-acesso"
@@ -1642,53 +1653,123 @@ function renderHome() {
                             type="submit"
                             class="btn"
                             id="btn-primeiro-acesso"
+                            style="width:100%;"
                         >
                             RECEBER MEU ACESSO
                         </button>
 
-                        <p
-                            id="mensagem-primeiro-acesso"
-                            style="
-                                display: none;
-                                margin-top: 15px;
-                                font-weight: 600;
-                                line-height: 1.5;
-                            "
-                        ></p>
-
                     </form>
+
+                    <p
+                        id="mensagem-primeiro-acesso"
+                        style="
+                            display:none;
+                            margin:18px 0 0;
+                            font-weight:600;
+                            line-height:1.5;
+                        "
+                    ></p>
+
+                    <button
+                        type="button"
+                        id="btn-avancar-primeiro-acesso"
+                        class="btn"
+                        style="
+                            display:none;
+                            width:100%;
+                            margin-top:15px;
+                        "
+                        onclick="mostrarLogin()"
+                    >
+                        AVANÇAR ➡
+                    </button>
 
                 </div>
 
 
-                <!-- ==========================================
-                     LOGIN NORMAL
-                     ========================================== -->
+                <!-- =========================================
+                     JÁ POSSUI ACESSO
+                     ========================================= -->
 
                 <div
-                    id="area-login"
+                    id="ja-possui-acesso"
                     style="
-                        max-width: 600px;
-                        margin: 25px auto;
+                        padding:28px;
+                        border-radius:18px;
+                        background:#f7f7f7;
+                        box-shadow:0 5px 20px rgba(0,0,0,.10);
+                        text-align:left;
                     "
                 >
 
-                    <h3>
+                    <h3
+                        style="
+                            margin:0 0 12px;
+                            color:var(--primary-color);
+                        "
+                    >
                         JÁ POSSUI ACESSO?
                     </h3>
 
-                    <p style="
-                        margin-bottom: 20px;
-                        line-height: 1.6;
-                    ">
+                    <p
+                        style="
+                            margin:0 0 20px;
+                            line-height:1.6;
+                        "
+                    >
                         Utilize o usuário e a senha
                         enviados para o seu e-mail.
                     </p>
 
+                    <button
+                        type="button"
+                        class="btn"
+                        style="width:100%;"
+                        onclick="mostrarLogin()"
+                    >
+                        AVANÇAR ➡
+                    </button>
+
+                </div>
+
+
+                <!-- =========================================
+                     LOGIN
+                     ========================================= -->
+
+                <div
+                    id="area-login"
+                    style="
+                        display:none;
+                        padding:28px;
+                        border-radius:18px;
+                        background:#f7f7f7;
+                        box-shadow:0 5px 20px rgba(0,0,0,.10);
+                        text-align:left;
+                    "
+                >
+
+                    <h3
+                        style="
+                            margin:0 0 12px;
+                            color:var(--primary-color);
+                        "
+                    >
+                        ACESSAR TREINAMENTO
+                    </h3>
+
+                    <p
+                        style="
+                            margin:0 0 20px;
+                            line-height:1.6;
+                        "
+                    >
+                        Digite o usuário e a senha
+                        recebidos no seu e-mail.
+                    </p>
 
                     <form
                         id="form-login"
-                        class="form-oculto"
                         onsubmit="iniciarIntegracao(event)"
                     >
 
@@ -1715,17 +1796,18 @@ function renderHome() {
                             class="btn"
                             id="btn-iniciar"
                             disabled
+                            style="width:100%;"
                         >
-                            COMEÇAR TREINAMENTO
+                            AVANÇAR ➡
                         </button>
 
                         <p
                             id="erro-login"
                             style="
-                                display: none;
-                                margin-top: 12px;
-                                color: #d32f2f;
-                                font-weight: 600;
+                                display:none;
+                                margin-top:12px;
+                                color:#d32f2f;
+                                font-weight:600;
                             "
                         ></p>
 
@@ -1734,10 +1816,10 @@ function renderHome() {
                 </div>
 
             </div>
+
         </div>
     `;
 
-    validarLogin();
 }
 
 
@@ -1748,7 +1830,6 @@ function renderHome() {
 async function solicitarPrimeiroAcesso(event) {
 
     event.preventDefault();
-
 
     const nomeInput =
         document.getElementById(
@@ -1770,12 +1851,19 @@ async function solicitarPrimeiroAcesso(event) {
             'mensagem-primeiro-acesso'
         );
 
+    const botaoAvancar =
+        document.getElementById(
+            'btn-avancar-primeiro-acesso'
+        );
+
 
     const nome =
         nomeInput.value.trim();
 
     const email =
-        emailInput.value.trim().toLowerCase();
+        emailInput.value
+            .trim()
+            .toLowerCase();
 
 
     mensagem.style.display = 'none';
@@ -1828,14 +1916,14 @@ async function solicitarPrimeiroAcesso(event) {
             await fetch(
                 `${API_URL}/api/auth/primeiro-acesso`,
                 {
-                    method: 'POST',
+                    method:'POST',
 
-                    headers: {
+                    headers:{
                         'Content-Type':
                             'application/json'
                     },
 
-                    body: JSON.stringify({
+                    body:JSON.stringify({
                         nome: nome,
                         email: email
                     })
@@ -1857,7 +1945,7 @@ async function solicitarPrimeiroAcesso(event) {
 
 
         mensagem.textContent =
-            '✅ Acesso criado com sucesso! ' +
+            '✅ Seu acesso foi criado com sucesso! ' +
             'Enviamos seu usuário e sua senha para o seu e-mail. ' +
             'Confira também a pasta de spam ou lixo eletrônico.';
 
@@ -1869,45 +1957,20 @@ async function solicitarPrimeiroAcesso(event) {
             'block';
 
 
-        /*
-         * Esconde o formulário de primeiro acesso
-         */
-        const primeiroAcesso =
-            document.getElementById(
-                'primeiro-acesso'
-            );
-
-        if (primeiroAcesso) {
-
-            primeiroAcesso.style.display =
-                'none';
-        }
+        botao.style.display =
+            'none';
 
 
-        /*
-         * Libera o login normal
-         */
-        liberarFormularioLogin();
+        nomeInput.disabled =
+            true;
+
+        emailInput.disabled =
+            true;
 
 
-        /*
-         * Preenche o e-mail automaticamente
-         * no campo de login.
-         */
-        const login =
-            document.getElementById(
-                'login'
-            );
+        botaoAvancar.style.display =
+            'block';
 
-        if (login) {
-
-            login.value =
-                email;
-
-            validarLogin();
-
-            login.focus();
-        }
 
     } catch (erro) {
 
@@ -1928,34 +1991,68 @@ async function solicitarPrimeiroAcesso(event) {
         mensagem.style.display =
             'block';
 
+
     } finally {
 
-        botao.disabled =
-            false;
+        if (
+            mensagem.style.color !==
+            'rgb(46, 125, 50)'
+        ) {
+            botao.disabled = false;
 
-        botao.textContent =
-            'RECEBER MEU ACESSO';
+            botao.textContent =
+                'RECEBER MEU ACESSO';
+        }
+
     }
 }
 
 
 /* =====================================================
-   LIBERA LOGIN NORMAL
+   MOSTRA LOGIN
    ===================================================== */
 
-function liberarFormularioLogin() {
+function mostrarLogin() {
 
-    const form =
+    const primeiroAcesso =
         document.getElementById(
-            'form-login'
+            'primeiro-acesso'
         );
 
-    if (form) {
-
-        form.classList.replace(
-            'form-oculto',
-            'form-visivel'
+    const jaPossui =
+        document.getElementById(
+            'ja-possui-acesso'
         );
+
+    const areaLogin =
+        document.getElementById(
+            'area-login'
+        );
+
+
+    if (primeiroAcesso) {
+        primeiroAcesso.style.display =
+            'none';
+    }
+
+    if (jaPossui) {
+        jaPossui.style.display =
+            'none';
+    }
+
+    if (areaLogin) {
+        areaLogin.style.display =
+            'block';
+    }
+
+
+    const login =
+        document.getElementById(
+            'login'
+        );
+
+    if (login) {
+        login.focus();
     }
 }
 
@@ -2011,7 +2108,138 @@ function validarLogin() {
 
 
 /* =====================================================
-   LOGIN NORMAL
+   MOSTRA BOTÃO LARANJA
+   ===================================================== */
+
+function mostrarBotaoIniciarTreinamento() {
+
+    app.innerHTML = `
+
+        <div
+            style="
+                min-height:100vh;
+                width:100%;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                padding:30px 20px;
+                box-sizing:border-box;
+            "
+        >
+
+            <button
+                type="button"
+                id="btn-iniciar-treinamento-final"
+                class="btn-iniciar-treinamento"
+            >
+
+                <span class="btn-iniciar-icone">
+                    🔊
+                </span>
+
+                <span>
+                    INICIAR TREINAMENTO
+                </span>
+
+            </button>
+
+        </div>
+
+    `;
+
+
+    const botao =
+        document.getElementById(
+            'btn-iniciar-treinamento-final'
+        );
+
+
+    if (botao) {
+
+        botao.style.display =
+            'inline-flex';
+
+
+        botao.addEventListener(
+            'click',
+            iniciarTreinamento
+        );
+    }
+}
+
+
+/* =====================================================
+   INICIA O TREINAMENTO DE VERDADE
+   ===================================================== */
+
+function iniciarTreinamento() {
+
+    const usuario =
+        JSON.parse(
+            localStorage.getItem(
+                'integracao_usuario'
+            ) || 'null'
+        );
+
+
+    if (
+        usuario &&
+        usuario.treinamento_concluido
+    ) {
+
+        init();
+
+        return;
+    }
+
+
+    app.innerHTML = `
+
+        <div class="main-content">
+
+            <div
+                class="container"
+                style="text-align:center;"
+            >
+
+                ${getAvatarHTML()}
+
+                <h2
+                    style="
+                        color:var(--primary-color);
+                    "
+                >
+                    Integração de Segurança
+                </h2>
+
+                <p id="texto-modulo">
+                    ${formatarTextoEmSpans(
+                        textoBoasVindas.texto
+                    )}
+                </p>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    requestAnimationFrame(() => {
+
+        tocarAudioESincronizar(
+            textoBoasVindas.audio,
+            textoBoasVindas.texto,
+            false
+        );
+
+    });
+
+}
+
+
+/* =====================================================
+   LOGIN
    ===================================================== */
 
 async function iniciarIntegracao(e) {
@@ -2038,7 +2266,6 @@ async function iniciarIntegracao(e) {
             'btn-iniciar'
         );
 
-
     const erroLogin =
         document.getElementById(
             'erro-login'
@@ -2052,11 +2279,10 @@ async function iniciarIntegracao(e) {
         '';
 
 
-    btn.disabled =
-        true;
+    btn.disabled = true;
 
     btn.textContent =
-        'ENTRANDO...';
+        'VERIFICANDO...';
 
 
     try {
@@ -2065,14 +2291,14 @@ async function iniciarIntegracao(e) {
             await fetch(
                 `${API_URL}/api/auth/login`,
                 {
-                    method: 'POST',
+                    method:'POST',
 
-                    headers: {
+                    headers:{
                         'Content-Type':
                             'application/json'
                     },
 
-                    body: JSON.stringify({
+                    body:JSON.stringify({
                         login: login,
                         senha: senha
                     })
@@ -2093,11 +2319,9 @@ async function iniciarIntegracao(e) {
         }
 
 
-        /*
-         * ==========================================
-         * SALVA TOKEN
-         * ==========================================
-         */
+        /* -----------------------------------------
+           SALVA TOKEN
+           ----------------------------------------- */
 
         localStorage.setItem(
             'integracao_token',
@@ -2105,11 +2329,9 @@ async function iniciarIntegracao(e) {
         );
 
 
-        /*
-         * ==========================================
-         * SALVA USUÁRIO
-         * ==========================================
-         */
+        /* -----------------------------------------
+           SALVA USUÁRIO
+           ----------------------------------------- */
 
         localStorage.setItem(
             'integracao_usuario',
@@ -2123,11 +2345,9 @@ async function iniciarIntegracao(e) {
             dados.usuario.nome || '';
 
 
-        /*
-         * ==========================================
-         * ADMIN / RH
-         * ==========================================
-         */
+        /* -----------------------------------------
+           ADMIN / RH
+           ----------------------------------------- */
 
         if (
             dados.usuario.role === 'admin' ||
@@ -2140,40 +2360,9 @@ async function iniciarIntegracao(e) {
         }
 
 
-        /*
-         * ==========================================
-         * TREINAMENTO JÁ CONCLUÍDO
-         * ==========================================
-         */
-
-        if (
-            dados.usuario
-                .treinamento_concluido
-        ) {
-
-            estado.etapaAtual =
-                modulos.length + 1;
-
-            estado.parteAtual =
-                0;
-
-            estado.maiorEtapa =
-                modulos.length;
-
-
-            salvarEstado();
-
-            init();
-
-            return;
-        }
-
-
-        /*
-         * ==========================================
-         * RESTAURA PROGRESSO
-         * ==========================================
-         */
+        /* -----------------------------------------
+           RESTAURA PROGRESSO
+           ----------------------------------------- */
 
         estado.etapaAtual =
             Number(
@@ -2208,7 +2397,12 @@ async function iniciarIntegracao(e) {
         await carregarProgressoServidor();
 
 
-        init();
+        /* -----------------------------------------
+           NÃO INICIA O TREINAMENTO AQUI.
+           PRIMEIRO MOSTRA O BOTÃO LARANJA.
+           ----------------------------------------- */
+
+        mostrarBotaoIniciarTreinamento();
 
 
     } catch (erro) {
@@ -2222,16 +2416,14 @@ async function iniciarIntegracao(e) {
         erroLogin.textContent =
             erro.message;
 
-
         erroLogin.style.display =
             'block';
 
 
-        btn.disabled =
-            false;
+        btn.disabled = false;
 
         btn.textContent =
-            'COMEÇAR TREINAMENTO';
+            'AVANÇAR';
     }
 }
 

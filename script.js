@@ -3571,4 +3571,4 @@ function fecharMenuMobile() {
     overlay.classList.remove('menu-mobile-aberto');
 }
 
-iniciarSistema();
+init();

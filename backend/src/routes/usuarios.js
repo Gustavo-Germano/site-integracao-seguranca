@@ -317,7 +317,7 @@ router.get(
     "/me",
     autenticar,
     async (req, res) => {
-
+ 
         try {
 
             const resultado =

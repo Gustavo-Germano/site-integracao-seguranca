@@ -1262,24 +1262,25 @@ async function verificarAcessoPorLink() {
     }
 }
 
-async function init() {
+async function init(validarAcessoPorLink = true) {
 
     pararLeitura();
 
     atualizarTopbar();
 
-
     // =====================================================
     // VERIFICA SE O ACESSO ATUAL É POR LINK
     // =====================================================
 
-    const acessoPorLink =
-        await verificarAcessoPorLink();
+    if (validarAcessoPorLink) {
 
-    if (acessoPorLink) {
-        return;
+        const acessoPorLink =
+            await verificarAcessoPorLink();
+
+        if (acessoPorLink) {
+            return;
+        }
     }
-
 
     // =====================================================
     // FLUXO NORMAL DO SITE
@@ -1416,7 +1417,13 @@ function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = fal
 };
     pararLeitura();
 
-    tocadorAudio = new Audio(caminhoAudio);
+    const caminhoAudioFinal =
+        caminhoAudio.startsWith("/")
+            ? caminhoAudio
+            : `/${caminhoAudio}`;
+
+    tocadorAudio =
+        new Audio(caminhoAudioFinal);
 
     tocadorAudio.currentTime = 0;
     tocadorAudio.load();
@@ -1544,7 +1551,7 @@ function tocarAudioESincronizar(caminhoAudio, textoCompleto, ehTelaInicial = fal
         }
 
         console.error(
-            'Erro ao carregar ou reproduzir o áudio:',
+            '❌ ERRO NO ÁUDIO:',
             caminhoAudio
         );
     };
@@ -2711,7 +2718,7 @@ function mudarParte(numEtapa, numParte) {
 
     salvarEstado();
     fecharMenuMobile();
-    init();
+    init(false);
 }
 
 function mudarModulo(numEtapa) {
@@ -2744,7 +2751,7 @@ function mudarModulo(numEtapa) {
 
     salvarEstado();
     fecharMenuMobile();
-    init();
+    init(false);
 }
 
 async function avancarEtapa() {
@@ -2795,7 +2802,7 @@ async function avancarEtapa() {
             );
 
             salvarEstado();
-            init();
+            init(false);
 
             window.scrollTo({
                 top: 0,
@@ -2864,7 +2871,7 @@ async function avancarEtapa() {
 
     salvarEstado();
 
-    init();
+    init(false);
 
     window.scrollTo({
         top: 0,
@@ -3401,6 +3408,12 @@ async function verificarAcessoPorLink() {
             token
         );
 
+        if (dados.token) {
+            localStorage.setItem(
+                "integracao_token",
+                dados.token
+        );
+    }
 
         // Guarda o usuário
         estado.nomeUsuario =

@@ -1,5 +1,6 @@
 import express from "express";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
 
 import { pool } from "../db.js";
 import {
@@ -258,28 +259,31 @@ router.get(
             }
 
 
+            const tokenJWT =
+                jwt.sign(
+                    {
+                        id: usuario.id,
+                        perfil: "colaborador",
+                        role: "colaborador"
+                    },
+                    process.env.JWT_SECRET,
+                    {
+                        expiresIn: "8h"
+                    }
+                );
+
             return res.json({
-
                 valido: true,
-
+            
+                token: tokenJWT,
+            
                 usuario: {
-
-                    id:
-                        usuario.id,
-
-                    nome:
-                        usuario.nome,
-
-                    modulo_atual:
-                        usuario.modulo_atual,
-
-                    parte_atual:
-                        usuario.parte_atual
-
-                }
-
-            });
-
+                    id: usuario.id,
+                    nome: usuario.nome,
+                    modulo_atual: usuario.modulo_atual,
+                    parte_atual: usuario.parte_atual
+        }
+    });
         } catch (erro) {
 
             console.error(

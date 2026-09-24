@@ -33,38 +33,19 @@ router.post(
     autenticar,
     permitirRoles("rh", "admin"),
     async (req, res) => {
-
         try {
+            const { nome, email } = req.body;
 
-            const {
-                nome,
-                email
-            } = req.body;
-
-
-            /*
-             * VALIDAÇÃO
-             */
             if (!nome || !email) {
-
                 return res.status(400).json({
-                    erro:
-                        "Nome e email são obrigatórios."
+                    erro: "Nome e email são obrigatórios."
                 });
-
             }
 
-
-            /*
-             * NORMALIZA EMAIL
-             */
             const emailNormalizado =
                 email.trim().toLowerCase();
 
-
-            /*
-             * VERIFICA SE EMAIL JÁ EXISTE
-             */
+            // Verifica se o email já existe
             const emailExistente =
                 await pool.query(
                     `
@@ -75,61 +56,27 @@ router.post(
                     [emailNormalizado]
                 );
 
-
             if (emailExistente.rows.length > 0) {
-
                 return res.status(409).json({
-                    erro:
-                        "Este email já está cadastrado."
+                    erro: "Este email já está cadastrado."
                 });
-
             }
 
-
-            /*
-             * ==================================================
-             * GERAR USUÁRIO_LOGIN
-             * ==================================================
-             *
-             * Exemplo:
-             *
-             * João da Silva
-             * ↓
-             * joao.silva
-             */
-
+            // Gera usuário de login
             const nomeBase =
                 nome
                     .normalize("NFD")
-                    .replace(
-                        /[\u0300-\u036f]/g,
-                        ""
-                    )
+                    .replace(/[\u0300-\u036f]/g, "")
                     .toLowerCase()
-                    .replace(
-                        /[^a-z0-9]+/g,
-                        "."
-                    )
-                    .replace(
-                        /^\.+|\.+$/g,
-                        ""
-                    );
-
+                    .replace(/[^a-z0-9]+/g, ".")
+                    .replace(/^\.+|\.+$/g, "");
 
             let usuarioLogin =
                 nomeBase || "colaborador";
 
-
-            /*
-             * ==================================================
-             * GARANTIR LOGIN ÚNICO
-             * ==================================================
-             */
-
             let contador = 1;
 
             while (true) {
-
                 const loginExistente =
                     await pool.query(
                         `
@@ -140,50 +87,23 @@ router.post(
                         [usuarioLogin]
                     );
 
-
-                if (
-                    loginExistente.rows.length === 0
-                ) {
-
+                if (loginExistente.rows.length === 0) {
                     break;
-
                 }
-
 
                 contador++;
 
                 usuarioLogin =
                     `${nomeBase}.${contador}`;
-
             }
 
-
-            /*
-             * ==================================================
-             * GERAR SENHA TEMPORÁRIA
-             * ==================================================
-             *
-             * 12 caracteres aleatórios.
-             */
-
+            // Senha temporária
             const senhaTemporaria =
                 crypto
                     .randomBytes(9)
                     .toString("base64")
-                    .replace(
-                        /[^a-zA-Z0-9]/g,
-                        ""
-                    )
+                    .replace(/[^a-zA-Z0-9]/g, "")
                     .slice(0, 12);
-
-
-            /*
-             * ==================================================
-             * TRANSFORMAR SENHA EM HASH
-             * ==================================================
-             *
-             * A senha verdadeira NÃO é armazenada no banco.
-             */
 
             const senhaHash =
                 await bcrypt.hash(
@@ -191,13 +111,13 @@ router.post(
                     12
                 );
 
+            // Token exclusivo do link de treinamento
+            const tokenAcesso =
+                crypto
+                    .randomBytes(32)
+                    .toString("hex");
 
-            /*
-             * ==================================================
-             * CADASTRAR COLABORADOR
-             * ==================================================
-             */
-
+            // Cria o colaborador
             const resultado =
                 await pool.query(
                     `
@@ -210,6 +130,9 @@ router.post(
                         perfil,
                         role,
                         ativo,
+                        acesso_por_link,
+                        token_acesso,
+                        token_expira_em,
                         treinamento_concluido,
                         modulo_atual,
                         parte_atual
@@ -223,6 +146,9 @@ router.post(
                         'colaborador',
                         'colaborador',
                         TRUE,
+                        TRUE,
+                        $5,
+                        CURRENT_TIMESTAMP + INTERVAL '7 days',
                         FALSE,
                         1,
                         0
@@ -235,6 +161,9 @@ router.post(
                         perfil,
                         role,
                         ativo,
+                        acesso_por_link,
+                        token_acesso,
+                        token_expira_em,
                         treinamento_concluido,
                         modulo_atual,
                         parte_atual,
@@ -244,69 +173,54 @@ router.post(
                         nome.trim(),
                         emailNormalizado,
                         usuarioLogin,
-                        senhaHash
+                        senhaHash,
+                        tokenAcesso
                     ]
                 );
 
+            // Link real do treinamento
+            const linkTreinamento =
+                `https://site-integracao-seguranca-1.onrender.com/acesso/${tokenAcesso}`;
 
-            /*
-             * ==================================================
-             * RESPOSTA PARA O RH
-             * ==================================================
-             *
-             * A senha temporária é enviada somente nesta
-             * resposta. Ela não é salva em texto no banco.
-             */
+            return res.status(201).json({
+                mensagem:
+                    "Colaborador cadastrado com sucesso.",
 
-            const linkTreinamento = 
-                `https://site-integracao-seguranca-1.onrender.com/index.html?acesso=${encodeURIComponent(emailNormalizado)}`;
+                usuario:
+                    resultado.rows[0],
 
-            res.status(201).json({
-                mensagem: "Colaborador cadastrado com sucesso.",
-                usuario: resultado.rows[0],
-            
                 credenciais: {
-
-                    usuario_login: 
+                    usuario_login:
                         usuarioLogin,
 
-                    senha_temporaria: 
+                    senha_temporaria:
                         senhaTemporaria
                 },
-            
-                link_treinamento: 
+
+                link_treinamento:
                     linkTreinamento
             });
-    
-        } catch (erro) {
 
+        } catch (erro) {
             console.error(
                 "Erro ao criar colaborador:",
                 erro
             );
 
-
-            /*
-             * Email ou usuario_login duplicado.
-             */
             if (erro.code === "23505") {
-
                 return res.status(409).json({
                     erro:
                         "Email ou usuário já cadastrado."
                 });
-
             }
 
-
-            res.status(500).json({
+            return res.status(500).json({
                 erro:
                     "Erro interno do servidor."
             });
-
         }
-    });
-
+    }
+);
 /*
 |--------------------------------------------------------------------------
 | USUÁRIO LOGADO

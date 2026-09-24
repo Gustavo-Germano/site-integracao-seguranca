@@ -52,6 +52,11 @@ router.post(
             // CRIA USUÁRIO COM LINK VÁLIDO POR 7 DIAS
             // =================================================
 
+            const tokenAcesso =
+                crypto
+                    .randomBytes(32)
+                    .toString("hex");
+
             const resultado =
                 await pool.query(
                     `

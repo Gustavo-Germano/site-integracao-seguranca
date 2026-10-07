@@ -1132,135 +1132,134 @@ async function verificarAcessoPorLink() {
     }
 
 
-    try {
+        try {
 
-        const resposta =
-            await fetch(
-                `${API_URL}/api/acessos/verificar/${encodeURIComponent(token)}`
+            const resposta =
+                await fetch(
+                    `${API_URL}/api/acessos/verificar/${encodeURIComponent(token)}`
+                );
+
+
+            const dados =
+                await resposta.json();
+
+
+            // =================================================
+            // LINK INVÁLIDO / EXPIRADO / CONCLUÍDO
+            // =================================================
+
+            if (!resposta.ok) {
+
+                app.innerHTML = `
+                    <div class="main-content">
+                        <div
+                            class="container"
+                            style="text-align:center;"
+                        >
+
+                            <h2 style="color:#d32f2f;">
+                                Acesso indisponível
+                            </h2>
+
+                            <p>
+                                ${
+                                    dados.erro ||
+                                    "Este link não é mais válido."
+                                }
+                            </p>
+
+                        </div>
+                    </div>
+                `;
+
+                return true;
+            }
+
+
+            // =================================================
+            // LINK VÁLIDO
+            // =================================================
+
+            const usuario =
+                dados.usuario;
+
+
+            estado.nomeUsuario =
+                usuario.nome;
+
+
+            estado.etapaAtual =
+                Number(usuario.modulo_atual) || 1;
+
+
+            estado.parteAtual =
+                Number(usuario.parte_atual) || 0;
+
+
+            estado.maiorEtapa =
+                estado.etapaAtual;
+
+
+            // Guarda o token para salvar progresso depois
+            localStorage.setItem(
+                "integracao_link_token",
+                token
             );
 
 
-        const dados =
-            await resposta.json();
+            // Guarda os dados do usuário
+            localStorage.setItem(
+                "integracao_usuario",
+                JSON.stringify(usuario)
+            );
 
 
-        // =================================================
-        // LINK INVÁLIDO / EXPIRADO / CONCLUÍDO
-        // =================================================
+            // Salva o estado local
+            salvarEstado();
 
-        if (!resposta.ok) {
+
+            // =================================================
+            // GUARDA O TOKEN DE SESSÃO
+            // =================================================
+
+            if (dados.token) {
+
+                localStorage.setItem(
+                    "integracao_token",
+                    dados.token
+                );
+
+            }
+
+
+            // =================================================
+            // MOSTRA A TELA DE LOGIN / BOAS-VINDAS
+            // =================================================
+
+            renderHome();
+
+            return true;
+
+        } catch (erro) {
+            console.error("Erro ao verificar acesso por link:", erro);
 
             app.innerHTML = `
                 <div class="main-content">
-                    <div
-                        class="container"
-                        style="text-align:center;"
-                    >
-
+                    <div class="container" style="text-align:center;">
                         <h2 style="color:#d32f2f;">
                             Acesso indisponível
                         </h2>
 
                         <p>
-                            ${
-                                dados.erro ||
-                                "Este link não é mais válido."
-                            }
+                            Não foi possível validar este link no momento.
                         </p>
-
                     </div>
                 </div>
             `;
 
             return true;
         }
-
-
-        // =================================================
-        // LINK VÁLIDO
-        // =================================================
-
-        const usuario =
-            dados.usuario;
-
-
-        estado.nomeUsuario =
-            usuario.nome;
-
-
-        estado.etapaAtual =
-            Number(usuario.modulo_atual) || 1;
-
-
-        estado.parteAtual =
-            Number(usuario.parte_atual) || 0;
-
-
-        estado.maiorEtapa =
-            estado.etapaAtual;
-
-
-        // Guarda o token para salvar progresso depois
-        localStorage.setItem(
-            "integracao_link_token",
-            token
-        );
-
-
-        // Guarda os dados do usuário
-        localStorage.setItem(
-            "integracao_usuario",
-            JSON.stringify(usuario)
-        );
-
-
-        // Salva o estado local
-        salvarEstado();
-
-
-        // =================================================
-        // ENTRA DIRETO NO TREINAMENTO
-        // =================================================
-
-        renderLayout(
-            estado.etapaAtual - 1
-        );
-
-
-        return true;
-
-
-    } catch (erro) {
-
-        console.error(
-            "Erro ao verificar acesso por link:",
-            erro
-        );
-
-
-        app.innerHTML = `
-            <div class="main-content">
-                <div
-                    class="container"
-                    style="text-align:center;"
-                >
-
-                    <h2 style="color:#d32f2f;">
-                        Erro ao acessar treinamento
-                    </h2>
-
-                    <p>
-                        Não foi possível validar este acesso.
-                    </p>
-
-                </div>
-            </div>
-        `;
-
-
-        return true;
     }
-}
 
 async function init(validarAcessoPorLink = true) {
 

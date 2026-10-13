@@ -295,4 +295,89 @@ router.get(
     }
 );
 
+
+router.delete(
+    "/:id",
+    autenticar,
+    permitirRoles("rh", "admin"),
+    async (req, res) => {
+        const client = await pool.connect();
+
+        try {
+            const id = Number(req.params.id);
+
+            if (!Number.isInteger(id) || id <= 0) {
+                return res.status(400).json({
+                    erro: "ID de colaborador inválido."
+                });
+            }
+
+            await client.query("BEGIN");
+
+            const resultado = await client.query(
+                `SELECT id, perfil, role, ativo
+                 FROM public.usuarios
+                 WHERE id = $1
+                 FOR UPDATE`,
+                [id]
+            );
+
+            if (resultado.rows.length === 0) {
+                await client.query("ROLLBACK");
+                return res.status(404).json({
+                    erro: "Colaborador não encontrado."
+                });
+            }
+
+            const usuario = resultado.rows[0];
+
+            if (
+                usuario.perfil !== "colaborador" &&
+                usuario.role !== "colaborador"
+            ) {
+                await client.query("ROLLBACK");
+                return res.status(403).json({
+                    erro: "Somente colaboradores podem ser excluídos."
+                });
+            }
+
+            if (usuario.ativo) {
+                await client.query("ROLLBACK");
+                return res.status(409).json({
+                    erro: "Desative o colaborador antes de excluí-lo."
+                });
+            }
+
+            await client.query(
+                `DELETE FROM public.progresso
+                 WHERE usuario_id = $1`,
+                [id]
+            );
+
+            await client.query(
+                `DELETE FROM public.usuarios
+                 WHERE id = $1`,
+                [id]
+            );
+
+            await client.query("COMMIT");
+
+            return res.json({
+                mensagem: "Colaborador excluído com sucesso."
+            });
+        } catch (erro) {
+            await client.query("ROLLBACK");
+
+            console.error("Erro ao excluir colaborador:", erro);
+
+            return res.status(500).json({
+                erro: "Não foi possível excluir o colaborador. Verifique se existem outros registros vinculados."
+            });
+        } finally {
+            client.release();
+        }
+    }
+);
+
+
 export default router;

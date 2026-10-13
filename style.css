@@ -943,6 +943,16 @@ input[type="password"]:focus {
     transition: width 0.5s ease;
 }
 
+.titulo-cadastro {
+    color: #064e3b;
+    text-align: center;
+    font-family: inherit;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -.3px;
+    margin: 0 0 22px;
+}
+
 /* =====================================================
                 ANIMAÇÃO DA TELA INICIAL
    ===================================================== */

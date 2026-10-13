@@ -502,7 +502,17 @@ button:disabled {
                 required
             >
 
+            <button
+            type="button"
+            id="btn-carregar"
+            onclick="entrarPainel()"
+            style="margin-bottom: 20px;"
+            >
+                ENTRAR NO PAINEL
+            </button>
+
             <hr style="margin: 25px 0; border: none; border-top: 1px solid #ddd;">
+
 
             <label for="nome-colaborador">
                 Nome do colaborador
@@ -539,15 +549,6 @@ button:disabled {
         <h2 style="text-align: center; margin: 0 0 15px;">
             COLABORADORES
         </h2>
-
-        <button
-            type="button"
-            id="btn-carregar"
-            onclick="entrarPainel()"
-            style="margin-bottom: 20px;"
-        >
-            ENTRAR NO PAINEL
-        </button>
 
         <div id="lista-colaboradores">
             <p style="text-align: center; color: #666;">
@@ -1132,15 +1133,30 @@ button:disabled {
                                         ${treinamento}
                                     </p>
                                 
+                                    
                                     <button
+                                        type="button"
                                         onclick="alterarStatusUsuario(
                                             ${usuario.id},
                                             ${!usuario.ativo}
                                         )"
                                     >
                                         ${botaoTexto}
+
                                     </button>
-                                
+                                    ${!usuario.ativo ? `
+                                        <button
+                                            type="button"
+                                            onclick="excluirColaborador(${usuario.id})"
+                                            style="
+                                                margin-top: 10px;
+                                                background: #dc2626;
+                                            "
+                                        >
+                                            EXCLUIR COLABORADOR
+                                        </button>
+                                    ` : ''}
+                                    
                                     <button
                                         type="button"
                                         onclick="resetarTreinamento(${usuario.id})"
@@ -1151,6 +1167,7 @@ button:disabled {
                                     >
                                         RESETAR TREINAMENTO
                                     </button>
+
                                 
                                 </div>
                             `;
@@ -1357,6 +1374,50 @@ button:disabled {
 
     }
 }
+    
+async function excluirColaborador(id) {
+    const token = localStorage.getItem('integracao_admin_token');
+
+    if (!token) {
+        alert('Sessão administrativa não encontrada.');
+        return;
+    }
+
+    if (!confirm(
+        'Tem certeza que deseja EXCLUIR DEFINITIVAMENTE este colaborador? Esta ação não pode ser desfeita.'
+    )) {
+        return;
+    }
+
+    try {
+        const resposta = await fetch(
+            `${API}/api/usuarios/${id}`,
+            {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(
+                dados.erro || 'Erro ao excluir colaborador.'
+            );
+        }
+
+        alert(dados.mensagem || 'Colaborador excluído com sucesso.');
+
+        await carregarColaboradores();
+
+    } catch (erro) {
+        console.error('Erro ao excluir colaborador:', erro);
+        alert(erro.message);
+    }
+}
+
 
     </script>
 

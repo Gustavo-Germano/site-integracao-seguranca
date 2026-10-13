@@ -105,6 +105,18 @@ router.post("/login", async (req, res) => {
             });
         }
 
+        const perfil = String(usuario.perfil || "").toLowerCase();
+        const role = String(usuario.role || "").toLowerCase();
+
+            if (
+                !["admin", "rh"].includes(perfil) &&
+                !["admin", "rh"].includes(role)
+        ) {
+         return res.status(403).json({
+             erro: "Colaboradores devem acessar pelo link de treinamento."
+            });
+        }
+
 
         await pool.query(
             `
@@ -160,21 +172,6 @@ router.post("/login", async (req, res) => {
         });
     }
 });
-
-
-const perfil = String(usuario.perfil || "").toLowerCase();
-const role = String(usuario.role || "").toLowerCase();
-
-if (
-    !["admin", "rh"].includes(perfil) &&
-    !["admin", "rh"].includes(role)
-) {
-    return res.status(403).json({
-        erro: "Colaboradores devem acessar pelo link de treinamento."
-    });
-}
-
-
 
 // =====================================================
 // GERAR LINK EXPIRÁVEL

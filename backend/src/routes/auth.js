@@ -162,6 +162,20 @@ router.post("/login", async (req, res) => {
 });
 
 
+const perfil = String(usuario.perfil || "").toLowerCase();
+const role = String(usuario.role || "").toLowerCase();
+
+if (
+    !["admin", "rh"].includes(perfil) &&
+    !["admin", "rh"].includes(role)
+) {
+    return res.status(403).json({
+        erro: "Colaboradores devem acessar pelo link de treinamento."
+    });
+}
+
+
+
 // =====================================================
 // GERAR LINK EXPIRÁVEL
 // ADMIN / RH
@@ -335,92 +349,189 @@ router.post(
 // VALIDAR LINK
 // =====================================================
 
-router.get(
-    "/acesso",
-    autenticar,
-    async (req, res) => {
 
-        try {
+router.get("/acesso", async (req, res) => {
+    try {
+        const token = String(
+            req.headers.authorization || ""
+        ).replace(/^Bearer\s+/i, "").trim();
 
-            if (!req.usuario.acesso_link) {
-
-                return res.status(403).json({
-
-                    erro:
-                        "Este token não é um link de acesso."
-                });
-            }
-
-
-            const resultado =
-                await pool.query(
-                    `
-                    SELECT
-                        id,
-                        nome,
-                        perfil,
-                        role,
-                        ativo,
-                        treinamento_concluido,
-                        modulo_atual,
-                        parte_atual
-                    FROM public.usuarios
-                    WHERE id = $1
-                    LIMIT 1
-                    `,
-                    [req.usuario.id]
-                );
-
-
-            if (
-                resultado.rows.length === 0
-            ) {
-
-                return res.status(404).json({
-
-                    erro:
-                        "Acesso não encontrado."
-                });
-            }
-
-
-            const usuario =
-                resultado.rows[0];
-
-
-            if (!usuario.ativo) {
-
-                return res.status(403).json({
-
-                    erro:
-                        "Este acesso foi desativado."
-                });
-            }
-
-
-            return res.json({
-
-                acesso_valido:
-                    true,
-
-                usuario
-            });
-
-        } catch (erro) {
-
-            console.error(
-                "Erro ao validar acesso:",
-                erro
-            );
-
-            return res.status(500).json({
-
-                erro:
-                    "Erro ao validar acesso."
+        if (!token) {
+            return res.status(400).json({
+                erro: "Link de acesso não informado."
             });
         }
+
+        const resultado = await pool.query(
+            `
+            SELECT
+                id,
+                nome,
+                email,
+                usuario_login,
+                perfil,
+                role,
+                ativo,
+                treinamento_concluido,
+                modulo_atual,
+                parte_atual
+            FROM public.usuarios
+            WHERE token_acesso = $1
+              AND acesso_por_link = TRUE
+              AND token_expira_em > CURRENT_TIMESTAMP
+            LIMIT 1
+            `,
+            [token]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.status(403).json({
+                erro: "Link inválido ou expirado."
+            });
+        }
+
+        const usuario = resultado.rows[0];
+
+        if (!usuario.ativo) {
+            return res.status(403).json({
+                erro: "Este acesso foi desativado."
+            });
+        }
+
+        return res.json({
+            acesso_valido: true,
+            usuario
+        });
+    } catch (erro) {
+        console.error("Erro ao validar acesso:", erro);
+
+        return res.status(500).json({
+            erro: "Erro ao validar acesso."
+        });
     }
-);
+});
+
+
+router.post("/acesso/entrar", async (req, res) => {
+    try {
+        const tokenAcesso = String(
+            req.body.token || ""
+        ).trim();
+
+        const login = String(
+            req.body.login || req.body.email || ""
+        ).trim().toLowerCase();
+
+        const senha = String(
+            req.body.senha || ""
+        );
+
+        if (!tokenAcesso || !login || !senha) {
+            return res.status(400).json({
+                erro: "Link, usuário e senha são obrigatórios."
+            });
+        }
+
+        const resultado = await pool.query(
+            `
+            SELECT
+                id,
+                nome,
+                email,
+                usuario_login,
+                senha,
+                perfil,
+                role,
+                ativo,
+                treinamento_concluido,
+                modulo_atual,
+                parte_atual
+            FROM public.usuarios
+            WHERE token_acesso = $1
+              AND acesso_por_link = TRUE
+              AND token_expira_em > CURRENT_TIMESTAMP
+            LIMIT 1
+            `,
+            [tokenAcesso]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.status(403).json({
+                erro: "Link inválido ou expirado."
+            });
+        }
+
+        const usuario = resultado.rows[0];
+
+        if (!usuario.ativo) {
+            return res.status(403).json({
+                erro: "Este acesso foi desativado."
+            });
+        }
+
+        const loginCorreto =
+            login === String(usuario.usuario_login || "").toLowerCase() ||
+            login === String(usuario.email || "").toLowerCase();
+
+        const senhaCorreta = await bcrypt.compare(
+            senha,
+            usuario.senha
+        );
+
+        if (!loginCorreto || !senhaCorreta) {
+            return res.status(401).json({
+                erro: "Usuário ou senha inválidos."
+            });
+        }
+
+        await pool.query(
+            `
+            UPDATE public.usuarios
+            SET ultimo_login = CURRENT_TIMESTAMP
+            WHERE id = $1
+            `,
+            [usuario.id]
+        );
+
+        const token = jwt.sign(
+            {
+                id: usuario.id,
+                perfil: usuario.perfil,
+                role: usuario.role
+            },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: "8h"
+            }
+        );
+
+        return res.json({
+            mensagem: "Autenticação realizada com sucesso.",
+            token,
+            usuario: {
+                id: usuario.id,
+                nome: usuario.nome,
+                email: usuario.email,
+                usuario_login: usuario.usuario_login,
+                perfil: usuario.perfil,
+                role: usuario.role,
+                treinamento_concluido: usuario.treinamento_concluido,
+                modulo_atual: usuario.modulo_atual,
+                parte_atual: usuario.parte_atual
+            }
+        });
+    } catch (erro) {
+        console.error(
+            "Erro na autenticação do colaborador:",
+            erro
+        );
+
+        return res.status(500).json({
+            erro: "Não foi possível autenticar o colaborador."
+        });
+    }
+});
+
 
 
 // =====================================================

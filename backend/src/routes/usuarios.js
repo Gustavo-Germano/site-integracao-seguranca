@@ -179,8 +179,10 @@ router.post(
                 );
 
             // Link real do treinamento
-            const linkTreinamento =
-                `https://site-integracao-seguranca-1.onrender.com/acesso/${tokenAcesso}`;
+            
+        const linkTreinamento =
+            `${process.env.FRONTEND_URL || "https://site-integracao-seguranca-1.onrender.com"}/?acesso=${encodeURIComponent(tokenAcesso)}`;
+
 
             return res.status(201).json({
                 mensagem:

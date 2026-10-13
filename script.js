@@ -1261,104 +1261,27 @@ async function verificarAcessoPorLink() {
         }
     }
 
+
 async function init(validarAcessoPorLink = true) {
-
     pararLeitura();
-
     atualizarTopbar();
 
-    // =====================================================
-    // VERIFICA SE O ACESSO ATUAL É POR LINK
-    // =====================================================
-
+    // Na abertura ou recarga da página, validar o acesso primeiro.
     if (validarAcessoPorLink) {
-
-        const acessoPorLink =
-            await verificarAcessoPorLink();
-
-        if (acessoPorLink) {
-            return;
-        }
-    }
-
-    // =====================================================
-    // FLUXO NORMAL DO SITE
-    // =====================================================
-
-    if (
-        !estado.nomeUsuario ||
-        estado.etapaAtual === 0
-    ) {
-
         renderHome();
+        return;
+    }
 
-    } else if (
-        estado.etapaAtual <= modulos.length
-    ) {
-
-        renderLayout(
-            estado.etapaAtual - 1
-        );
-
+    // Chamadas internas do treinamento preservam a sessão atual.
+    if (!estado.nomeUsuario || estado.etapaAtual === 0) {
+        renderHome();
+    } else if (estado.etapaAtual <= modulos.length) {
+        renderLayout(estado.etapaAtual - 1);
     } else {
-
         renderConclusao();
-
     }
 }
 
-function atualizarTopbar() {
-
-    const userBox =
-        document.getElementById('topbar-user');
-
-    const userName =
-        document.getElementById('topbar-nome');
-
-    const btnReset =
-        document.getElementById('btn-reset');
-
-    const estaNoTreinamento =
-    !!estado.nomeUsuario &&
-    estado.etapaAtual > 0;
-
-    const podeReiniciarCurso =
-    !!estado.nomeUsuario &&
-    estado.etapaAtual >= 1 &&
-    estado.etapaAtual <= modulos.length;
-
-    if (estaNoTreinamento) {
-
-        userName.innerText =
-            estado.nomeUsuario;
-
-        userBox.style.display =
-            'flex';
-
-        if (btnReset) {
-            btnReset.style.display =
-                podeReiniciarCurso ? 'block' : 'none';
-}
-
-        document.body.classList.remove(
-            'modo-login'
-        );
-
-    } else {
-
-        userBox.style.display =
-            'none';
-
-        if (btnReset) {
-            btnReset.style.display =
-                'none';
-        }
-
-        document.body.classList.add(
-            'modo-login'
-        );
-    }
-}
 
 function formatarTextoEmSpans(texto) {
     let indice = 0;
@@ -1723,167 +1646,53 @@ function renderHome() {
     }
 
 
+    // Valida o link antes de mostrar a tela de acesso
     validarAcessoLink(token);
 }
 
+
 async function validarAcessoLink(token) {
-
     app.innerHTML = `
-
-        <div class="main-content">
-
-            <div
-                class="container"
-                style="
-                    max-width:600px;
-                    margin:80px auto;
-                    text-align:center;
-                "
-            >
-
-                <h2>
-                    Validando seu acesso...
-                </h2>
-
-                <p>
-                    Aguarde um momento.
-                </p>
-
-            </div>
-
+        <div class="tela-acesso">
+            <h2>Validando seu acesso...</h2>
+            <p>Aguarde um instante.</p>
         </div>
     `;
 
-
     try {
-
-        const resposta =
-            await fetch(
-                `${API_URL}/api/auth/acesso`,
-                {
-                    method: 'GET',
-
-                    headers: {
-                        'Authorization':
-                            `Bearer ${token}`
-                    }
+        const resposta = await fetch(
+            `${API_URL}/api/auth/acesso`,
+            {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`
                 }
-            );
+            }
+        );
 
+        const dados = await resposta.json();
 
-        const dados =
-            await resposta.json();
-
-
-        if (!resposta.ok) {
-
+        if (!resposta.ok || !dados.acesso_valido) {
             throw new Error(
-                dados.erro ||
-                'Este link não é válido.'
+                dados.erro || "Link inválido ou expirado."
             );
         }
 
+        // Não guardar o link como token de autenticação.
+        localStorage.removeItem("integracao_token");
 
-        // -----------------------------------------
-        // GUARDA TOKEN
-        // -----------------------------------------
-
-        localStorage.setItem(
-            'integracao_token',
-            token
-        );
-
-
-        localStorage.setItem(
-            'integracao_usuario',
-            JSON.stringify(
-                dados.usuario
-            )
-        );
-
-
-        estado.nomeUsuario =
-            dados.usuario.nome ===
-            'Aguardando identificação'
-                ? ''
-                : dados.usuario.nome;
-
-
-        estado.etapaAtual =
-            Number(
-                dados.usuario.modulo_atual ||
-                1
-            );
-
-
-        estado.parteAtual =
-            Number(
-                dados.usuario.parte_atual ||
-                0
-            );
-
-
-        estado.maiorEtapa =
-            estado.etapaAtual;
-
-
-        // -----------------------------------------
-        // NOME AINDA NÃO INFORMADO
-        // -----------------------------------------
-
-        if (!estado.nomeUsuario) {
-
-            mostrarTelaNomeAcesso(
-                token
-            );
-
-            return;
-        }
-
-
-        // -----------------------------------------
-        // JÁ IDENTIFICADO
-        // -----------------------------------------
-
-        mostrarBotaoIniciarTreinamento();
+        mostrarTelaLoginAcesso(token, dados.usuario);
 
     } catch (erro) {
-
         app.innerHTML = `
-
-            <div class="main-content">
-
-                <div
-                    class="container"
-                    style="
-                        max-width:600px;
-                        margin:80px auto;
-                        text-align:center;
-                    "
-                >
-
-                    <h2
-                        style="
-                            color:#d32f2f;
-                        "
-                    >
-                        Acesso indisponível
-                    </h2>
-
-                    <p>
-                        ${erro.message}
-                    </p>
-
-                    <p>
-                        Solicite um novo link à empresa.
-                    </p>
-
-                </div>
-
+            <div class="tela-acesso">
+                <h2>Acesso indisponível</h2>
+                <p>${erro.message}</p>
             </div>
         `;
     }
 }
+
 
 function renderLoginAdmin() {
 
@@ -2059,187 +1868,125 @@ async function loginAdministrador(event) {
     }
 }
 
-function mostrarTelaNomeAcesso(token) {
 
+
+function mostrarTelaLoginAcesso(token, usuario) {
     app.innerHTML = `
+        <div class="tela-acesso">
+            <h2>Identificação do colaborador</h2>
+            <p>Informe os dados recebidos do RH para acessar o treinamento.</p>
 
-        <div class="main-content">
-
-            <div
-                class="container"
-                style="
-                    max-width:600px;
-                    margin:60px auto;
-                    text-align:center;
-                "
-            >
-
-                <h2
-                    style="
-                        color:var(--primary-color);
-                    "
-                >
-                    Integração de Segurança
-                </h2>
-
-                <p>
-                    Informe seu nome completo
-                    para iniciar o treinamento.
-                </p>
-
-
-                <form
-                    id="form-nome-acesso"
-                    style="
-                        max-width:420px;
-                        margin:30px auto;
-                    "
+            <form id="formLoginColaborador">
+                <label for="loginColaborador">Usuário ou e-mail</label>
+                <input
+                    id="loginColaborador"
+                    name="login"
+                    type="text"
+                    autocomplete="username"
+                    required
                 >
 
-                    <input
-                        type="text"
-                        id="nome-acesso"
-                        placeholder="Seu nome completo..."
-                        required
-                        autocomplete="name"
-                    >
+                <label for="senhaColaborador">Senha</label>
+                <input
+                    id="senhaColaborador"
+                    name="senha"
+                    type="password"
+                    autocomplete="current-password"
+                    required
+                >
 
+                <p id="erroLoginColaborador" role="alert"></p>
 
-                    <button
-                        type="submit"
-                        class="btn"
-                        style="
-                            width:100%;
-                            margin-top:15px;
-                        "
-                    >
-                        INICIAR TREINAMENTO
-                    </button>
-
-
-                    <p
-                        id="erro-acesso"
-                        style="
-                            display:none;
-                            color:#d32f2f;
-                            font-weight:600;
-                            margin-top:15px;
-                        "
-                    ></p>
-
-                </form>
-
-            </div>
-
+                <button type="submit" id="btnEntrarColaborador">
+                    ENTRAR NO TREINAMENTO
+                </button>
+            </form>
         </div>
     `;
 
+    const form = document.getElementById("formLoginColaborador");
+    const campoLogin = document.getElementById("loginColaborador");
+    const campoSenha = document.getElementById("senhaColaborador");
+    const mensagemErro = document.getElementById("erroLoginColaborador");
+    const botao = document.getElementById("btnEntrarColaborador");
 
-    const form =
-        document.getElementById(
-            'form-nome-acesso'
-        );
+    campoLogin.value = usuario.usuario_login || "";
 
+    form.addEventListener("submit", async (evento) => {
+        evento.preventDefault();
 
-    form.addEventListener(
-        'submit',
-        async (event) => {
+        mensagemErro.textContent = "";
+        botao.disabled = true;
+        botao.textContent = "VALIDANDO...";
 
-            event.preventDefault();
-
-
-            const nome =
-                document
-                    .getElementById(
-                        'nome-acesso'
-                    )
-                    .value
-                    .trim();
-
-
-            const erro =
-                document.getElementById(
-                    'erro-acesso'
-                );
-
-
-            try {
-
-                const resposta =
-                    await fetch(
-                        `${API_URL}/api/auth/acesso/iniciar`,
-                        {
-                            method: 'POST',
-
-                            headers: {
-                                'Content-Type':
-                                    'application/json',
-
-                                'Authorization':
-                                    `Bearer ${token}`
-                            },
-
-                            body:
-                                JSON.stringify({
-                                    nome
-                                })
-                        }
-                    );
-
-
-                const dados =
-                    await resposta.json();
-
-
-                if (!resposta.ok) {
-
-                    throw new Error(
-                        dados.erro ||
-                        'Não foi possível iniciar o treinamento.'
-                    );
+        try {
+            const resposta = await fetch(
+                `${API_URL}/api/auth/acesso/entrar`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        token,
+                        login: campoLogin.value.trim(),
+                        senha: campoSenha.value
+                    })
                 }
+            );
 
+            const dados = await resposta.json();
 
-                localStorage.setItem(
-                    'integracao_usuario',
-                    JSON.stringify(
-                        dados.usuario
-                    )
+            if (!resposta.ok) {
+                throw new Error(
+                    dados.erro || "Não foi possível entrar."
                 );
-
-
-                estado.nomeUsuario =
-                    dados.usuario.nome;
-
-                estado.etapaAtual =
-                    Number(
-                        dados.usuario.modulo_atual ||
-                        1
-                    );
-
-                estado.parteAtual =
-                    Number(
-                        dados.usuario.parte_atual ||
-                        0
-                    );
-
-                estado.maiorEtapa =
-                    estado.etapaAtual;
-
-
-                mostrarBotaoIniciarTreinamento();
-
-            } catch (e) {
-
-                erro.textContent =
-                    e.message;
-
-                erro.style.display =
-                    'block';
             }
+
+            if (!dados.token || !dados.usuario) {
+                throw new Error(
+                    "O servidor não retornou os dados de autenticação."
+                );
+            }
+
+            // Guardar o JWT de sessão, nunca o link como sessão.
+            localStorage.setItem("integracao_token", dados.token);
+            localStorage.setItem(
+                "integracao_usuario",
+                JSON.stringify(dados.usuario)
+            );
+
+            estado.nomeUsuario = dados.usuario.nome || "";
+            estado.etapaAtual = Number(dados.usuario.modulo_atual) || 1;
+            estado.parteAtual = Number(dados.usuario.parte_atual) || 0;
+            estado.maiorEtapa = Math.max(estado.etapaAtual, 1);
+
+            if (dados.usuario.treinamento_concluido) {
+                estado.etapaAtual = modulos.length + 1;
+                estado.parteAtual = 0;
+                estado.maiorEtapa = modulos.length;
+
+                salvarEstado();
+                atualizarTopbar();
+                renderConclusao();
+                return;
+            }
+
+            // Recuperar o progresso oficial salvo no backend.
+            await carregarProgressoServidor();
+
+            atualizarTopbar();
+            mostrarBotaoIniciarTreinamento();
+
+        } catch (erro) {
+            mensagemErro.textContent = erro.message;
+        } finally {
+            botao.disabled = false;
+            botao.textContent = "ENTRAR NO TREINAMENTO";
         }
-    );
+    });
 }
+
 
 
 /* =====================================================
@@ -2317,16 +2064,15 @@ function iniciarTreinamento() {
         );
 
 
-    if (
-        usuario &&
-        usuario.treinamento_concluido
-    ) {
+    if (usuario && usuario.treinamento_concluido) {
+    estado.etapaAtual = modulos.length + 1;
+    estado.parteAtual = 0;
+    estado.maiorEtapa = modulos.length;
 
-        init();
-
-        return;
-    }
-
+    atualizarTopbar();
+    renderConclusao();
+    return;
+}
 
     app.innerHTML = `
 
@@ -3550,7 +3296,7 @@ async function executarReset() {
 
     fecharModalReset();
 
-    init();
+    init(false);
 }
 
 // =====================================================

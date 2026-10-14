@@ -328,6 +328,68 @@ button:disabled {
 }
 
 
+.modal-rh-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(4px);
+
+    opacity: 0;
+    animation: modalRhFadeIn 0.25s ease-out forwards;
+}
+
+.modal-rh-box {
+    width: 100%;
+    max-width: 420px;
+    padding: 30px 26px;
+    border-radius: 18px;
+    background: #fff;
+    text-align: center;
+    box-shadow: 0 22px 65px rgba(0, 0, 0, 0.25);
+
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+    animation: modalRhEntrada 0.3s cubic-bezier(.2,.8,.2,1) forwards;
+}
+
+.modal-rh-overlay.fechando {
+    pointer-events: none;
+    animation: modalRhFadeOut 0.2s ease-in forwards;
+}
+
+.modal-rh-overlay.fechando .modal-rh-box {
+    animation: modalRhSaida 0.2s ease-in forwards;
+}
+
+@keyframes modalRhFadeIn {
+    to { opacity: 1; }
+}
+
+@keyframes modalRhEntrada {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes modalRhFadeOut {
+    to { opacity: 0; }
+}
+
+@keyframes modalRhSaida {
+    to {
+        opacity: 0;
+        transform: translateY(10px) scale(0.97);
+    }
+}
+
+
 /* =====================================================
    MOBILE — TRANSIÇÕES SUAVES
    ===================================================== */
@@ -1501,7 +1563,15 @@ async function alterarStatusUsuario(id, novoStatus) {
             );
         }
 
-        alert(dados.mensagem);
+        await mostrarMensagemRH(
+            novoStatus ? 'Colaborador ativado!' : 'Colaborador desativado!',
+            dados.mensagem || (
+                novoStatus
+                     ? 'O colaborador foi ativado com sucesso.'
+                    : 'O colaborador foi desativado com sucesso.'
+            )
+        );
+
         await carregarColaboradores();
 
     } catch (erro) {

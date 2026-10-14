@@ -511,7 +511,9 @@ button:disabled {
                 ENTRAR NO PAINEL
             </button>
 
-             <div id="mensagem"></div>
+             
+            <div id="mensagem-painel"></div>
+
 
             <hr style="margin: 25px 0; border: none; border-top: 1px solid #ddd;">
 
@@ -541,6 +543,10 @@ button:disabled {
             <button type="submit" id="btn-cadastrar">
                 CADASTRAR COLABORADOR
             </button>
+
+            
+            <div id="mensagem-cadastro"></div>
+
 
         </form>
 
@@ -592,7 +598,7 @@ button:disabled {
                 document.getElementById('btn-carregar');
 
             const mensagem =
-                document.getElementById('mensagem');
+                document.getElementById('mensagem-painel');
 
 
             if (!emailAdmin || !senhaAdmin) {
@@ -747,15 +753,11 @@ button:disabled {
 
 
     const btn =
-        document.getElementById(
-            'btn-cadastrar'
-        );
+        document.getElementById('btn-cadastrar');
 
 
     const mensagem =
-        document.getElementById(
-            'mensagem'
-        );
+        document.getElementById('mensagem-cadastro');
 
 
     mensagem.textContent = '';

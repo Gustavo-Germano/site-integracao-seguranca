@@ -1708,7 +1708,10 @@ async function validarAcessoLink(token) {
         // Não guardar o link como token de autenticação.
         localStorage.removeItem("integracao_token");
 
-        mostrarBoasVindasAcesso(token, dados.usuario);
+        tokenAcessoPendente = token;
+        usuarioAcessoPendente = dados.usuario;
+
+        mostrarBotaoInicialAcesso();
 
     } catch (erro) {
         app.innerHTML = `
@@ -1720,35 +1723,6 @@ async function validarAcessoLink(token) {
     }
 }
 
-
-let tokenAcessoPendente = null;
-let usuarioAcessoPendente = null;
-
-function mostrarBoasVindasAcesso(token, usuario) {
-    tokenAcessoPendente = token;
-    usuarioAcessoPendente = usuario;
-
-    app.innerHTML = `
-        <div class="main-content">
-            <div class="container" style="text-align:center;">
-                ${getAvatarHTML()}
-                <h2 style="color:var(--primary-color);">
-                    Integração de Segurança
-                </h2>
-                <p id="texto-modulo">
-                    ${formatarTextoEmSpans(textoBoasVindas.texto)}
-                </p>
-            </div>
-        </div>
-    `;
-
-    // O robô dá as boas-vindas assim que a tela aparece.
-    tocarAudioESincronizar(
-        textoBoasVindas.audio,
-        textoBoasVindas.texto,
-        true
-    );
-}
 
 function liberarFormularioLogin() {
     if (!tokenAcessoPendente || !usuarioAcessoPendente) {
@@ -1763,6 +1737,44 @@ function liberarFormularioLogin() {
 
     mostrarTelaLoginAcesso(token, usuario);
 }
+
+
+let tokenAcessoPendente = null;
+let usuarioAcessoPendente = null;
+
+function mostrarBotaoInicialAcesso() {
+    app.innerHTML = `
+        <div style="
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:30px 20px;
+            box-sizing:border-box;
+        ">
+            <button
+                type="button"
+                id="btn-iniciar-treinamento-final"
+                class="btn-iniciar-treinamento"
+            >
+                <span class="btn-iniciar-icone">🔊</span>
+                <span>INICIAR TREINAMENTO</span>
+            </button>
+        </div>
+    `;
+
+    document
+        .getElementById("btn-iniciar-treinamento-final")
+        .addEventListener("click", () => {
+            if (tokenAcessoPendente && usuarioAcessoPendente) {
+                mostrarTelaLoginAcesso(
+                    tokenAcessoPendente,
+                    usuarioAcessoPendente
+                );
+            }
+        });
+}
+
 
 function renderLoginAdmin() {
 
@@ -1940,57 +1952,56 @@ async function loginAdministrador(event) {
 
 
 function mostrarTelaLoginAcesso(token, usuario) {
-    app.innerHTML = `
-        <div class="main-content">
-            <div class="container" style="text-align:center;">
-                ${getAvatarHTML()}
+    
+app.innerHTML = `
+    <div class="main-content">
+        <div class="container" style="text-align:center;">
+            ${getAvatarHTML()}
 
-                <h2 style="color:var(--primary-color);">
-                    Integração de Segurança
-                </h2>
+            <h2 style="color:var(--primary-color);">
+                Integração de Segurança
+            </h2>
 
-                <p id="texto-modulo">
-                    ${formatarTextoEmSpans(textoBoasVindas.texto)}
-                </p>
+            <p id="texto-modulo">
+                ${formatarTextoEmSpans(textoBoasVindas.texto)}
+            </p>
 
-                <form
-                    id="formLoginColaborador"
-                    class="form-oculto"
-                    style="max-width:500px; margin:24px auto;"
+            <form
+                id="formLoginColaborador"
+                style="display:none; max-width:500px; margin:24px auto;"
+            >
+                <label for="loginColaborador">Usuário ou e-mail</label>
+                <input
+                    id="loginColaborador"
+                    name="login"
+                    type="text"
+                    autocomplete="username"
+                    required
                 >
-                    <label for="loginColaborador">
-                        Usuário ou e-mail
-                    </label>
-                    <input
-                        id="loginColaborador"
-                        name="login"
-                        type="text"
-                        autocomplete="username"
-                        required
-                    >
 
-                    <label for="senhaColaborador">Senha</label>
-                    <input
-                        id="senhaColaborador"
-                        name="senha"
-                        type="password"
-                        autocomplete="current-password"
-                        required
-                    >
+                <label for="senhaColaborador">Senha</label>
+                <input
+                    id="senhaColaborador"
+                    name="senha"
+                    type="password"
+                    autocomplete="current-password"
+                    required
+                >
 
-                    <p id="erroLoginColaborador" role="alert"></p>
+                <p id="erroLoginColaborador" role="alert"></p>
 
-                    <button
-                        type="submit"
-                        id="btnEntrarColaborador"
-                        class="btn"
-                    >
-                        ENTRAR NO TREINAMENTO
-                    </button>
-                </form>
-            </div>
+                <button
+                    type="submit"
+                    id="btnEntrarColaborador"
+                    class="btn"
+                >
+                    ENTRAR NO TREINAMENTO
+                </button>
+            </form>
         </div>
-    `;
+    </div>
+`;
+
 
     const form = document.getElementById("formLoginColaborador");
     const campoLogin = document.getElementById("loginColaborador");
@@ -2084,14 +2095,8 @@ function mostrarTelaLoginAcesso(token, usuario) {
 function liberarFormularioLogin() {
     const form = document.getElementById("formLoginColaborador");
 
-    if (!form) {
-        console.error(
-            "Formulário de credenciais não encontrado na tela do robô."
-        );
-        return;
-    }
+    if (!form) return;
 
-    form.classList.remove("form-oculto");
     form.style.display = "block";
 
     form.scrollIntoView({
@@ -2099,10 +2104,6 @@ function liberarFormularioLogin() {
         block: "nearest"
     });
 }
-
-
-
-
 
 /* =====================================================
    MOSTRA BOTÃO LARANJA

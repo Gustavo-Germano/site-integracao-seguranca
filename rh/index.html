@@ -456,6 +456,8 @@ button:disabled {
 
 
 /* Modal personalizado de confirmação do RH */
+
+/* Modal personalizado do RH */
 .modal-rh-overlay {
     position: fixed;
     inset: 0;
@@ -466,7 +468,7 @@ button:disabled {
     padding: 20px;
     z-index: 99999;
     opacity: 0;
-    animation: modalRhEntrar .2s ease forwards;
+    animation: modalRhFadeIn .18s ease-out forwards;
 }
 
 .modal-rh-box {
@@ -477,19 +479,21 @@ button:disabled {
     padding: 28px 24px;
     text-align: center;
     box-shadow: 0 20px 60px rgba(0, 0, 0, .22);
-    transform: translateY(12px);
-    animation: modalRhSubir .2s ease forwards;
+    animation: modalRhSubir .18s ease-out forwards;
 }
 
 .modal-rh-icone {
-    font-size: 38px;
-    margin-bottom: 12px;
+    font-size: 36px;
+    line-height: 1;
+    margin: 0 0 14px;
 }
 
 .modal-rh-titulo {
     color: #064e3b;
     font-size: 22px;
+    line-height: 1.3;
     font-weight: 800;
+    text-align: center;
     margin: 0 0 12px;
 }
 
@@ -497,20 +501,30 @@ button:disabled {
     color: #475569;
     font-size: 15px;
     line-height: 1.6;
+    text-align: center;
+    overflow-wrap: anywhere;
     margin: 0 0 24px;
 }
 
 .modal-rh-acoes {
     display: flex;
+    align-items: stretch;
+    justify-content: center;
     gap: 12px;
 }
 
 .modal-rh-acoes button {
     flex: 1;
+    width: auto;
+    min-width: 0;
     margin: 0;
     padding: 13px 10px;
     border: 0;
     border-radius: 9px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.3;
+    text-align: center;
     font-weight: 700;
     cursor: pointer;
 }
@@ -529,13 +543,47 @@ button:disabled {
     background: #dc2626;
 }
 
-@keyframes modalRhEntrar {
+.modal-rh-overlay.fechando {
+    animation: modalRhFadeOut .16s ease-in forwards;
+    pointer-events: none;
+}
+
+.modal-rh-overlay.fechando .modal-rh-box {
+    animation: modalRhDescer .16s ease-in forwards;
+}
+
+@keyframes modalRhFadeIn {
+    from { opacity: 0; }
     to { opacity: 1; }
 }
 
-@keyframes modalRhSubir {
-    to { transform: translateY(0); }
+@keyframes modalRhFadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
 }
+
+@keyframes modalRhSubir {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes modalRhDescer {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(5px) scale(.99);
+    }
+}
+
 
 
 </style>
@@ -1275,10 +1323,10 @@ button:disabled {
         }
 
         
+
 function confirmarAcaoRH(titulo, descricao, textoBotao, perigo = false) {
     return new Promise((resolve) => {
         const anterior = document.getElementById('modal-confirm-rh');
-
         if (anterior) anterior.remove();
 
         const overlay = document.createElement('div');
@@ -1294,8 +1342,7 @@ function confirmarAcaoRH(titulo, descricao, textoBotao, perigo = false) {
                     <button type="button" class="modal-rh-cancelar">
                         Cancelar
                     </button>
-                    <button type="button" class="modal-rh-confirmar">
-                    </button>
+                    <button type="button" class="modal-rh-confirmar"></button>
                 </div>
             </div>
         `;
@@ -1303,37 +1350,112 @@ function confirmarAcaoRH(titulo, descricao, textoBotao, perigo = false) {
         overlay.querySelector('.modal-rh-titulo').textContent = titulo;
         overlay.querySelector('.modal-rh-descricao').textContent = descricao;
 
+        const btnCancelar = overlay.querySelector('.modal-rh-cancelar');
         const btnConfirmar = overlay.querySelector('.modal-rh-confirmar');
+
         btnConfirmar.textContent = textoBotao;
 
         if (perigo) {
             btnConfirmar.classList.add('perigo');
         }
 
+        let finalizado = false;
+
         function finalizar(resultado) {
-            overlay.remove();
-            resolve(resultado);
+            if (finalizado) return;
+            finalizado = true;
+
+            document.removeEventListener('keydown', aoPressionarTecla);
+            overlay.classList.add('fechando');
+
+            setTimeout(() => {
+                overlay.remove();
+                resolve(resultado);
+            }, 170);
         }
 
-        overlay.querySelector('.modal-rh-cancelar')
-            .addEventListener('click', () => finalizar(false));
+        function aoPressionarTecla(evento) {
+            if (evento.key === 'Escape') finalizar(false);
+        }
 
+        btnCancelar.addEventListener('click', () => finalizar(false));
         btnConfirmar.addEventListener('click', () => finalizar(true));
 
         overlay.addEventListener('click', (evento) => {
             if (evento.target === overlay) finalizar(false);
         });
 
-        document.addEventListener('keydown', function esc(evento) {
-            if (evento.key === 'Escape') {
-                document.removeEventListener('keydown', esc);
-                finalizar(false);
-            }
-        });
-
+        document.addEventListener('keydown', aoPressionarTecla);
         document.body.appendChild(overlay);
     });
 }
+
+
+function mostrarMensagemRH(titulo, descricao, tipo = 'sucesso') {
+    return new Promise((resolve) => {
+        const anterior = document.getElementById('modal-confirm-rh');
+        if (anterior) anterior.remove();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'modal-confirm-rh';
+        overlay.className = 'modal-rh-overlay';
+
+        const icone = tipo === 'erro' ? '❌' : '✅';
+
+        overlay.innerHTML = `
+            <div class="modal-rh-box" role="dialog" aria-modal="true">
+                <div class="modal-rh-icone"></div>
+                <h3 class="modal-rh-titulo"></h3>
+                <p class="modal-rh-descricao"></p>
+                <div class="modal-rh-acoes">
+                    <button type="button" class="modal-rh-confirmar">
+                        ENTENDI
+                    </button>
+                </div>
+            </div>
+        `;
+
+        overlay.querySelector('.modal-rh-icone').textContent = icone;
+        overlay.querySelector('.modal-rh-titulo').textContent = titulo;
+        overlay.querySelector('.modal-rh-descricao').textContent = descricao;
+
+        const botao = overlay.querySelector('.modal-rh-confirmar');
+
+        if (tipo === 'erro') {
+            botao.classList.add('perigo');
+        }
+
+        let finalizado = false;
+
+        function fechar() {
+            if (finalizado) return;
+            finalizado = true;
+
+            document.removeEventListener('keydown', aoPressionarTecla);
+            overlay.classList.add('fechando');
+
+            setTimeout(() => {
+                overlay.remove();
+                resolve();
+            }, 170);
+        }
+
+        function aoPressionarTecla(evento) {
+            if (evento.key === 'Escape') fechar();
+        }
+
+        botao.addEventListener('click', fechar);
+
+        overlay.addEventListener('click', (evento) => {
+            if (evento.target === overlay) fechar();
+        });
+
+        document.addEventListener('keydown', aoPressionarTecla);
+        document.body.appendChild(overlay);
+        botao.focus();
+    });
+}
+
 
         
 async function alterarStatusUsuario(id, novoStatus) {
@@ -1440,9 +1562,10 @@ if (!confirmou) return;
 
         }
 
-        alert(
-            dados.mensagem
-        );
+        await mostrarMensagemRH(
+            'Treinamento resetado!',
+            dados.mensagem || 'O treinamento foi reiniciado com sucesso.'
+    );
 
         await carregarColaboradores();
 
@@ -1492,7 +1615,11 @@ async function excluirColaborador(id) {
             throw new Error(dados.erro || 'Erro ao excluir colaborador.');
         }
 
-        alert(dados.mensagem || 'Colaborador excluído com sucesso.');
+        await mostrarMensagemRH(
+            'Colaborador excluído!',
+            dados.mensagem || 'O colaborador foi excluído com sucesso.'
+    );
+
         await carregarColaboradores();
 
     } catch (erro) {

@@ -1678,7 +1678,6 @@ function renderHome() {
     validarAcessoLink(token);
 }
 
-
 async function validarAcessoLink(token) {
     app.innerHTML = `
         <div class="tela-acesso">
@@ -1709,7 +1708,7 @@ async function validarAcessoLink(token) {
         // Não guardar o link como token de autenticação.
         localStorage.removeItem("integracao_token");
 
-        mostrarTelaLoginAcesso(token, dados.usuario);
+        mostrarBoasVindasAcesso(token, dados.usuario);
 
     } catch (erro) {
         app.innerHTML = `
@@ -1721,6 +1720,49 @@ async function validarAcessoLink(token) {
     }
 }
 
+
+let tokenAcessoPendente = null;
+let usuarioAcessoPendente = null;
+
+function mostrarBoasVindasAcesso(token, usuario) {
+    tokenAcessoPendente = token;
+    usuarioAcessoPendente = usuario;
+
+    app.innerHTML = `
+        <div class="main-content">
+            <div class="container" style="text-align:center;">
+                ${getAvatarHTML()}
+                <h2 style="color:var(--primary-color);">
+                    Integração de Segurança
+                </h2>
+                <p id="texto-modulo">
+                    ${formatarTextoEmSpans(textoBoasVindas.texto)}
+                </p>
+            </div>
+        </div>
+    `;
+
+    // O robô dá as boas-vindas assim que a tela aparece.
+    tocarAudioESincronizar(
+        textoBoasVindas.audio,
+        textoBoasVindas.texto,
+        true
+    );
+}
+
+function liberarFormularioLogin() {
+    if (!tokenAcessoPendente || !usuarioAcessoPendente) {
+        return;
+    }
+
+    const token = tokenAcessoPendente;
+    const usuario = usuarioAcessoPendente;
+
+    tokenAcessoPendente = null;
+    usuarioAcessoPendente = null;
+
+    mostrarTelaLoginAcesso(token, usuario);
+}
 
 function renderLoginAdmin() {
 

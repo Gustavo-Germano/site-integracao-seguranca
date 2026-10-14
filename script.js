@@ -1283,30 +1283,34 @@ async function init(validarAcessoPorLink = true) {
 }
 
 
+
 function atualizarTopbar() {
     const userBox = document.getElementById('topbar-user');
     const userName = document.getElementById('topbar-nome');
     const btnReset = document.getElementById('btn-reset');
 
-    const estaNoTreinamento =
-        !!estado.nomeUsuario && estado.etapaAtual > 0;
+    const estaDentroDosModulos =
+        !!estado.nomeUsuario &&
+        Number(estado.etapaAtual) >= 1 &&
+        Number(estado.etapaAtual) <= modulos.length &&
+        !!document.querySelector('.sidebar');
 
     if (userBox) {
-        userBox.style.display = estaNoTreinamento ? 'flex' : 'none';
+        userBox.style.display = estado.nomeUsuario ? 'flex' : 'none';
     }
 
-    if (userName && estaNoTreinamento) {
+    if (userName && estado.nomeUsuario) {
         userName.textContent = estado.nomeUsuario;
     }
 
     if (btnReset) {
-        btnReset.style.display =
-            estaNoTreinamento && estado.etapaAtual <= modulos.length
-                ? 'block'
-                : 'none';
+        btnReset.style.display = estaDentroDosModulos ? 'block' : 'none';
     }
 
-    document.body.classList.toggle('modo-login', !estaNoTreinamento);
+    document.body.classList.toggle(
+        'modo-login',
+        !estaDentroDosModulos
+    );
 }
 
 
@@ -1679,12 +1683,28 @@ function renderHome() {
 }
 
 async function validarAcessoLink(token) {
-    app.innerHTML = `
-        <div class="tela-acesso">
-            <h2>Validando seu acesso...</h2>
-            <p>Aguarde um instante.</p>
-        </div>
-    `;
+    
+app.innerHTML = `
+    <div class="tela-acesso" style="
+        min-height: calc(100vh - 80px);
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        box-sizing: border-box;
+        padding: 24px;
+    ">
+        <h2 style="margin-bottom: 12px;">
+            Validando seu acesso...
+        </h2>
+        <p style="margin: 0;">
+            Aguarde um instante.
+        </p>
+    </div>
+`;
+
 
     try {
         const resposta = await fetch(
@@ -3382,57 +3402,65 @@ function fecharModalReset() {
 }
 
 // Função que realmente limpa o progresso e recarrega a página
+
 async function executarReset() {
-
-    try {
-
-        const token =
-            localStorage.getItem(
-                'integracao_token'
-            );
-
-        if (token) {
-
-            await fetch(
-                `${API_URL}/api/progresso/reiniciar`,
-                {
-                    method: 'POST',
-
-                    headers: {
-                        'Authorization':
-                            `Bearer ${token}`
-                    }
-                }
-            );
-
-        }
-
-    } catch (erro) {
-
-        console.error(
-            'Erro ao reiniciar progresso no servidor:',
-            erro
-        );
-
-    }
-
-    estado.etapaAtual = 1;
-    estado.parteAtual = 0;
-    estado.maiorEtapa = 1;
-
-    partesLiberadas = {};
-
-    localStorage.setItem(
-        'integracao_partes_liberadas',
-        '{}'
+    const token = localStorage.getItem('integracao_token');
+    const usuarioSalvo = JSON.parse(
+        localStorage.getItem('integracao_usuario') || 'null'
     );
 
-    salvarEstado();
+    // Não permite reiniciar nem entrar no curso pela tela de login.
+    const estaDentroDosModulos =
+        !!document.querySelector('.sidebar') &&
+        !!estado.nomeUsuario &&
+        Number(estado.etapaAtual) >= 1 &&
+        Number(estado.etapaAtual) <= modulos.length;
 
-    fecharModalReset();
+    if (!token || !usuarioSalvo || !estaDentroDosModulos) {
+        fecharModalReset();
+        atualizarTopbar();
+        return;
+    }
 
-    init(false);
+    try {
+        const resposta = await fetch(
+            `${API_URL}/api/progresso/reiniciar`,
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+
+        if (!resposta.ok) {
+            throw new Error('Não foi possível reiniciar o progresso no servidor.');
+        }
+
+        estado.etapaAtual = 1;
+        estado.parteAtual = 0;
+        estado.maiorEtapa = 1;
+
+        partesLiberadas = {};
+
+        localStorage.setItem(
+            'integracao_partes_liberadas',
+            '{}'
+        );
+
+        salvarEstado();
+        fecharModalReset();
+
+        // Abre diretamente o primeiro módulo, mantendo a sessão autenticada.
+        renderLayout(0);
+        atualizarTopbar();
+
+    } catch (erro) {
+        console.error('Erro ao reiniciar o treinamento:', erro);
+        alert(erro.message || 'Erro ao reiniciar o treinamento.');
+    }
 }
+
 
 // =====================================================
 //              MENU MOBILE

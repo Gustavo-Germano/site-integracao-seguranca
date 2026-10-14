@@ -269,33 +269,23 @@ button:disabled {
    MENSAGEM
    ===================================================== */
 
-#mensagem {
+
+#mensagem-painel,
+#mensagem-cadastro {
     margin-top: 20px;
-
     text-align: center;
-
     font-weight: 600;
-
     opacity: 0;
-
     transform: translateY(8px);
-
     transition:
         opacity .4s ease,
         transform .4s cubic-bezier(.22,1,.36,1);
 }
 
-#mensagem:not(:empty) {
+#mensagem-painel:not(:empty),
+#mensagem-cadastro:not(:empty) {
     opacity: 1;
     transform: translateY(0);
-}
-
-.erro {
-    color: #dc2626;
-}
-
-.sucesso {
-    color: #059669;
 }
 
 
@@ -1470,6 +1460,7 @@ if (!confirmou) return;
     }
 }
     
+
 async function excluirColaborador(id) {
     const token = localStorage.getItem('integracao_admin_token');
 
@@ -1478,7 +1469,6 @@ async function excluirColaborador(id) {
         return;
     }
 
-    
     const confirmou = await confirmarAcaoRH(
         'Excluir colaborador?',
         'Esta exclusão é definitiva e não poderá ser desfeita. Deseja continuar?',
@@ -1486,37 +1476,30 @@ async function excluirColaborador(id) {
         true
     );
 
-if (!confirmou) return;
-
-    }
+    if (!confirmou) return;
 
     try {
-        const resposta = await fetch(
-            `${API}/api/usuarios/${id}`,
-            {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+        const resposta = await fetch(`${API}/api/usuarios/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
-        );
+        });
 
         const dados = await resposta.json();
 
         if (!resposta.ok) {
-            throw new Error(
-                dados.erro || 'Erro ao excluir colaborador.'
-            );
+            throw new Error(dados.erro || 'Erro ao excluir colaborador.');
         }
 
         alert(dados.mensagem || 'Colaborador excluído com sucesso.');
-
         await carregarColaboradores();
 
     } catch (erro) {
         console.error('Erro ao excluir colaborador:', erro);
         alert(erro.message);
     }
+}
 
 
     </script>

@@ -1939,38 +1939,56 @@ async function loginAdministrador(event) {
 }
 
 
-
 function mostrarTelaLoginAcesso(token, usuario) {
     app.innerHTML = `
-        <div class="tela-acesso">
-            <h2>Identificação do colaborador</h2>
-            <p>Informe os dados recebidos do RH para acessar o treinamento.</p>
+        <div class="main-content">
+            <div class="container" style="text-align:center;">
+                ${getAvatarHTML()}
 
-            <form id="formLoginColaborador">
-                <label for="loginColaborador">Usuário ou e-mail</label>
-                <input
-                    id="loginColaborador"
-                    name="login"
-                    type="text"
-                    autocomplete="username"
-                    required
+                <h2 style="color:var(--primary-color);">
+                    Integração de Segurança
+                </h2>
+
+                <p id="texto-modulo">
+                    ${formatarTextoEmSpans(textoBoasVindas.texto)}
+                </p>
+
+                <form
+                    id="formLoginColaborador"
+                    class="form-oculto"
+                    style="max-width:500px; margin:24px auto;"
                 >
+                    <label for="loginColaborador">
+                        Usuário ou e-mail
+                    </label>
+                    <input
+                        id="loginColaborador"
+                        name="login"
+                        type="text"
+                        autocomplete="username"
+                        required
+                    >
 
-                <label for="senhaColaborador">Senha</label>
-                <input
-                    id="senhaColaborador"
-                    name="senha"
-                    type="password"
-                    autocomplete="current-password"
-                    required
-                >
+                    <label for="senhaColaborador">Senha</label>
+                    <input
+                        id="senhaColaborador"
+                        name="senha"
+                        type="password"
+                        autocomplete="current-password"
+                        required
+                    >
 
-                <p id="erroLoginColaborador" role="alert"></p>
+                    <p id="erroLoginColaborador" role="alert"></p>
 
-                <button type="submit" id="btnEntrarColaborador">
-                    ENTRAR NO TREINAMENTO
-                </button>
-            </form>
+                    <button
+                        type="submit"
+                        id="btnEntrarColaborador"
+                        class="btn"
+                    >
+                        ENTRAR NO TREINAMENTO
+                    </button>
+                </form>
+            </div>
         </div>
     `;
 
@@ -2019,7 +2037,6 @@ function mostrarTelaLoginAcesso(token, usuario) {
                 );
             }
 
-            // Guardar o JWT de sessão, nunca o link como sessão.
             localStorage.setItem("integracao_token", dados.token);
             localStorage.setItem(
                 "integracao_usuario",
@@ -2042,7 +2059,6 @@ function mostrarTelaLoginAcesso(token, usuario) {
                 return;
             }
 
-            // Recuperar o progresso oficial salvo no backend.
             await carregarProgressoServidor();
 
             atualizarTopbar();
@@ -2055,7 +2071,27 @@ function mostrarTelaLoginAcesso(token, usuario) {
             botao.textContent = "ENTRAR NO TREINAMENTO";
         }
     });
+
+    // Reproduz as boas-vindas na tela original do robô.
+    tocarAudioESincronizar(
+        textoBoasVindas.audio,
+        textoBoasVindas.texto,
+        true
+    );
 }
+
+function liberarFormularioLogin() {
+    const form = document.getElementById("formLoginColaborador");
+
+    if (form) {
+        form.classList.remove("form-oculto");
+        form.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+    }
+}
+
 
 
 

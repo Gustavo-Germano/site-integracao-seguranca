@@ -2080,17 +2080,26 @@ function mostrarTelaLoginAcesso(token, usuario) {
     );
 }
 
+
 function liberarFormularioLogin() {
     const form = document.getElementById("formLoginColaborador");
 
-    if (form) {
-        form.classList.remove("form-oculto");
-        form.scrollIntoView({
-            behavior: "smooth",
-            block: "center"
-        });
+    if (!form) {
+        console.error(
+            "Formulário de credenciais não encontrado na tela do robô."
+        );
+        return;
     }
+
+    form.classList.remove("form-oculto");
+    form.style.display = "block";
+
+    form.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+    });
 }
+
 
 
 

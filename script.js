@@ -1283,6 +1283,34 @@ async function init(validarAcessoPorLink = true) {
 }
 
 
+function atualizarTopbar() {
+    const userBox = document.getElementById('topbar-user');
+    const userName = document.getElementById('topbar-nome');
+    const btnReset = document.getElementById('btn-reset');
+
+    const estaNoTreinamento =
+        !!estado.nomeUsuario && estado.etapaAtual > 0;
+
+    if (userBox) {
+        userBox.style.display = estaNoTreinamento ? 'flex' : 'none';
+    }
+
+    if (userName && estaNoTreinamento) {
+        userName.textContent = estado.nomeUsuario;
+    }
+
+    if (btnReset) {
+        btnReset.style.display =
+            estaNoTreinamento && estado.etapaAtual <= modulos.length
+                ? 'block'
+                : 'none';
+    }
+
+    document.body.classList.toggle('modo-login', !estaNoTreinamento);
+}
+
+
+
 function formatarTextoEmSpans(texto) {
     let indice = 0;
 

@@ -1743,25 +1743,40 @@ let tokenAcessoPendente = null;
 let usuarioAcessoPendente = null;
 
 function mostrarBotaoInicialAcesso() {
-    app.innerHTML = `
-        <div style="
-            min-height:100vh;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            padding:30px 20px;
-            box-sizing:border-box;
-        ">
-            <button
-                type="button"
-                id="btn-iniciar-treinamento-final"
-                class="btn-iniciar-treinamento"
-            >
-                <span class="btn-iniciar-icone">🔊</span>
-                <span>INICIAR TREINAMENTO</span>
-            </button>
-        </div>
-    `;
+    
+app.innerHTML = `
+    <div style="
+        min-height: calc(100vh - 80px);
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        box-sizing: border-box;
+    ">
+        <button
+            type="button"
+            id="btn-iniciar-treinamento-final"
+            class="btn-iniciar-treinamento"
+            style="
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 12px;
+                width: min(100%, 380px);
+                min-height: 72px;
+                padding: 18px 28px;
+                margin: 0 auto;
+                box-sizing: border-box;
+                text-align: center;
+            "
+        >
+            <span class="btn-iniciar-icone">🔊</span>
+            <span>INICIAR TREINAMENTO</span>
+        </button>
+    </div>
+`;
+
 
     document
         .getElementById("btn-iniciar-treinamento-final")
@@ -2070,10 +2085,14 @@ app.innerHTML = `
                 return;
             }
 
+            
             await carregarProgressoServidor();
 
-            atualizarTopbar();
-            mostrarBotaoIniciarTreinamento();
+            // Atualiza a barra superior e abre o módulo atual,
+            // sem repetir as boas-vindas nem mostrar o botão inicial.
+            await init(false);
+            return;
+
 
         } catch (erro) {
             mensagemErro.textContent = erro.message;

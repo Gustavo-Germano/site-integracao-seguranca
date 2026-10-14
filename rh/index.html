@@ -464,6 +464,90 @@ button:disabled {
     }
 }
 
+
+/* Modal personalizado de confirmação do RH */
+.modal-rh-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.60);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 99999;
+    opacity: 0;
+    animation: modalRhEntrar .2s ease forwards;
+}
+
+.modal-rh-box {
+    width: 100%;
+    max-width: 420px;
+    background: #fff;
+    border-radius: 18px;
+    padding: 28px 24px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .22);
+    transform: translateY(12px);
+    animation: modalRhSubir .2s ease forwards;
+}
+
+.modal-rh-icone {
+    font-size: 38px;
+    margin-bottom: 12px;
+}
+
+.modal-rh-titulo {
+    color: #064e3b;
+    font-size: 22px;
+    font-weight: 800;
+    margin: 0 0 12px;
+}
+
+.modal-rh-descricao {
+    color: #475569;
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0 0 24px;
+}
+
+.modal-rh-acoes {
+    display: flex;
+    gap: 12px;
+}
+
+.modal-rh-acoes button {
+    flex: 1;
+    margin: 0;
+    padding: 13px 10px;
+    border: 0;
+    border-radius: 9px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.modal-rh-cancelar {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.modal-rh-confirmar {
+    background: #059669;
+    color: #fff;
+}
+
+.modal-rh-confirmar.perigo {
+    background: #dc2626;
+}
+
+@keyframes modalRhEntrar {
+    to { opacity: 1; }
+}
+
+@keyframes modalRhSubir {
+    to { transform: translateY(0); }
+}
+
+
 </style>
 
 </head>
@@ -1200,114 +1284,120 @@ button:disabled {
 
         }
 
+        
+function confirmarAcaoRH(titulo, descricao, textoBotao, perigo = false) {
+    return new Promise((resolve) => {
+        const anterior = document.getElementById('modal-confirm-rh');
 
-        async function alterarStatusUsuario(
-            id,
-            novoStatus
-        ) {
+        if (anterior) anterior.remove();
 
-            const token =
-                tokenAdmin ||
-                localStorage.getItem(
-                    'integracao_admin_token'
-                );
+        const overlay = document.createElement('div');
+        overlay.id = 'modal-confirm-rh';
+        overlay.className = 'modal-rh-overlay';
 
+        overlay.innerHTML = `
+            <div class="modal-rh-box" role="dialog" aria-modal="true">
+                <div class="modal-rh-icone">⚠️</div>
+                <h3 class="modal-rh-titulo"></h3>
+                <p class="modal-rh-descricao"></p>
+                <div class="modal-rh-acoes">
+                    <button type="button" class="modal-rh-cancelar">
+                        Cancelar
+                    </button>
+                    <button type="button" class="modal-rh-confirmar">
+                    </button>
+                </div>
+            </div>
+        `;
 
-            if (!token) {
+        overlay.querySelector('.modal-rh-titulo').textContent = titulo;
+        overlay.querySelector('.modal-rh-descricao').textContent = descricao;
 
-                alert(
-                    'Sessão administrativa não encontrada.'
-                );
+        const btnConfirmar = overlay.querySelector('.modal-rh-confirmar');
+        btnConfirmar.textContent = textoBotao;
 
-                return;
-
-            }
-
-
-            const acao =
-                novoStatus
-                    ? 'ativar'
-                    : 'desativar';
-
-
-            const confirmar =
-                confirm(
-                    `Deseja realmente ${acao} este colaborador?`
-                );
-
-
-            if (!confirmar) {
-
-                return;
-
-            }
-
-
-            try {
-
-                const resposta =
-                    await fetch(
-                        `${API}/api/rh/usuarios/${id}/status`,
-                        {
-                            method: 'PATCH',
-
-                            headers: {
-
-                                'Content-Type':
-                                    'application/json',
-
-                                'Authorization':
-                                    `Bearer ${token}`
-
-                            },
-
-                            body: JSON.stringify({
-
-                                ativo:
-                                    novoStatus
-
-                            })
-                        }
-                    );
-
-
-                const dados =
-                    await resposta.json();
-
-
-                if (!resposta.ok) {
-
-                    throw new Error(
-                        dados.erro ||
-                        'Erro ao alterar status.'
-                    );
-
-                }
-
-
-                alert(
-                    dados.mensagem
-                );
-
-
-                carregarColaboradores();
-
-
-            } catch (erro) {
-
-                console.error(
-                    'Erro:',
-                    erro
-                );
-
-
-                alert(
-                    erro.message
-                );
-
-            }
-
+        if (perigo) {
+            btnConfirmar.classList.add('perigo');
         }
+
+        function finalizar(resultado) {
+            overlay.remove();
+            resolve(resultado);
+        }
+
+        overlay.querySelector('.modal-rh-cancelar')
+            .addEventListener('click', () => finalizar(false));
+
+        btnConfirmar.addEventListener('click', () => finalizar(true));
+
+        overlay.addEventListener('click', (evento) => {
+            if (evento.target === overlay) finalizar(false);
+        });
+
+        document.addEventListener('keydown', function esc(evento) {
+            if (evento.key === 'Escape') {
+                document.removeEventListener('keydown', esc);
+                finalizar(false);
+            }
+        });
+
+        document.body.appendChild(overlay);
+    });
+}
+
+        
+async function alterarStatusUsuario(id, novoStatus) {
+    const token =
+        tokenAdmin ||
+        localStorage.getItem('integracao_admin_token');
+
+    if (!token) {
+        alert('Sessão administrativa não encontrada.');
+        return;
+    }
+
+    const confirmou = await confirmarAcaoRH(
+        novoStatus ? 'Ativar colaborador?' : 'Desativar colaborador?',
+        novoStatus
+            ? 'Deseja realmente reativar este colaborador?'
+            : 'Deseja realmente desativar este colaborador?',
+        novoStatus ? 'Sim, Ativar' : 'Sim, Desativar'
+    );
+
+    if (!confirmou) return;
+
+    try {
+        const resposta = await fetch(
+            `${API}/api/rh/usuarios/${id}/status`,
+            {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    ativo: novoStatus
+                })
+            }
+        );
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(
+                dados.erro || 'Erro ao alterar status.'
+            );
+        }
+
+        alert(dados.mensagem);
+        await carregarColaboradores();
+
+    } catch (erro) {
+        console.error('Erro ao alterar status:', erro);
+        alert(erro.message);
+    }
+}
+       
 
         async function resetarTreinamento(id) {
 
@@ -1325,13 +1415,16 @@ button:disabled {
         return;
     }
 
-    const confirmar = confirm(
-        'Deseja realmente resetar o treinamento deste colaborador?'
-    );
+    
+    const confirmou = await confirmarAcaoRH(
+            'Resetar treinamento?',
+            'O progresso deste colaborador será reiniciado. Deseja continuar?',
+            'Sim, Resetar',
+            true
+        );
 
-    if (!confirmar) {
-        return;
-    }
+if (!confirmou) return;
+
 
     try {
 
@@ -1385,10 +1478,16 @@ async function excluirColaborador(id) {
         return;
     }
 
-    if (!confirm(
-        'Tem certeza que deseja EXCLUIR DEFINITIVAMENTE este colaborador? Esta ação não pode ser desfeita.'
-    )) {
-        return;
+    
+    const confirmou = await confirmarAcaoRH(
+        'Excluir colaborador?',
+        'Esta exclusão é definitiva e não poderá ser desfeita. Deseja continuar?',
+        'Sim, Excluir',
+        true
+    );
+
+if (!confirmou) return;
+
     }
 
     try {
@@ -1418,7 +1517,6 @@ async function excluirColaborador(id) {
         console.error('Erro ao excluir colaborador:', erro);
         alert(erro.message);
     }
-}
 
 
     </script>

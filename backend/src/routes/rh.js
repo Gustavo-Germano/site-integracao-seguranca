@@ -1,15 +1,54 @@
 import express from "express";
-
+import jwt from "jsonwebtoken";
 import { pool } from "../db.js";
 
 import {
     autenticar,
-    permitirRoles
+    permitirRoles,
+    validarChavePainelRH
 } from "../middleware/auth.js";
 
 
 const router = express.Router();
 
+// ======================================================
+// VALIDAR CHAVE E GERAR SESSÃO TEMPORÁRIA DO PAINEL RH
+// ======================================================
+
+router.post(
+    "/validar-painel",
+    (req, res) => {
+        try {
+            const token = jwt.sign(
+                {
+                    id: "painel-rh",
+                    role: "rh",
+                    perfil: "rh",
+                    tipo: "painel_rh"
+                },
+                process.env.JWT_SECRET,
+                {
+                    expiresIn: "30m"
+                }
+            );
+
+            return res.json({
+                autorizado: true,
+                token,
+                expiraEm: 1800
+            });
+        } catch (erro) {
+            console.error(
+                "Erro ao criar sessão do painel RH:",
+                erro
+            );
+
+            return res.status(500).json({
+                erro: "Não foi possível iniciar a sessão do painel RH."
+            });
+        }
+    }
+);
 
 // ======================================================
 // LISTAR COLABORADORES

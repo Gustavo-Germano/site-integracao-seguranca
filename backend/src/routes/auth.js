@@ -180,9 +180,7 @@ router.post("/login", async (req, res) => {
 
 router.post(
     "/gerar-link",
-
     autenticar,
-
     permitirPerfis(
         "admin",
         "rh"

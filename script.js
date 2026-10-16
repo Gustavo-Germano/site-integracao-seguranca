@@ -1284,6 +1284,7 @@ async function init(validarAcessoPorLink = true) {
 
 
 
+
 function atualizarTopbar() {
     const userBox = document.getElementById('topbar-user');
     const userName = document.getElementById('topbar-nome');
@@ -1304,10 +1305,15 @@ function atualizarTopbar() {
 
     if (btnReset) {
         btnReset.style.display = estaNoTreinamento ? 'block' : 'none';
+}
+
+        if (estaNoTreinamento) {
+            btnReset.style.display = 'block';
+        }
     }
 
     document.body.classList.toggle('modo-login', !estaNoTreinamento);
-}
+
 
 function formatarTextoEmSpans(texto) {
     let indice = 0;
@@ -1739,19 +1745,21 @@ app.innerHTML = `
 
 
 
+
 function liberarFormularioLogin() {
     const form = document.getElementById("formLoginColaborador");
 
     if (!form) return;
 
-    form.style.display = "block";
+    form.classList.remove("visivel");
     form.classList.add("login-campos-animacao");
+    form.style.display = "block";
 
-    // Aguarda o navegador aplicar o estado inicial antes de animar.
+    // Força o navegador a registrar o estado inicial.
+    void form.offsetWidth;
+
     requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            form.classList.add("visivel");
-        });
+        form.classList.add("visivel");
     });
 
     form.scrollIntoView({
@@ -1759,6 +1767,7 @@ function liberarFormularioLogin() {
         block: "nearest"
     });
 }
+
 
 
 function mostrarBotaoInicialAcesso() {

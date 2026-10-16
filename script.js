@@ -674,8 +674,8 @@ risco a sua segurança, solicite a manutenção imediata ou substituição.</p>
 ];
 const textoBoasVindas = {
     texto: ` 
-    <p>"Olá! Seja muito bem-vindo ao nosso treinamento de Integração de Segurança. É uma satisfação enorme ter você em nossa equipe. 
-    Para começarmos, por favor, insira o seu nome completo abaixo. (LINHA 676, CORRIGIR ESCRITA E INTEGRAR E-MAIL PRA RETORNAR ACESSO)",</p>
+    <p>Olá! Seja muito bem-vindo ao nosso treinamento de Integração de Segurança. É uma satisfação enorme ter você em nossa equipe. 
+    Para começarmos, por favor, insira suas credenciais abaixo:</p>
     `,
     audio: "audios/boas-vindas.mp3"
 };
@@ -2823,19 +2823,98 @@ function renderConclusao() {
     document.getElementById('cert-data').innerText = dataAtual;
 }
 
-function gerarPDF() {
-    const elemento = document.getElementById('certificado-conteudo');
-    const area = document.getElementById('certificado-area');
-    area.style.display = 'block';
 
-    html2pdf().set({
-        margin: 10,
-        filename: `Certificado_${estado.nomeUsuario.replace(/\s+/g, '_')}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-    }).from(elemento).save().then(() => area.style.display = 'none');
+async function gerarPDF() {
+    try {
+        const nomeAluno = String(estado.nomeUsuario || '').trim();
+
+        if (!nomeAluno) {
+            alert('Não foi possível identificar o nome do aluno.');
+            return;
+        }
+
+        // Carrega o modelo original criado no Canva
+        const resposta = await fetch('/certificado-modelo.pdf');
+
+        if (!resposta.ok) {
+            throw new Error('Não foi possível carregar o modelo do certificado.');
+        }
+
+        const pdfBytes = await resposta.arrayBuffer();
+        const { PDFDocument, StandardFonts, rgb } = PDFLib;
+
+        const pdfDoc = await PDFDocument.load(pdfBytes);
+        const pagina = pdfDoc.getPages()[0];
+        const { width, height } = pagina.getSize();
+
+        const fonte = await pdfDoc.embedFont(StandardFonts.Helvetica);
+        const corVerde = rgb(0.02, 0.36, 0.29);
+
+        // Nome centralizado na linha do certificado
+        let tamanhoFonte = 17;
+        const larguraMaxima = width * 0.78;
+
+        while (
+            fonte.widthOfTextAtSize(nomeAluno, tamanhoFonte) > larguraMaxima &&
+            tamanhoFonte > 9
+        ) {
+            tamanhoFonte -= 0.5;
+        }
+
+        const larguraNome = fonte.widthOfTextAtSize(
+            nomeAluno,
+            tamanhoFonte
+        );
+
+        pagina.drawText(nomeAluno, {
+            x: (width - larguraNome) / 2,
+            y: height * 0.36,
+            size: tamanhoFonte,
+            font: fonte,
+            color: corVerde
+        });
+
+        // Data de emissão do certificado.
+        // Depois podemos vincular ao registro real de conclusão no backend.
+        const dataConclusao = new Date().toLocaleDateString('pt-BR', {
+            timeZone: 'America/Sao_Paulo'
+        });
+
+        const textoData = dataConclusao;
+        const tamanhoData = 10;
+
+        pagina.drawText(textoData, {
+            x: width * 0.57,
+            y: height * 0.245,
+            size: tamanhoData,
+            font: fonte,
+            color: corVerde
+        });
+
+        const pdfFinal = await pdfDoc.save();
+
+        const arquivo = new Blob([pdfFinal], {
+            type: 'application/pdf'
+        });
+
+        const url = URL.createObjectURL(arquivo);
+        const link = document.createElement('a');
+
+        link.href = url;
+        link.download = `Certificado_${nomeAluno.replace(/[^a-zA-Z0-9À-ÿ_-]+/g, '_')}.pdf`;
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+    } catch (erro) {
+        console.error('Erro ao gerar certificado:', erro);
+        alert('Não foi possível gerar o certificado. Tente novamente.');
+    }
 }
+
 
 async function salvarProgressoServidor(modulo, parte, concluido = true) {
     const token = localStorage.getItem('integracao_token');

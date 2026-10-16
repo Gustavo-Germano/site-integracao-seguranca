@@ -1283,8 +1283,6 @@ async function init(validarAcessoPorLink = true) {
 }
 
 
-
-
 function atualizarTopbar() {
     const userBox = document.getElementById('topbar-user');
     const userName = document.getElementById('topbar-nome');
@@ -1305,14 +1303,13 @@ function atualizarTopbar() {
 
     if (btnReset) {
         btnReset.style.display = estaNoTreinamento ? 'block' : 'none';
-}
-
-        if (estaNoTreinamento) {
-            btnReset.style.display = 'block';
-        }
     }
 
-    document.body.classList.toggle('modo-login', !estaNoTreinamento);
+    document.body.classList.toggle(
+        'modo-login',
+        !estaNoTreinamento
+    );
+}
 
 
 function formatarTextoEmSpans(texto) {

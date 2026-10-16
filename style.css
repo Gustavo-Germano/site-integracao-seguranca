@@ -213,11 +213,34 @@ p {
 
 /* Formulário e Botões */
 .form-oculto {
-    opacity: 0; visibility: hidden; transform: translateY(10px);
-    transition: opacity 0.8s ease, transform 0.8s ease;
+    opacity: 0;
+    transform: translateY(18px);
+    visibility: hidden;
+    pointer-events: none;
 }
+
 .form-visivel {
-    opacity: 1; visibility: visible; transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+    pointer-events: auto;
+    transition:
+        opacity 0.7s ease,
+        transform 0.7s ease,
+        visibility 0s;
+}
+
+#form-login {
+    transition:
+        opacity 0.7s ease,
+        transform 0.7s ease;
+}
+
+#form-login.form-oculto {
+    transition:
+        opacity 0.7s ease,
+        transform 0.7s ease,
+        visibility 0s linear 0.7s;
 }
 
 input[type="text"],
@@ -493,6 +516,10 @@ input[type="password"]:focus {
     margin: 25px auto;
 }
 
+body.modo-login #btn-reset {
+    display: none !important;
+}
+
 /* =========================================
    ROBÔ + PLAY/PAUSE FLUTUANTES
    ========================================= */
@@ -571,7 +598,6 @@ input[type="password"]:focus {
 .controles-flutuantes .btn-controle-audio:active {
     transform: scale(0.95);
 }
-
 
 /* =========================================
    CELULAR

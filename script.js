@@ -1304,8 +1304,9 @@ function atualizarTopbar() {
     }
 
     if (btnReset) {
-        btnReset.style.display = estaDentroDosModulos ? 'block' : 'none';
-    }
+    btnReset.style.display =
+        podeReiniciarCurso ? 'block' : 'none';
+}
 
     document.body.classList.toggle(
         'modo-login',

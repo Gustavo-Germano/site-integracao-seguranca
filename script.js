@@ -1288,6 +1288,9 @@ function atualizarTopbar() {
     const userBox = document.getElementById('topbar-user');
     const userName = document.getElementById('topbar-nome');
     const btnReset = document.getElementById('btn-reset');
+    
+    const estaNoTreinamento = 
+        !!estado.nomeUsuario && estado.etapaAtual > 0;
 
     const estaDentroDosModulos =
         !!estado.nomeUsuario &&

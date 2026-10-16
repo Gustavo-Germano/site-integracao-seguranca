@@ -5,7 +5,6 @@ import { pool } from "../db.js";
 import {
     autenticar,
     permitirRoles,
-    validarChavePainelRH
 } from "../middleware/auth.js";
 
 

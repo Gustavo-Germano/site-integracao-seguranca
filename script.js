@@ -2884,8 +2884,8 @@ async function gerarPDF() {
         const tamanhoData = 10;
 
         pagina.drawText(textoData, {
-            x: width * 0.57,
-            y: height * 0.275,
+            x: width * 0.47,
+            y: height * 0.265,
             size: tamanhoData,
             font: fonte,
             color: corVerde

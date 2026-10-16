@@ -1305,7 +1305,9 @@ function atualizarTopbar() {
 
     if (btnReset) {
     btnReset.style.display =
-        podeReiniciarCurso ? 'block' : 'none';
+        estaNoTreinamento && estado.etapaAtual <= modulos.length
+            ? 'block'
+            : 'none';
 }
 
     document.body.classList.toggle(

@@ -1288,38 +1288,26 @@ function atualizarTopbar() {
     const userBox = document.getElementById('topbar-user');
     const userName = document.getElementById('topbar-nome');
     const btnReset = document.getElementById('btn-reset');
-    
-    const estaNoTreinamento = 
-        !!estado.nomeUsuario && estado.etapaAtual > 0;
 
-    const estaDentroDosModulos =
-        !!estado.nomeUsuario &&
+    const estaNoTreinamento =
+        Boolean(estado.nomeUsuario) &&
         Number(estado.etapaAtual) >= 1 &&
-        Number(estado.etapaAtual) <= modulos.length &&
-        !!document.querySelector('.sidebar');
+        Number(estado.etapaAtual) <= modulos.length;
 
     if (userBox) {
-        userBox.style.display = estado.nomeUsuario ? 'flex' : 'none';
+        userBox.style.display = estaNoTreinamento ? 'flex' : 'none';
     }
 
-    if (userName && estado.nomeUsuario) {
+    if (userName && estaNoTreinamento) {
         userName.textContent = estado.nomeUsuario;
     }
 
     if (btnReset) {
-    btnReset.style.display =
-        estaNoTreinamento && estado.etapaAtual <= modulos.length
-            ? 'block'
-            : 'none';
+        btnReset.style.display = estaNoTreinamento ? 'block' : 'none';
+    }
+
+    document.body.classList.toggle('modo-login', !estaNoTreinamento);
 }
-
-    document.body.classList.toggle(
-        'modo-login',
-        !estaDentroDosModulos
-    );
-}
-
-
 
 function formatarTextoEmSpans(texto) {
     let indice = 0;
@@ -1750,23 +1738,28 @@ app.innerHTML = `
 }
 
 
+
 function liberarFormularioLogin() {
-    if (!tokenAcessoPendente || !usuarioAcessoPendente) {
-        return;
-    }
+    const form = document.getElementById("formLoginColaborador");
 
-    const token = tokenAcessoPendente;
-    const usuario = usuarioAcessoPendente;
+    if (!form) return;
 
-    tokenAcessoPendente = null;
-    usuarioAcessoPendente = null;
+    form.style.display = "block";
+    form.classList.add("login-campos-animacao");
 
-    mostrarTelaLoginAcesso(token, usuario);
+    // Aguarda o navegador aplicar o estado inicial antes de animar.
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            form.classList.add("visivel");
+        });
+    });
+
+    form.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+    });
 }
 
-
-let tokenAcessoPendente = null;
-let usuarioAcessoPendente = null;
 
 function mostrarBotaoInicialAcesso() {
     

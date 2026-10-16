@@ -520,6 +520,34 @@ body.modo-login #btn-reset {
     display: none !important;
 }
 
+
+/* =========================================
+   ANIMAÇÃO SUAVE DOS CAMPOS DE LOGIN
+   ========================================= */
+
+.login-campos-animacao {
+    opacity: 0;
+    transform: translateY(18px);
+    pointer-events: none;
+    transition:
+        opacity 0.7s ease,
+        transform 0.7s ease;
+}
+
+.login-campos-animacao.visivel {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .login-campos-animacao {
+        transition: none;
+        transform: none;
+    }
+}
+
+
 /* =========================================
    ROBÔ + PLAY/PAUSE FLUTUANTES
    ========================================= */

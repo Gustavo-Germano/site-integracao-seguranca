@@ -33,7 +33,7 @@ detectados, com o objetivo de demonstrar que as ações se deram com a cautela n
 
         <h2>ACIDENTES</h2>
     
-<p> <strong>Acidente do trabalho:</strong> É aquele que ocorre pelo exercíciodo trabalho, a serviço da empresa, provocando lesãocorporal ou perturbação funcional que cause a 
+<p> <strong>Acidente do trabalho:</strong> É aquele que ocorre pelo exercício do trabalho, a serviço da empresa, provocando lesãocorporal ou perturbação funcional que cause a 
 morte, aperda ou redução, permanente ou temporária, da capacidadepara o trabalho. </p>
     
 <p> <strong>Acidente de trajeto:</strong> É uma interpretação da lei que equipara a acidente do trabalho o acidente ocorrido pelo empregado no trajeto da residência para o trabalho 
@@ -2868,7 +2868,7 @@ async function gerarPDF() {
 
         pagina.drawText(nomeAluno, {
             x: (width - larguraNome) / 2,
-            y: height * 0.36,
+            y: height * 0.665,
             size: tamanhoFonte,
             font: fonte,
             color: corVerde
@@ -2885,7 +2885,7 @@ async function gerarPDF() {
 
         pagina.drawText(textoData, {
             x: width * 0.57,
-            y: height * 0.245,
+            y: height * 0.275,
             size: tamanhoData,
             font: fonte,
             color: corVerde

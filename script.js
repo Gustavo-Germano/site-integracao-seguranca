@@ -1701,8 +1701,6 @@ app.innerHTML = `
         </p>
     </div>
 `;
-
-}
     
     try {
         const resposta = await fetch(
@@ -1753,7 +1751,7 @@ app.innerHTML = `
     </div>
 `;
 
-
+    }
 }
 
 

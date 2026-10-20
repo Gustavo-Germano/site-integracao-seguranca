@@ -1298,6 +1298,16 @@ button:disabled {
                                     ? 'DESATIVAR'
                                     : 'ATIVAR';
 
+                            const moduloAtual = Number(
+                                usuario.ultimo_modulo ?? usuario.modulo_atual ?? 0
+                            );
+
+                            const progresso = usuario.treinamento_concluido
+                                ? 100
+                                : Math.min(
+                                    99,
+                                    Math.max(0, Math.round((moduloAtual / 12) * 100))
+                                );
 
                             return `
                                 <div class="colaborador-card">
@@ -1315,8 +1325,11 @@ button:disabled {
                                     </p>
                                 
                                     <p>
-                                        <strong>Treinamento:</strong>
-                                        ${treinamento}
+                                        <strong>Treinamento:</strong> ${treinamento}
+                                    </p>
+
+                                    <p>
+                                        <strong>Progresso:</strong> ${progresso}%
                                     </p>
                                 
                                     

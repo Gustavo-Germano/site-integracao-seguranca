@@ -98,12 +98,19 @@ router.post(
             }
 
             // Senha temporária
-            const senhaTemporaria =
-                crypto
-                    .randomBytes(9)
-                    .toString("base64")
-                    .replace(/[^a-zA-Z0-9]/g, "")
-                    .slice(0, 12);
+            
+            const primeiroNome = String(nome).trim().split(/\s+/)[0];
+                    
+            const nomeSenha =
+                primeiroNome.charAt(0).toLocaleUpperCase('pt-BR') +
+                primeiroNome.slice(1).toLocaleLowerCase('pt-BR');
+                    
+            const numeros = String(
+                Math.floor(Math.random() * 10000)
+            ).padStart(4, '0');
+            
+            const senhaTemporaria = `${nomeSenha}${numeros}`;
+
 
             const senhaHash =
                 await bcrypt.hash(

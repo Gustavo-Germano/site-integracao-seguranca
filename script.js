@@ -1702,7 +1702,8 @@ app.innerHTML = `
     </div>
 `;
 
-
+}
+    
     try {
         const resposta = await fetch(
             `${API_URL}/api/auth/acesso`,
@@ -1732,15 +1733,28 @@ app.innerHTML = `
 
     } catch (erro) {
         app.innerHTML = `
-            <div class="tela-acesso">
-                <h2>Acesso indisponível</h2>
-                <p>${erro.message}</p>
-            </div>
-        `;
-    }
+    <div class="tela-acesso" style="
+        min-height: calc(100vh - 80px);
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        box-sizing: border-box;
+        padding: 24px;
+    ">
+        <h2 style="margin-bottom: 12px;">
+            Acesso indisponível
+        </h2>
+        <p style="margin: 0;">
+            O link pode ter expirado, entrem em contato com a empresa para solicitar um novo acesso.
+        </p>
+    </div>
+`;
+
+
 }
-
-
 
 
 function liberarFormularioLogin() {

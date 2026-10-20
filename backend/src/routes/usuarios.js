@@ -100,15 +100,15 @@ router.post(
             // Senha temporária
             
             const primeiroNome = String(nome).trim().split(/\s+/)[0];
-                    
+
             const nomeSenha =
                 primeiroNome.charAt(0).toLocaleUpperCase('pt-BR') +
                 primeiroNome.slice(1).toLocaleLowerCase('pt-BR');
-                    
+
             const numeros = String(
                 Math.floor(Math.random() * 10000)
             ).padStart(4, '0');
-            
+
             const senhaTemporaria = `${nomeSenha}${numeros}`;
 
 
@@ -155,7 +155,7 @@ router.post(
                         TRUE,
                         TRUE,
                         $5,
-                        CURRENT_TIMESTAMP + INTERVAL '7 days',
+                        CURRENT_TIMESTAMP + INTERVAL '30 days',
                         FALSE,
                         1,
                         0

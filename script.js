@@ -1746,7 +1746,7 @@ app.innerHTML = `
             Acesso indisponível
         </h2>
         <p style="margin: 0;">
-            O link pode ter expirado, entrem em contato com a empresa para solicitar um novo acesso.
+            O link pode ter expirado, entre em contato com a empresa para solicitar um novo acesso.
         </p>
     </div>
 `;

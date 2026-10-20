@@ -82,7 +82,7 @@ router.post(
                         TRUE,
                         TRUE,
                         $2,
-                        CURRENT_TIMESTAMP + INTERVAL '7 days',
+                        CURRENT_TIMESTAMP + INTERVAL '30 days',
                         FALSE,
                         1,
                         0

@@ -664,7 +664,6 @@ button:disabled {
 
             <form id="form-admin">
 
-                <form id="form-admin">
 
         <label for="nome-colaborador">Nome completo</label>
         <input
@@ -887,28 +886,12 @@ button:disabled {
 
         }
 
-    async function cadastrarColaborador(event) {
-        event.preventDefault();
     
-        const nome = document.getElementById('nome-colaborador').value.trim();
-        const dataDigitada = document.getElementById('data-admissao').value.trim();
-    
-    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dataDigitada)) {
-        throw new Error('Informe a data no formato DD/MM/AAAA.');
-    }
-    
-    const [dia, mes, ano] = dataDigitada.split('/');
-    const data_admissao = `${ano}-${mes}-${dia}`;
-    
-    const dataTeste = new Date(`${data_admissao}T00:00:00`);
-    
-    if (
-        dataTeste.getFullYear() !== Number(ano) ||
-        dataTeste.getMonth() + 1 !== Number(mes) ||
-        dataTeste.getDate() !== Number(dia)
-    ) {
-        throw new Error('Informe uma data válida.');
-    }
+async function cadastrarColaborador(event) {
+    event.preventDefault();
+
+    const nome = document.getElementById('nome-colaborador').value.trim();
+    const dataDigitada = document.getElementById('data-admissao').value.trim();
     const funcao = document.getElementById('funcao-colaborador').value.trim();
     const setor = document.getElementById('setor-colaborador').value.trim();
     const whatsapp = document.getElementById('whatsapp-colaborador').value.trim();
@@ -918,6 +901,26 @@ button:disabled {
 
     mensagem.textContent = '';
     mensagem.className = '';
+
+    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dataDigitada)) {
+        mensagem.textContent = 'Informe a data no formato DD/MM/AAAA.';
+        mensagem.className = 'erro';
+        return;
+    }
+
+    const [dia, mes, ano] = dataDigitada.split('/');
+    const data_admissao = `${ano}-${mes}-${dia}`;
+    const dataTeste = new Date(`${data_admissao}T00:00:00`);
+
+    if (
+        dataTeste.getFullYear() !== Number(ano) ||
+        dataTeste.getMonth() + 1 !== Number(mes) ||
+        dataTeste.getDate() !== Number(dia)
+    ) {
+        mensagem.textContent = 'Informe uma data válida.';
+        mensagem.className = 'erro';
+        return;
+    }
 
     if (!tokenAdmin) {
         mensagem.textContent = 'Sessão de acesso não encontrada. É necessário autenticar o RH.';
@@ -947,45 +950,43 @@ button:disabled {
         const dados = await resposta.json();
 
         if (!resposta.ok) {
-            throw new Error(
-                dados.erro || 'Não foi possível cadastrar o colaborador.'
-            );
+            throw new Error(dados.erro || 'Não foi possível cadastrar o colaborador.');
         }
 
         if (!dados.link_treinamento) {
             throw new Error('Cadastro realizado, mas o servidor não retornou o link do treinamento.');
         }
 
+        const link = dados.link_treinamento;
+        const mensagemWhatsApp = encodeURIComponent(
+            'Acesse seu treinamento de Integração de Segurança: ' + link
+        );
+
         mensagem.innerHTML = `
             <strong>✓ COLABORADOR CADASTRADO!</strong>
             <br><br>
             Link do treinamento:
             <br>
-            <a
-                href="${dados.link_treinamento}"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="color:#047857;font-weight:700;word-break:break-all;"
-            >
-                ${dados.link_treinamento}
+            <a href="${link}" target="_blank" rel="noopener noreferrer"
+               style="color:#047857;font-weight:700;word-break:break-all;">
+                ${link}
             </a>
             <br><br>
-            <button
-                type="button"
-                onclick="navigator.clipboard.writeText('${dados.link_treinamento}')"
-            >
-                COPIAR LINK
-            </button>
-            <button
-                type="button"
-                onclick="window.open('https://wa.me/?text=${encodeURIComponent('Acesse seu treinamento de Integração de Segurança: ' + dados.link_treinamento)}','_blank')"
-                style="margin-top:10px;"
-            >
+            <button type="button" id="copiar-link">COPIAR LINK</button>
+            <button type="button" id="enviar-whatsapp" style="margin-top:10px;">
                 ENVIAR PELO WHATSAPP
             </button>
         `;
 
         mensagem.className = 'sucesso';
+
+        document.getElementById('copiar-link').onclick = () => {
+            navigator.clipboard.writeText(link);
+        };
+
+        document.getElementById('enviar-whatsapp').onclick = () => {
+            window.open(`https://wa.me/?text=${mensagemWhatsApp}`, '_blank');
+        };
 
         document.getElementById('form-admin').reset();
 
@@ -1000,7 +1001,7 @@ button:disabled {
         btn.disabled = false;
         btn.textContent = 'GERAR LINK DO TREINAMENTO';
     }
-}        
+}
 
         async function carregarColaboradores() {
 
@@ -1054,9 +1055,7 @@ button:disabled {
                 }
 
 
-                const colaboradores = (dados.usuarios || []).filter(
-                    usuario => usuario.ativo === true
-                );
+                const colaboradores = dados.usuarios || [];
 
 
                 if (
@@ -1121,8 +1120,23 @@ button:disabled {
                                     <h3>${usuario.nome}</h3>
                                 
                                     <p>
-                                        <strong>Email:</strong>
-                                        ${usuario.email}
+                                        <strong>Admissão:</strong>
+                                        ${usuario.data_admissao || "Não informada"}
+                                    </p>
+
+                                    <p>
+                                        <strong>Função:</strong>
+                                        ${usuario.funcao || "Não informada"}
+                                    </p>
+
+                                    <p>
+                                        <strong>Setor:</strong>
+                                        ${usuario.setor || "Não informado"}
+                                    </p>
+
+                                    <p>
+                                        <strong>WhatsApp:</strong>
+                                        ${usuario.whatsapp || "Não informado"}
                                     </p>
                                 
                                     <p>
@@ -1401,21 +1415,53 @@ async function alterarStatusUsuario(id, novoStatus) {
        
 
         async function resetarTreinamento(id) {
-
-    const token =
-        localStorage.getItem(
-            'integracao_admin_token'
-        );
+            const token = localStorage.getItem('integracao_admin_token');
 
     if (!token) {
-
-        alert(
-            'Sessão administrativa não encontrada.'
-        );
-
+        alert('Sessão administrativa não encontrada.');
         return;
     }
 
+    const confirmou = await confirmarAcaoRH(
+        'Resetar treinamento?',
+        'O progresso deste colaborador será reiniciado. Deseja continuar?',
+        'Sim, Resetar',
+        true
+    );
+
+    if (!confirmou) return;
+
+    try {
+        const resposta = await fetch(
+            `${API}/api/rh/usuarios/${id}/resetar-treinamento`,
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(
+                dados.erro || 'Erro ao resetar treinamento.'
+            );
+        }
+
+        await mostrarMensagemRH(
+            'Treinamento resetado!',
+            dados.mensagem || 'O treinamento foi reiniciado com sucesso.'
+        );
+
+        await carregarColaboradores();
+
+    } catch (erro) {
+        console.error('Erro ao resetar treinamento:', erro);
+        alert(erro.message);
+    }
+}
     
     const confirmou = await confirmarAcaoRH(
             'Resetar treinamento?',
@@ -1469,9 +1515,7 @@ if (!confirmou) return;
             erro.message
         );
 
-    }
-}
-    
+    } 
 
 async function excluirColaborador(id) {
     const token = localStorage.getItem('integracao_admin_token');

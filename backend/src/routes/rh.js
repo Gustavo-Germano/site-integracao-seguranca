@@ -64,38 +64,27 @@ router.get(
             const resultado =
                 await pool.query(
                     `
-                    SELECT
-                        id,
-                        nome,
-                        email,
-                        usuario_login,
-
-                        ativo,
-
-                        acesso_inicial,
-                        acesso_inicial_em,
-
-                        ultimo_login,
-
-                        treinamento_concluido,
-
-                        modulo_atual,
-                        parte_atual,
-
-                        concluido_em,
-
-                        criado_em
-
-                    FROM public.usuarios
-
-                    WHERE
-                        role = 'colaborador'
-                        OR perfil = 'colaborador'
-
-                    ORDER BY
-                        nome ASC
-                    `
-                );
+                SELECT
+                    id,
+                    nome,
+                    email,
+                    usuario_login,
+                    data_admissao,
+                    funcao,
+                    setor,
+                    whatsapp,
+                    ativo,
+                    ultimo_login,
+                    treinamento_concluido,
+                    modulo_atual,
+                    parte_atual,
+                    concluido_em,
+                    criado_em
+                FROM public.usuarios
+                WHERE role = 'colaborador'
+                   OR perfil = 'colaborador'
+                ORDER BY nome ASC    
+                `);
 
 
             res.json({

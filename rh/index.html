@@ -676,8 +676,11 @@ button:disabled {
 
         <label for="data-admissao">Data de admissão</label>
         <input
-            type="date"
+             type="text"
             id="data-admissao"
+            placeholder="DD/MM/AAAA"
+            maxlength="10"
+            inputmode="numeric"
             required
         >
 
@@ -884,11 +887,28 @@ button:disabled {
 
         }
 
-async function cadastrarColaborador(event) {
-    event.preventDefault();
-
-    const nome = document.getElementById('nome-colaborador').value.trim();
-    const data_admissao = document.getElementById('data-admissao').value;
+    async function cadastrarColaborador(event) {
+        event.preventDefault();
+    
+        const nome = document.getElementById('nome-colaborador').value.trim();
+        const dataDigitada = document.getElementById('data-admissao').value.trim();
+    
+    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dataDigitada)) {
+        throw new Error('Informe a data no formato DD/MM/AAAA.');
+    }
+    
+    const [dia, mes, ano] = dataDigitada.split('/');
+    const data_admissao = `${ano}-${mes}-${dia}`;
+    
+    const dataTeste = new Date(`${data_admissao}T00:00:00`);
+    
+    if (
+        dataTeste.getFullYear() !== Number(ano) ||
+        dataTeste.getMonth() + 1 !== Number(mes) ||
+        dataTeste.getDate() !== Number(dia)
+    ) {
+        throw new Error('Informe uma data válida.');
+    }
     const funcao = document.getElementById('funcao-colaborador').value.trim();
     const setor = document.getElementById('setor-colaborador').value.trim();
     const whatsapp = document.getElementById('whatsapp-colaborador').value.trim();

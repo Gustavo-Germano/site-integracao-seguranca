@@ -421,8 +421,6 @@ router.post("/acesso/entrar", async (req, res) => {
             `
             UPDATE public.usuarios
             SET
-                token_acesso = NULL,
-                acesso_por_link = FALSE,
                 ultimo_login = CURRENT_TIMESTAMP
             WHERE token_acesso = $1
               AND acesso_por_link = TRUE

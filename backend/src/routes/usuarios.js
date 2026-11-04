@@ -34,7 +34,13 @@ router.post(
     permitirRoles("rh", "admin"),
     async (req, res) => {
         try {
-            const { nome, email } = req.body;
+            const {
+                nome,
+                data_admissao,
+                funcao,
+                setor,
+                whatsapp
+            } = req.body;
 
             if (!nome || !data_admissao || !funcao || !setor || !whatsapp) {
             throw new Error('Preencha todos os campos obrigatórios.');

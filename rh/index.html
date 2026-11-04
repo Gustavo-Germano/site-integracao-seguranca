@@ -662,92 +662,72 @@ button:disabled {
             Cadastro de colaboradores
         </p>
 
-        <form id="form-admin">
+            <form id="form-admin">
 
-            <label for="email-admin">
-                Acesso do administrador
-            </label>
+                <form id="form-admin">
 
-            <input
-                type="email"
-                id="email-admin"
-                placeholder="admin@email.com"
-                required
-            >
+        <label for="nome-colaborador">Nome completo</label>
+        <input
+            type="text"
+            id="nome-colaborador"
+            placeholder="Nome completo"
+            required
+        >
 
-            <label for="senha-admin">
-                Senha do administrador
-            </label>
+        <label for="data-admissao">Data de admissão</label>
+        <input
+            type="date"
+            id="data-admissao"
+            required
+        >
 
-            <input
-                type="password"
-                id="senha-admin"
-                placeholder="Senha"
-                required
-            >
+        <label for="funcao-colaborador">Função</label>
+        <input
+            type="text"
+            id="funcao-colaborador"
+            placeholder="Função do colaborador"
+            required
+        >
 
-            <button
-            type="button"
-            id="btn-carregar"
-            onclick="entrarPainel()"
-            style="margin-bottom: 20px;"
-            >
-                ENTRAR NO PAINEL
-            </button>
+        <label for="setor-colaborador">Setor</label>
+        <input
+            type="text"
+            id="setor-colaborador"
+            placeholder="Setor"
+            required
+        >
 
-             
-            <div id="mensagem-painel"></div>
+        <label for="whatsapp-colaborador">WhatsApp</label>
+        <input
+            type="tel"
+            id="whatsapp-colaborador"
+            placeholder="(18) 99999-9999"
+            required
+        >
 
+        <button type="submit" id="btn-cadastrar">
+            GERAR LINK DO TREINAMENTO
+        </button>
 
-            <hr style="margin: 25px 0; border: none; border-top: 1px solid #ddd;">
+        <div id="mensagem-cadastro"></div>
 
+    </form>
 
-            <label for="nome-colaborador">
-                Nome do colaborador
-            </label>
+    <hr style="margin: 25px 0; border: none; border-top: 1px solid #ddd;">
 
-            <input
-                type="text"
-                id="nome-colaborador"
-                placeholder="Nome completo"
-                required
-            >
+    <button
+        type="button"
+        id="btn-gerenciar"
+        onclick="carregarColaboradores()"
+    >
+        GERENCIAR COLABORADORES
+    </button>
 
-            <label for="email-colaborador">
-                E-mail do colaborador
-            </label>
-
-            <input
-                type="email"
-                id="email-colaborador"
-                placeholder="colaborador@email.com"
-                required
-            >
-
-            <button type="submit" id="btn-cadastrar">
-                CADASTRAR COLABORADOR
-            </button>
-
-            
-            <div id="mensagem-cadastro"></div>
-
-
-        </form>
-
-        <hr style="margin: 25px 0; border: none; border-top: 1px solid #ddd;">
-
-        <h2 style="text-align: center; margin: 0 0 15px;">
-            COLABORADORES
-        </h2>
-
-        <div id="lista-colaboradores">
-            <p style="text-align: center; color: #666;">
-                Entre no painel para visualizar os colaboradores.
-            </p>
-        </div>
-
+    <div id="lista-colaboradores">
+        <p style="text-align:center;color:#666;">
+            Clique em GERENCIAR COLABORADORES para visualizar os ativos.
+        </p>
     </div>
-
     <script>
 
         const API = 'https://site-integracao-seguranca.onrender.com';
@@ -904,299 +884,103 @@ button:disabled {
 
         }
 
-        async function cadastrarColaborador(event) {
-
+async function cadastrarColaborador(event) {
     event.preventDefault();
 
+    const nome = document.getElementById('nome-colaborador').value.trim();
+    const data_admissao = document.getElementById('data-admissao').value;
+    const funcao = document.getElementById('funcao-colaborador').value.trim();
+    const setor = document.getElementById('setor-colaborador').value.trim();
+    const whatsapp = document.getElementById('whatsapp-colaborador').value.trim();
 
-    const emailAdmin =
-        document
-            .getElementById('email-admin')
-            .value
-            .trim();
-
-
-    const senhaAdmin =
-        document
-            .getElementById('senha-admin')
-            .value;
-
-
-    const nomeColaborador =
-        document
-            .getElementById('nome-colaborador')
-            .value
-            .trim();
-
-
-    const emailColaborador =
-        document
-            .getElementById('email-colaborador')
-            .value
-            .trim();
-
-
-    const btn =
-        document.getElementById('btn-cadastrar');
-
-
-    const mensagem =
-        document.getElementById('mensagem-cadastro');
-
+    const btn = document.getElementById('btn-cadastrar');
+    const mensagem = document.getElementById('mensagem-cadastro');
 
     mensagem.textContent = '';
     mensagem.className = '';
 
-
-    btn.disabled = true;
-    btn.textContent =
-        'AUTENTICANDO...';
-
-
-    try {
-
-        /*
-         * ==================================================
-         * 1. LOGIN DO RH / ADMIN
-         * ==================================================
-         */
-
-        const respostaLogin =
-            await fetch(
-                `${API}/api/auth/login`,
-                {
-                    method: 'POST',
-
-                    headers: {
-                        'Content-Type':
-                            'application/json'
-                    },
-
-                    body: JSON.stringify({
-                        email: emailAdmin,
-                        senha: senhaAdmin
-                    })
-                }
-            );
-
-
-        const dadosLogin =
-            await respostaLogin.json();
-
-
-        if (!respostaLogin.ok) {
-
-            throw new Error(
-                dadosLogin.erro ||
-                'Email ou senha inválidos.'
-            );
-
-        }
-
-
-        /*
-         * ==================================================
-         * 2. CONFIRMAR RH / ADMIN
-         * ==================================================
-         */
-
-        if (
-            !dadosLogin.usuario ||
-            !['rh', 'admin'].includes(
-                dadosLogin.usuario.role
-            )
-        ) {
-
-            throw new Error(
-                'Você não possui permissão para cadastrar colaboradores.'
-            );
-
-        }
-
-
-        const token =
-            dadosLogin.token;
-
-
-        btn.textContent =
-            'GERANDO ACESSO...';
-
-
-        /*
-         * ==================================================
-         * 3. CADASTRAR COLABORADOR
-         * ==================================================
-         */
-
-        const respostaCadastro =
-            await fetch(
-                `${API}/api/usuarios`,
-                {
-                    method: 'POST',
-
-                    headers: {
-                        'Content-Type':
-                            'application/json',
-
-                        'Authorization':
-                            `Bearer ${token}`
-                    },
-
-                    body: JSON.stringify({
-
-                        nome:
-                            nomeColaborador,
-
-                        email:
-                            emailColaborador
-
-                    })
-                }
-            );
-
-
-        const dadosCadastro =
-            await respostaCadastro.json();
-
-        console.log("RESPOSTA DO CADASTRO:", dadosCadastro);
-
-
-        if (!respostaCadastro.ok) {
-
-            throw new Error(
-                dadosCadastro.erro ||
-                'Não foi possível cadastrar o colaborador.'
-            );
-
-        }
-
-
-        /*
-         * ==================================================
-         * 4. MOSTRAR AS CREDENCIAIS GERADAS
-         * ==================================================
-         */
-
-        const loginGerado =
-            dadosCadastro
-                .credenciais
-                .usuario_login;
-
-
-        const senhaGerada =
-            dadosCadastro
-                .credenciais
-                .senha_temporaria;
-
-        const linkTreinamento =
-            dadosCadastro.link_treinamento;
-
-
-        mensagem.innerHTML = `
-            <strong>
-                ✓ COLABORADOR CADASTRADO
-            </strong>
-        
-            <br><br>
-        
-            Usuário:
-            <strong>
-                ${loginGerado}
-            </strong>
-        
-            <br>
-        
-            Senha:
-            <strong>
-                ${senhaGerada}
-            </strong>
-        
-            <br><br>
-        
-            <strong>
-                Link do treinamento:
-            </strong>
-        
-            <br>
-        
-            <a
-                href="${linkTreinamento}"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="
-                    display: inline-block;
-                    margin-top: 8px;
-                    color: #047857;
-                    font-weight: 700;
-                    word-break: break-all;
-                "
-            >
-                ${linkTreinamento}
-            </a>
-        
-            <br><br>
-        
-            <small>
-                Guarde essas credenciais.
-                A senha não será exibida novamente.
-            </small>
-        `;
-
-
-        mensagem.className =
-            'sucesso';
-
-
-        /*
-         * Limpa somente os dados do colaborador.
-         */
-        document
-            .getElementById(
-                'nome-colaborador'
-            )
-            .value = '';
-
-
-        document
-            .getElementById(
-                'email-colaborador'
-            )
-            .value = '';
-
-
-        /*
-         * Atualiza a lista.
-         */
-        await carregarColaboradores();
-
-
-    } catch (erro) {
-
-        console.error(
-            'Erro no cadastro:',
-            erro
-        );
-
-
-        mensagem.textContent =
-            '❌ ' + erro.message;
-
-
-        mensagem.className =
-            'erro';
-
-
-    } finally {
-
-        btn.disabled = false;
-
-        btn.textContent =
-            'CADASTRAR COLABORADOR';
-
+    if (!tokenAdmin) {
+        mensagem.textContent = 'Sessão de acesso não encontrada. É necessário autenticar o RH.';
+        mensagem.className = 'erro';
+        return;
     }
 
-}
-        
+    btn.disabled = true;
+    btn.textContent = 'CADASTRANDO...';
+
+    try {
+        const resposta = await fetch(`${API}/api/usuarios`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${tokenAdmin}`
+            },
+            body: JSON.stringify({
+                nome,
+                data_admissao,
+                funcao,
+                setor,
+                whatsapp
+            })
+        });
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(
+                dados.erro || 'Não foi possível cadastrar o colaborador.'
+            );
+        }
+
+        if (!dados.link_treinamento) {
+            throw new Error('Cadastro realizado, mas o servidor não retornou o link do treinamento.');
+        }
+
+        mensagem.innerHTML = `
+            <strong>✓ COLABORADOR CADASTRADO!</strong>
+            <br><br>
+            Link do treinamento:
+            <br>
+            <a
+                href="${dados.link_treinamento}"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="color:#047857;font-weight:700;word-break:break-all;"
+            >
+                ${dados.link_treinamento}
+            </a>
+            <br><br>
+            <button
+                type="button"
+                onclick="navigator.clipboard.writeText('${dados.link_treinamento}')"
+            >
+                COPIAR LINK
+            </button>
+            <button
+                type="button"
+                onclick="window.open('https://wa.me/?text=${encodeURIComponent('Acesse seu treinamento de Integração de Segurança: ' + dados.link_treinamento)}','_blank')"
+                style="margin-top:10px;"
+            >
+                ENVIAR PELO WHATSAPP
+            </button>
+        `;
+
+        mensagem.className = 'sucesso';
+
+        document.getElementById('form-admin').reset();
+
+        await carregarColaboradores();
+
+    } catch (erro) {
+        console.error('Erro no cadastro:', erro);
+        mensagem.textContent = '❌ ' + erro.message;
+        mensagem.className = 'erro';
+
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'GERAR LINK DO TREINAMENTO';
+    }
+}        
 
         async function carregarColaboradores() {
 
@@ -1250,7 +1034,9 @@ button:disabled {
                 }
 
 
-                const colaboradores = dados.usuarios;
+                const colaboradores = (dados.usuarios || []).filter(
+                    usuario => usuario.ativo === true
+                );
 
 
                 if (

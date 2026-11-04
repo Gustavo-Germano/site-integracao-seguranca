@@ -3,636 +3,1122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel - Integração de Segurança</title>
+
+    <title>Painel-Integração de Segurança</title>
+
     <link rel="stylesheet" href="../style.css">
 
     <style>
+    /* =========================================
+       VISUAL DO PAINEL RH
+       ========================================= */
+
     * {
-        box-sizing: border-box;
-        -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+        "SF Pro Text", "Segoe UI", Arial, sans-serif;
+
+    background:
+        radial-gradient(circle at top left, rgba(16,185,129,.08), transparent 35%),
+        #f2f4f7;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 20px;
+
+    color: #1e293b;
+
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+
+    animation: pageFadeIn .7s ease-out both;
+}
+
+
+/* =====================================================
+   PAINEL
+   ===================================================== */
+
+.painel {
+    width: 100%;
+    max-width: 500px;
+
+    background: rgba(255,255,255,.94);
+
+    padding: 35px;
+
+    border-radius: 18px;
+
+    border: 1px solid rgba(255,255,255,.8);
+
+    box-shadow:
+        0 20px 50px rgba(15,23,42,.08),
+        0 4px 15px rgba(15,23,42,.04);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    animation: painelEntrada .8s cubic-bezier(.22,1,.36,1) both;
+
+    transition:
+        transform .35s cubic-bezier(.22,1,.36,1),
+        box-shadow .35s cubic-bezier(.22,1,.36,1);
+}
+
+.painel:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 25px 60px rgba(15,23,42,.10),
+        0 6px 20px rgba(15,23,42,.05);
+}
+
+
+/* =====================================================
+   TÍTULOS
+   ===================================================== */
+
+h1 {
+    text-align: center;
+
+    margin-top: 0;
+    margin-bottom: 10px;
+
+    color: #064e3b;
+
+    letter-spacing: -.4px;
+
+    animation: conteudoEntrada .7s cubic-bezier(.22,1,.36,1) .12s both;
+}
+
+.subtitulo {
+    text-align: center;
+
+    color: #64748b;
+
+    margin-bottom: 30px;
+
+    animation: conteudoEntrada .7s cubic-bezier(.22,1,.36,1) .2s both;
+}
+
+
+/* =====================================================
+   LABELS
+   ===================================================== */
+
+label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-weight: 600;
+
+    color: #334155;
+
+    transition:
+        color .25s ease,
+        transform .25s ease;
+}
+
+
+/* =====================================================
+   INPUTS
+   ===================================================== */
+
+input {
+    width: 100%;
+
+    padding: 14px 15px;
+
+    margin-bottom: 18px;
+
+    border: 1px solid #d7dee7;
+
+    border-radius: 10px;
+
+    background: #ffffff;
+
+    color: #1e293b;
+
+    font-family: inherit;
+    font-size: 16px;
+
+    outline: none;
+
+    box-shadow:
+        0 1px 2px rgba(15,23,42,.03);
+
+    transition:
+        border-color .25s cubic-bezier(.22,1,.36,1),
+        box-shadow .25s cubic-bezier(.22,1,.36,1),
+        transform .25s cubic-bezier(.22,1,.36,1),
+        background-color .25s ease;
+}
+
+input::placeholder {
+    color: #94a3b8;
+
+    transition:
+        opacity .2s ease,
+        transform .2s ease;
+}
+
+input:hover {
+    border-color: #b8c4d1;
+}
+
+input:focus {
+    border-color: #10b981;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 0 0 4px rgba(16,185,129,.10),
+        0 4px 12px rgba(15,23,42,.05);
+
+    transform: translateY(-1px);
+}
+
+input:focus::placeholder {
+    opacity: .45;
+    transform: translateX(3px);
+}
+
+
+/* =====================================================
+   LINHA
+   ===================================================== */
+
+hr {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+
+    margin: 25px 0;
+
+    opacity: .8;
+}
+
+
+/* =====================================================
+   BOTÃO
+   ===================================================== */
+
+button {
+    width: 100%;
+
+    padding: 14px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #10b981;
+
+    color: white;
+
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 4px 12px rgba(16,185,129,.20);
+
+    transition:
+        transform .25s cubic-bezier(.22,1,.36,1),
+        box-shadow .25s cubic-bezier(.22,1,.36,1),
+        background-color .25s ease,
+        opacity .25s ease;
+}
+
+button:hover:not(:disabled) {
+    background: #059669;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 18px rgba(16,185,129,.25);
+}
+
+button:active:not(:disabled) {
+    transform: scale(.98);
+}
+
+button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+
+    box-shadow: none;
+}
+
+
+/* =====================================================
+   MENSAGEM
+   ===================================================== */
+
+
+#mensagem-painel,
+#mensagem-cadastro {
+    margin-top: 20px;
+    text-align: center;
+    font-weight: 600;
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+        opacity .4s ease,
+        transform .4s cubic-bezier(.22,1,.36,1);
+}
+
+#mensagem-painel:not(:empty),
+#mensagem-cadastro:not(:empty) {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+/* =====================================================
+   ANIMAÇÕES
+   ===================================================== */
+
+@keyframes pageFadeIn {
+    from {
+        opacity: 0;
     }
 
-    html {
-        scroll-behavior: smooth;
+    to {
+        opacity: 1;
     }
+}
+
+@keyframes painelEntrada {
+    from {
+        opacity: 0;
+        transform: translateY(25px) scale(.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes conteudoEntrada {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+.modal-rh-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(4px);
+
+    opacity: 0;
+    animation: modalRhFadeIn 0.25s ease-out forwards;
+}
+
+.modal-rh-box {
+    width: 100%;
+    max-width: 420px;
+    padding: 30px 26px;
+    border-radius: 18px;
+    background: #fff;
+    text-align: center;
+    box-shadow: 0 22px 65px rgba(0, 0, 0, 0.25);
+
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+    animation: modalRhEntrada 0.3s cubic-bezier(.2,.8,.2,1) forwards;
+}
+
+.modal-rh-overlay.fechando {
+    pointer-events: none;
+    animation: modalRhFadeOut 0.2s ease-in forwards;
+}
+
+.modal-rh-overlay.fechando .modal-rh-box {
+    animation: modalRhSaida 0.2s ease-in forwards;
+}
+
+@keyframes modalRhFadeIn {
+    to { opacity: 1; }
+}
+
+@keyframes modalRhEntrada {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes modalRhFadeOut {
+    to { opacity: 0; }
+}
+
+@keyframes modalRhSaida {
+    to {
+        opacity: 0;
+        transform: translateY(10px) scale(0.97);
+    }
+}
+
+
+/* =====================================================
+   MOBILE — TRANSIÇÕES SUAVES
+   ===================================================== */
+
+@media (max-width: 768px) {
 
     body {
-        margin: 0;
-        min-height: 100vh;
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
-            "SF Pro Text", "Segoe UI", Arial, sans-serif;
+        padding: 14px;
+
+        align-items: flex-start;
+
+        padding-top: 25px;
+
         background:
-            radial-gradient(circle at top left, rgba(16,185,129,.08), transparent 35%),
+            radial-gradient(circle at top, rgba(16,185,129,.08), transparent 40%),
             #f2f4f7;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-        color: #1e293b;
-        -webkit-font-smoothing: antialiased;
-        text-rendering: optimizeLegibility;
-        animation: pageFadeIn .7s ease-out both;
     }
 
     .painel {
         width: 100%;
-        max-width: 500px;
-        background: rgba(255,255,255,.94);
-        padding: 35px;
-        border-radius: 18px;
-        border: 1px solid rgba(255,255,255,.8);
+
+        padding: 26px 20px;
+
+        border-radius: 16px;
+
         box-shadow:
-            0 20px 50px rgba(15,23,42,.08),
-            0 4px 15px rgba(15,23,42,.04);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        animation: painelEntrada .8s cubic-bezier(.22,1,.36,1) both;
-        transition:
-            transform .35s cubic-bezier(.22,1,.36,1),
-            box-shadow .35s cubic-bezier(.22,1,.36,1);
+            0 12px 35px rgba(15,23,42,.08);
+
+        animation:
+            painelMobileEntrada .7s cubic-bezier(.22,1,.36,1) both;
     }
 
     .painel:hover {
-        transform: translateY(-2px);
+        transform: none;
+
         box-shadow:
-            0 25px 60px rgba(15,23,42,.10),
-            0 6px 20px rgba(15,23,42,.05);
+            0 12px 35px rgba(15,23,42,.08);
     }
 
     h1 {
-        text-align: center;
-        margin-top: 0;
-        margin-bottom: 10px;
-        color: #064e3b;
-        letter-spacing: -.4px;
-        animation: conteudoEntrada .7s cubic-bezier(.22,1,.36,1) .12s both;
+        font-size: 24px;
     }
 
     .subtitulo {
-        text-align: center;
-        color: #64748b;
-        margin-bottom: 30px;
-        animation: conteudoEntrada .7s cubic-bezier(.22,1,.36,1) .2s both;
+        font-size: 14px;
+
+        margin-bottom: 25px;
     }
 
     label {
-        display: block;
-        margin-bottom: 7px;
-        font-weight: 600;
-        color: #334155;
-        transition: color .25s ease, transform .25s ease;
-    }
-
-    input {
-        width: 100%;
-        padding: 14px 15px;
-        margin-bottom: 18px;
-        border: 1px solid #d7dee7;
-        border-radius: 10px;
-        background: #ffffff;
-        color: #1e293b;
-        font-family: inherit;
-        font-size: 16px;
-        outline: none;
-        box-shadow: 0 1px 2px rgba(15,23,42,.03);
-        transition:
-            border-color .25s cubic-bezier(.22,1,.36,1),
-            box-shadow .25s cubic-bezier(.22,1,.36,1),
-            transform .25s cubic-bezier(.22,1,.36,1),
-            background-color .25s ease;
-    }
-
-    input::placeholder {
-        color: #94a3b8;
-        transition: opacity .2s ease, transform .2s ease;
-    }
-
-    input:hover {
-        border-color: #b8c4d1;
-    }
-
-    input:focus {
-        border-color: #10b981;
-        background: #ffffff;
-        box-shadow:
-            0 0 0 4px rgba(16,185,129,.10),
-            0 4px 12px rgba(15,23,42,.05);
-        transform: translateY(-1px);
-    }
-
-    input:focus::placeholder {
-        opacity: .45;
-        transform: translateX(3px);
-    }
-
-    hr {
-        border: none;
-        border-top: 1px solid #e2e8f0;
-        margin: 25px 0;
-        opacity: .8;
-    }
-
-    button {
-        width: 100%;
-        padding: 14px;
-        border: none;
-        border-radius: 10px;
-        background: #10b981;
-        color: white;
-        font-family: inherit;
-        font-size: 16px;
-        font-weight: 700;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(16,185,129,.20);
-        transition:
-            transform .25s ease,
-            box-shadow .25s ease,
-            background .25s ease;
-    }
-
-    button:hover {
-        background: #059669;
-        transform: translateY(-2px);
-        box-shadow: 0 7px 18px rgba(16,185,129,.25);
-    }
-
-    button:active {
-        transform: scale(.98);
-    }
-
-    button:disabled {
-        opacity: .65;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-    .sucesso {
-        margin-top: 18px;
-        padding: 15px;
-        border-radius: 10px;
-        background: #ecfdf5;
-        color: #065f46;
-        border: 1px solid #a7f3d0;
-        overflow-wrap: anywhere;
-    }
-
-    .erro {
-        margin-top: 18px;
-        padding: 15px;
-        border-radius: 10px;
-        background: #fef2f2;
-        color: #991b1b;
-        border: 1px solid #fecaca;
-    }
-
-    .colaborador-card {
-        background: #fff;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 18px;
-        margin-bottom: 15px;
-        box-shadow: 0 3px 10px rgba(15,23,42,.04);
-        overflow-wrap: anywhere;
-    }
-
-    .colaborador-card h3 {
-        color: #064e3b;
-        margin-top: 0;
-        margin-bottom: 12px;
-    }
-
-    .colaborador-card p {
-        color: #475569;
-        margin: 8px 0;
-        line-height: 1.5;
-    }
-
-    .modal-rh-overlay {
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        background: rgba(15,23,42,.55);
-        backdrop-filter: blur(5px);
-        animation: modalRhAparecer .2s ease both;
-    }
-
-    .modal-rh-box {
-        width: 100%;
-        max-width: 390px;
-        padding: 25px;
-        border-radius: 16px;
-        background: #fff;
-        text-align: center;
-        box-shadow: 0 20px 60px rgba(0,0,0,.2);
-        animation: modalRhSubir .25s ease both;
-    }
-
-    .modal-rh-icone {
-        font-size: 30px;
-        margin-bottom: 12px;
-    }
-
-    .modal-rh-titulo {
-        color: #064e3b;
-        margin: 0 0 10px;
-    }
-
-    .modal-rh-descricao {
-        color: #475569;
-        line-height: 1.5;
-    }
-
-    .modal-rh-acoes {
-        display: flex;
-        gap: 10px;
-        margin-top: 22px;
-    }
-
-    .modal-rh-acoes button {
-        flex: 1;
-        padding: 12px 8px;
         font-size: 14px;
     }
 
-    .modal-rh-cancelar {
-        background: #64748b;
+    input {
+        padding: 14px;
+
+        min-height: 48px;
+
+        font-size: 16px;
+
+        border-radius: 10px;
+
+        transition:
+            border-color .25s ease,
+            box-shadow .25s ease,
+            transform .25s ease;
     }
 
-    .modal-rh-confirmar.perigo {
-        background: #dc2626;
+    input:focus {
+        transform: none;
+
+        box-shadow:
+            0 0 0 4px rgba(16,185,129,.10);
     }
 
-    .modal-rh-overlay.fechando {
-        animation: modalRhDescer .17s ease both;
+    button {
+        min-height: 50px;
+
+        font-size: 15px;
+
+        border-radius: 10px;
+
+        transition:
+            transform .18s cubic-bezier(.22,1,.36,1),
+            background-color .25s ease,
+            box-shadow .25s ease;
     }
 
-    @keyframes pageFadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
+    button:active:not(:disabled) {
+        transform: scale(.97);
     }
 
-    @keyframes painelEntrada {
-        from {
-            opacity: 0;
-            transform: translateY(18px) scale(.98);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
+    hr {
+        margin: 22px 0;
+    }
+}
+
+@keyframes painelMobileEntrada {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(.985);
     }
 
-    @keyframes conteudoEntrada {
-        from {
-            opacity: 0;
-            transform: translateY(8px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
     }
+}
 
-    @keyframes modalRhAparecer {
-        from { opacity: 0; }
-        to { opacity: 1; }
+
+/* =====================================================
+   REDUZIR MOVIMENTO — ACESSIBILIDADE
+   ===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
     }
+}
 
-    @keyframes modalRhSubir {
-        from {
-            opacity: 0;
-            transform: translateY(8px) scale(.98);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
+
+/* Modal personalizado de confirmação do RH */
+
+/* Modal personalizado do RH */
+.modal-rh-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.60);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 99999;
+    opacity: 0;
+    animation: modalRhFadeIn .18s ease-out forwards;
+}
+
+.modal-rh-box {
+    width: 100%;
+    max-width: 420px;
+    background: #fff;
+    border-radius: 18px;
+    padding: 28px 24px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .22);
+    animation: modalRhSubir .18s ease-out forwards;
+}
+
+.modal-rh-icone {
+    font-size: 36px;
+    line-height: 1;
+    margin: 0 0 14px;
+}
+
+.modal-rh-titulo {
+    color: #064e3b;
+    font-size: 22px;
+    line-height: 1.3;
+    font-weight: 800;
+    text-align: center;
+    margin: 0 0 12px;
+}
+
+.modal-rh-descricao {
+    color: #475569;
+    font-size: 15px;
+    line-height: 1.6;
+    text-align: center;
+    overflow-wrap: anywhere;
+    margin: 0 0 24px;
+}
+
+.modal-rh-acoes {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 12px;
+}
+
+.modal-rh-acoes button {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+    margin: 0;
+    padding: 13px 10px;
+    border: 0;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.3;
+    text-align: center;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.modal-rh-cancelar {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.modal-rh-confirmar {
+    background: #059669;
+    color: #fff;
+}
+
+.modal-rh-confirmar.perigo {
+    background: #dc2626;
+}
+
+.modal-rh-overlay.fechando {
+    animation: modalRhFadeOut .16s ease-in forwards;
+    pointer-events: none;
+}
+
+.modal-rh-overlay.fechando .modal-rh-box {
+    animation: modalRhDescer .16s ease-in forwards;
+}
+
+@keyframes modalRhFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modalRhFadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes modalRhSubir {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(.98);
     }
-
-    @keyframes modalRhDescer {
-        from {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-        to {
-            opacity: 0;
-            transform: translateY(5px) scale(.99);
-        }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
     }
+}
 
-    @media (max-width: 520px) {
-        body {
-            padding: 12px;
-            align-items: flex-start;
-        }
-
-        .painel {
-            padding: 24px 18px;
-            margin: 12px 0;
-        }
-
-        h1 {
-            font-size: 23px;
-        }
-
-        .modal-rh-acoes {
-            flex-direction: column;
-        }
+@keyframes modalRhDescer {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
     }
-    </style>
+    to {
+        opacity: 0;
+        transform: translateY(5px) scale(.99);
+    }
+}
+
+
+
+</style>
+
 </head>
 
 <body>
 
-<div class="painel">
+    <div class="painel">
 
-    <h1>PAINEL DO ADMINISTRADOR</h1>
+        <h1>PAINEL DO ADMINISTRADOR</h1>
 
-    <p class="subtitulo">Cadastro de colaboradores</p>
+        <p class="subtitulo">
+            Cadastro de colaboradores
+        </p>
 
-    <form id="form-admin">
+        <form id="form-admin">
 
-        <label for="nome-colaborador">Nome completo</label>
-        <input
-            type="text"
-            id="nome-colaborador"
-            placeholder="Nome completo"
-            autocomplete="name"
-            required
-        >
+            <label for="email-admin">
+                Acesso do administrador
+            </label>
 
-        <label for="data-admissao">Data de admissão</label>
-        <input
-           type="text"
-           id="data-admissao"
-           placeholder="DD/MM/AAAA"
-           maxlength="10"
-           inputmode="numeric"
-           required
-        >
+            <input
+                type="email"
+                id="email-admin"
+                placeholder="admin@email.com"
+                required
+            >
 
-        <label for="funcao-colaborador">Função</label>
-        <input
-            type="text"
-            id="funcao-colaborador"
-            placeholder="Função do colaborador"
-            required
-        >
+            <label for="senha-admin">
+                Senha do administrador
+            </label>
 
-        <label for="setor-colaborador">Setor</label>
-        <input
-            type="text"
-            id="setor-colaborador"
-            placeholder="Setor"
-            required
-        >
+            <input
+                type="password"
+                id="senha-admin"
+                placeholder="Senha"
+                required
+            >
 
-        <label for="whatsapp-colaborador">WhatsApp</label>
-        <input
-            type="tel"
-            id="whatsapp-colaborador"
-            placeholder="(00) 00000-0000"
-            autocomplete="tel"
-            inputmode="tel"
-            required
-        >
+            <button
+            type="button"
+            id="btn-carregar"
+            onclick="entrarPainel()"
+            style="margin-bottom: 20px;"
+            >
+                ENTRAR NO PAINEL
+            </button>
 
-        <button type="submit" id="btn-cadastrar">
-            GERAR LINK DO TREINAMENTO
-        </button>
+             
+            <div id="mensagem-painel"></div>
 
-        <div id="mensagem-cadastro"></div>
 
-    </form>
+            <hr style="margin: 25px 0; border: none; border-top: 1px solid #ddd;">
 
-    <hr>
 
-    <button
-        type="button"
-        id="btn-carregar"
-        onclick="alternarGerenciamento()"
-    >
-        GERENCIAR COLABORADORES
-    </button>
+            <label for="nome-colaborador">
+                Nome do colaborador
+            </label>
 
-    <div id="area-gerenciamento" style="display: none;">
+            <input
+                type="text"
+                id="nome-colaborador"
+                placeholder="Nome completo"
+                required
+            >
 
-        <h2 style="text-align: center; margin: 25px 0 15px;">
+            <label for="email-colaborador">
+                E-mail do colaborador
+            </label>
+
+            <input
+                type="email"
+                id="email-colaborador"
+                placeholder="colaborador@email.com"
+                required
+            >
+
+            <button type="submit" id="btn-cadastrar">
+                CADASTRAR COLABORADOR
+            </button>
+
+            
+            <div id="mensagem-cadastro"></div>
+
+
+        </form>
+
+        <hr style="margin: 25px 0; border: none; border-top: 1px solid #ddd;">
+
+        <h2 style="text-align: center; margin: 0 0 15px;">
             COLABORADORES
         </h2>
 
         <div id="lista-colaboradores">
             <p style="text-align: center; color: #666;">
-                Clique em gerenciar para visualizar os colaboradores.
+                Entre no painel para visualizar os colaboradores.
             </p>
         </div>
 
     </div>
 
-</div>
+    <script>
 
-<script>
-const API = 'https://site-integracao-seguranca.onrender.com';
+        const API = 'https://site-integracao-seguranca.onrender.com';
 
-let tokenAdmin = null;
-let gerenciamentoAberto = false;
-
-/* =====================================================
-   ACESSO AUTOMÁTICO AO PAINEL
-   ===================================================== */
-
-async function iniciarPainel() {
-    const mensagem = document.getElementById('mensagem-cadastro');
-
-    try {
-        const resposta = await fetch(`${API}/api/rh/validar-painel`, {
-            method: 'POST'
-        });
-
-        const dados = await resposta.json();
-
-        if (!resposta.ok || !dados.token) {
-            throw new Error(
-                dados.erro || 'Não foi possível iniciar o painel.'
-            );
-        }
-
-        tokenAdmin = dados.token;
-
-        localStorage.setItem(
-            'integracao_admin_token',
-            tokenAdmin
+        let tokenAdmin = localStorage.getItem(
+            'integracao_admin_token'
         );
 
-        return true;
 
-    } catch (erro) {
-        console.error('Erro ao iniciar painel:', erro);
+        document
+            .getElementById('form-admin')
+            .addEventListener(
+                'submit',
+                cadastrarColaborador
+            );
 
-        if (mensagem) {
-            mensagem.textContent =
-                'Não foi possível conectar ao painel. Atualize a página.';
-            mensagem.className = 'erro';
+
+        async function entrarPainel() {
+
+            const emailAdmin =
+                document
+                    .getElementById('email-admin')
+                    .value
+                    .trim();
+
+            const senhaAdmin =
+                document
+                    .getElementById('senha-admin')
+                    .value;
+
+            const btn =
+                document.getElementById('btn-carregar');
+
+            const mensagem =
+                document.getElementById('mensagem-painel');
+
+
+            if (!emailAdmin || !senhaAdmin) {
+
+                mensagem.textContent =
+                    'Informe o e-mail e a senha do administrador.';
+
+                mensagem.className = 'erro';
+
+                return;
+            }
+
+
+            btn.disabled = true;
+
+            btn.textContent = 'ENTRANDO...';
+
+            mensagem.textContent = '';
+
+            mensagem.className = '';
+
+
+            try {
+
+                const respostaLogin = await fetch(
+                    `${API}/api/auth/login`,
+                    {
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+
+                        body: JSON.stringify({
+
+                            email: emailAdmin,
+
+                            senha: senhaAdmin
+
+                        })
+                    }
+                );
+
+
+                const dadosLogin =
+                    await respostaLogin.json();
+
+
+                if (!respostaLogin.ok) {
+
+                    throw new Error(
+                        dadosLogin.erro ||
+                        'E-mail ou senha do administrador inválidos.'
+                    );
+
+                }
+
+
+                if (
+                    !dadosLogin.usuario ||
+                    !['rh', 'admin'].includes(
+                        dadosLogin.usuario.role
+                    )
+                ) {
+
+                    throw new Error(
+                        'Este usuário não possui permissão para acessar o painel RH.'
+                    );
+                }
+
+
+                localStorage.setItem(
+                    'integracao_admin_token',
+                    dadosLogin.token
+                );
+
+
+                tokenAdmin =
+                    dadosLogin.token;
+
+
+                mensagem.textContent =
+                    '✓ Acesso administrativo autorizado.';
+
+                mensagem.className =
+                    'sucesso';
+
+
+                await carregarColaboradores();
+
+
+                btn.textContent =
+                    'ATUALIZAR COLABORADORES';
+
+
+            } catch (erro) {
+
+                console.error(
+                    'Erro no acesso administrativo:',
+                    erro
+                );
+
+
+                mensagem.textContent =
+                    '❌ ' + erro.message;
+
+                mensagem.className =
+                    'erro';
+
+
+                btn.textContent =
+                    'ENTRAR NO PAINEL';
+
+            } finally {
+
+                btn.disabled = false;
+
+            }
+
         }
 
-        return false;
-    }
-}
+        async function cadastrarColaborador(event) {
 
-async function garantirToken() {
-    if (tokenAdmin) return true;
-    return await iniciarPainel();
-}
-
-/* =====================================================
-   ABRIR E FECHAR GERENCIAMENTO
-   ===================================================== */
-
-async function alternarGerenciamento() {
-    const area = document.getElementById('area-gerenciamento');
-    const botao = document.getElementById('btn-carregar');
-
-    gerenciamentoAberto = !gerenciamentoAberto;
-
-    area.style.display = gerenciamentoAberto ? 'block' : 'none';
-
-    botao.textContent = gerenciamentoAberto
-        ? 'FECHAR GERENCIAMENTO'
-        : 'GERENCIAR COLABORADORES';
-
-    if (gerenciamentoAberto) {
-        await carregarColaboradores();
-    }
-}
-
-/* =====================================================
-   CADASTRO DO COLABORADOR
-   ===================================================== */
-
-document.getElementById('form-admin').addEventListener(
-    'submit',
-    cadastrarColaborador
-);
-
-async function cadastrarColaborador(event) {
     event.preventDefault();
 
-    const nome = document
-        .getElementById('nome-colaborador')
-        .value.trim();
 
-    const dataDigitada = document.getElementById('data-admissao').value.trim();
+    const emailAdmin =
+        document
+            .getElementById('email-admin')
+            .value
+            .trim();
 
-    const partesData = dataDigitada.split('/');
 
-    if (
-        partesData.length !== 3 ||
-        !/^\d{2}\/\d{2}\/\d{4}$/.test(dataDigitada)
-    ) {
-        throw new Error('Informe a data no formato DD/MM/AAAA.');
-    }
+    const senhaAdmin =
+        document
+            .getElementById('senha-admin')
+            .value;
 
-    const [dia, mes, ano] = partesData;
-    const dataAdmissao = `${ano}-${mes}-${dia}`;
 
-    const dataValidacao = new Date(`${dataAdmissao}T00:00:00`);
+    const nomeColaborador =
+        document
+            .getElementById('nome-colaborador')
+            .value
+            .trim();
 
-    if (
-        dataValidacao.getFullYear() !== Number(ano) ||
-        dataValidacao.getMonth() + 1 !== Number(mes) ||
-        dataValidacao.getDate() !== Number(dia)
-    ) {
-        throw new Error('Informe uma data válida.');
-    }
 
-    const funcao = document
-        .getElementById('funcao-colaborador')
-        .value.trim();
+    const emailColaborador =
+        document
+            .getElementById('email-colaborador')
+            .value
+            .trim();
 
-    const setor = document
-        .getElementById('setor-colaborador')
-        .value.trim();
 
-    const whatsapp = document
-        .getElementById('whatsapp-colaborador')
-        .value.trim();
+    const btn =
+        document.getElementById('btn-cadastrar');
 
-    const btn = document.getElementById('btn-cadastrar');
-    const mensagem = document.getElementById('mensagem-cadastro');
+
+    const mensagem =
+        document.getElementById('mensagem-cadastro');
+
 
     mensagem.textContent = '';
     mensagem.className = '';
 
+
     btn.disabled = true;
-    btn.textContent = 'GERANDO LINK...';
+    btn.textContent =
+        'AUTENTICANDO...';
+
 
     try {
-        if (!(await garantirToken())) {
-            throw new Error('Não foi possível acessar o painel.');
+
+        /*
+         * ==================================================
+         * 1. LOGIN DO RH / ADMIN
+         * ==================================================
+         */
+
+        const respostaLogin =
+            await fetch(
+                `${API}/api/auth/login`,
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body: JSON.stringify({
+                        email: emailAdmin,
+                        senha: senhaAdmin
+                    })
+                }
+            );
+
+
+        const dadosLogin =
+            await respostaLogin.json();
+
+
+        if (!respostaLogin.ok) {
+
+            throw new Error(
+                dadosLogin.erro ||
+                'Email ou senha inválidos.'
+            );
+
         }
 
-        const respostaCadastro = await fetch(`${API}/api/usuarios`, {
-            method: 'POST',
 
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${tokenAdmin}`
-            },
+        /*
+         * ==================================================
+         * 2. CONFIRMAR RH / ADMIN
+         * ==================================================
+         */
 
-            body: JSON.stringify({
-                nome,
-                data_admissao: dataAdmissao,
-                funcao,
-                setor,
-                whatsapp
-            })
-        });
+        if (
+            !dadosLogin.usuario ||
+            !['rh', 'admin'].includes(
+                dadosLogin.usuario.role
+            )
+        ) {
 
-        const dadosCadastro = await respostaCadastro.json();
+            throw new Error(
+                'Você não possui permissão para cadastrar colaboradores.'
+            );
+
+        }
+
+
+        const token =
+            dadosLogin.token;
+
+
+        btn.textContent =
+            'GERANDO ACESSO...';
+
+
+        /*
+         * ==================================================
+         * 3. CADASTRAR COLABORADOR
+         * ==================================================
+         */
+
+        const respostaCadastro =
+            await fetch(
+                `${API}/api/usuarios`,
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json',
+
+                        'Authorization':
+                            `Bearer ${token}`
+                    },
+
+                    body: JSON.stringify({
+
+                        nome:
+                            nomeColaborador,
+
+                        email:
+                            emailColaborador
+
+                    })
+                }
+            );
+
+
+        const dadosCadastro =
+            await respostaCadastro.json();
+
+        console.log("RESPOSTA DO CADASTRO:", dadosCadastro);
+
 
         if (!respostaCadastro.ok) {
+
             throw new Error(
                 dadosCadastro.erro ||
-                'Não foi possível gerar o link do treinamento.'
+                'Não foi possível cadastrar o colaborador.'
             );
+
         }
 
-        const linkTreinamento = dadosCadastro.link_treinamento;
 
-        if (!linkTreinamento) {
-            throw new Error(
-                'O servidor não retornou o link do treinamento.'
-            );
-        }
+        /*
+         * ==================================================
+         * 4. MOSTRAR AS CREDENCIAIS GERADAS
+         * ==================================================
+         */
 
-        const textoWhatsApp = encodeURIComponent(
-            `Treinamento de Segurança do Trabalho\n` +
-            `Colaborador: ${nome}\n` +
-            `Link para encaminhar ao colaborador: ${linkTreinamento}`
-        );
+        const loginGerado =
+            dadosCadastro
+                .credenciais
+                .usuario_login;
+
+
+        const senhaGerada =
+            dadosCadastro
+                .credenciais
+                .senha_temporaria;
+
+        const linkTreinamento =
+            dadosCadastro.link_treinamento;
+
 
         mensagem.innerHTML = `
-            <strong>✓ COLABORADOR CADASTRADO</strong>
-
+            <strong>
+                ✓ COLABORADOR CADASTRADO
+            </strong>
+        
             <br><br>
-
-            <strong>Nome:</strong> ${nome}<br>
-            <strong>Admissão:</strong>
-            ${dataAdmissao.split('-').reverse().join('/')}<br>
-            <strong>Função:</strong> ${funcao}<br>
-            <strong>Setor:</strong> ${setor}<br>
-            <strong>WhatsApp:</strong> ${whatsapp}
-
-            <br><br>
-
-            <strong>Link do treinamento para enviar ao RH:</strong>
-
+        
+            Usuário:
+            <strong>
+                ${loginGerado}
+            </strong>
+        
             <br>
-
+        
+            Senha:
+            <strong>
+                ${senhaGerada}
+            </strong>
+        
+            <br><br>
+        
+            <strong>
+                Link do treinamento:
+            </strong>
+        
+            <br>
+        
             <a
                 href="${linkTreinamento}"
                 target="_blank"
@@ -647,237 +1133,291 @@ async function cadastrarColaborador(event) {
             >
                 ${linkTreinamento}
             </a>
-
+        
             <br><br>
-
-            <button type="button" id="btn-compartilhar-whatsapp">
-                COMPARTILHAR LINK
-            </button>
+        
+            <small>
+                Guarde essas credenciais.
+                A senha não será exibida novamente.
+            </small>
         `;
 
-        mensagem.className = 'sucesso';
+
+        mensagem.className =
+            'sucesso';
+
+
+        /*
+         * Limpa somente os dados do colaborador.
+         */
+        document
+            .getElementById(
+                'nome-colaborador'
+            )
+            .value = '';
+
 
         document
-            .getElementById('btn-compartilhar-whatsapp')
-            .addEventListener('click', () => {
-                window.open(
-                    `https://wa.me/?text=${textoWhatsApp}`,
-                    '_blank'
-                );
-            });
+            .getElementById(
+                'email-colaborador'
+            )
+            .value = '';
 
-        document.getElementById('form-admin').reset();
 
-        if (gerenciamentoAberto) {
-            await carregarColaboradores();
-        }
+        /*
+         * Atualiza a lista.
+         */
+        await carregarColaboradores();
+
 
     } catch (erro) {
-        console.error('Erro no cadastro:', erro);
 
-        mensagem.textContent = '❌ ' + erro.message;
-        mensagem.className = 'erro';
+        console.error(
+            'Erro no cadastro:',
+            erro
+        );
+
+
+        mensagem.textContent =
+            '❌ ' + erro.message;
+
+
+        mensagem.className =
+            'erro';
+
 
     } finally {
+
         btn.disabled = false;
-        btn.textContent = 'GERAR LINK DO TREINAMENTO';
+
+        btn.textContent =
+            'CADASTRAR COLABORADOR';
+
     }
+
 }
+        
 
-/* =====================================================
-   LISTAR COLABORADORES
-   ===================================================== */
+        async function carregarColaboradores() {
 
-async function carregarColaboradores() {
-    if (!(await garantirToken())) {
-        return;
-    }
-
-    const token = tokenAdmin;
-
-    const lista = document.getElementById('lista-colaboradores');
-
-    lista.innerHTML = '<p>Carregando colaboradores...</p>';
-
-    try {
-        const resposta = await fetch(`${API}/api/rh/usuarios`, {
-            method: 'GET',
-
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-
-        const dados = await resposta.json();
-
-        if (!resposta.ok) {
-            throw new Error(
-                dados.erro || 'Erro ao carregar colaboradores.'
-            );
-        }
-
-        const colaboradores = dados.usuarios;
-
-        if (!colaboradores || colaboradores.length === 0) {
-            lista.innerHTML = '<p>Nenhum colaborador cadastrado.</p>';
-            return;
-        }
-
-        lista.innerHTML = colaboradores.map(usuario => {
-            const status = usuario.ativo
-                ? 'ATIVO'
-                : 'DESATIVADO';
-
-            const treinamento = usuario.treinamento_concluido
-                ? 'CONCLUÍDO'
-                : 'EM ANDAMENTO';
-
-            const botaoTexto = usuario.ativo
-                ? 'DESATIVAR'
-                : 'ATIVAR';
-
-            const moduloAtual = Number(
-                usuario.ultimo_modulo ?? usuario.modulo_atual ?? 0
-            );
-
-            const progresso = usuario.treinamento_concluido
-                ? 100
-                : Math.min(
-                    99,
-                    Math.max(0, Math.round((moduloAtual / 12) * 100))
+            const token =
+                localStorage.getItem(
+                    'integracao_admin_token'
                 );
 
-            return `
-                <div class="colaborador-card">
 
-                    <h3>${usuario.nome}</h3>
+            if (!token) {
 
-                    <p>
-                        <strong>WhatsApp:</strong>
-                        ${usuario.whatsapp || 'Não informado'}
-                    </p>
+                return;
 
-                    <p>
-                        <strong>Admissão:</strong>
-                        ${
-                            usuario.data_admissao
-                                ? new Date(usuario.data_admissao + 'T00:00:00')
-                                    .toLocaleDateString('pt-BR')
-                                : 'Não informada'
+            }
+
+
+            const lista =
+                document.getElementById(
+                    'lista-colaboradores'
+                );
+
+
+            lista.innerHTML =
+                '<p>Carregando colaboradores...</p>';
+
+
+            try {
+
+                const resposta = await fetch(
+                    `${API}/api/rh/usuarios`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
                         }
+                    }
+                );
+
+
+                const dados =
+                    await resposta.json();
+
+
+                if (!resposta.ok) {
+
+                    throw new Error(
+                        dados.erro ||
+                        'Erro ao carregar colaboradores.'
+                    );
+
+                }
+
+
+                const colaboradores = dados.usuarios;
+
+
+                if (
+                    colaboradores.length === 0
+                ) {
+
+                    lista.innerHTML =
+                        '<p>Nenhum colaborador cadastrado.</p>';
+
+                    return;
+
+                }
+
+
+                lista.innerHTML =
+                    colaboradores.map(
+                        usuario => {
+
+                            const status =
+                                usuario.ativo
+                                    ? 'ATIVO'
+                                    : 'DESATIVADO';
+
+
+                            const treinamento =
+                                usuario.treinamento_concluido
+                                    ? 'CONCLUÍDO'
+                                    : 'EM ANDAMENTO';
+
+
+                            const percentual =
+                                usuario.treinamento_concluido
+                                    ? 100
+                                    : Math.round(
+                                        (
+                                            Number(
+                                                usuario.ultimo_modulo
+                                            ) / 12
+                                        ) * 100
+                                    );
+
+
+                            const botaoTexto =
+                                usuario.ativo
+                                    ? 'DESATIVAR'
+                                    : 'ATIVAR';
+
+                            const moduloAtual = Number(
+                                usuario.ultimo_modulo ?? usuario.modulo_atual ?? 0
+                            );
+
+                            const progresso = usuario.treinamento_concluido
+                                ? 100
+                                : Math.min(
+                                    99,
+                                    Math.max(0, Math.round((moduloAtual / 12) * 100))
+                                );
+
+                            return `
+                                <div class="colaborador-card">
+                                
+                                    <h3>${usuario.nome}</h3>
+                                
+                                    <p>
+                                        <strong>Email:</strong>
+                                        ${usuario.email}
+                                    </p>
+                                
+                                    <p>
+                                        <strong>Status:</strong>
+                                        ${status}
+                                    </p>
+                                
+                                    <p>
+                                        <strong>Treinamento:</strong> ${treinamento}
+                                    </p>
+
+                                    <p>
+                                        <strong>Progresso:</strong> ${progresso}%
+                                    </p>
+                                
+                                    
+                                    <button
+                                        type="button"
+                                        onclick="alterarStatusUsuario(
+                                            ${usuario.id},
+                                            ${!usuario.ativo}
+                                        )"
+                                    >
+                                        ${botaoTexto}
+
+                                    </button>
+                                    ${!usuario.ativo ? `
+                                        <button
+                                            type="button"
+                                            onclick="excluirColaborador(${usuario.id})"
+                                            style="
+                                                margin-top: 10px;
+                                                background: #dc2626;
+                                            "
+                                        >
+                                            EXCLUIR COLABORADOR
+                                        </button>
+                                    ` : ''}
+                                    
+                                    <button
+                                        type="button"
+                                        onclick="resetarTreinamento(${usuario.id})"
+                                        style="
+                                            margin-top: 10px;
+                                            background: #f28c28;
+                                        "
+                                    >
+                                        RESETAR TREINAMENTO
+                                    </button>
+
+                                
+                                </div>
+                            `;
+
+                        }
+                    ).join('');
+
+
+            } catch (erro) {
+
+                console.error(
+                    'Erro:',
+                    erro
+                );
+
+
+                lista.innerHTML = `
+
+                    <p style="color:red;">
+
+                        ${erro.message}
+
                     </p>
 
-                    <p>
-                        <strong>Função:</strong>
-                        ${usuario.funcao || 'Não informada'}
-                    </p>
+                `;
 
-                    <p>
-                        <strong>Setor:</strong>
-                        ${usuario.setor || 'Não informado'}
-                    </p>
+            }
 
-                    <p>
-                        <strong>Status:</strong>
-                        ${status}
-                    </p>
+        }
 
-                    <p>
-                        <strong>Treinamento:</strong>
-                        ${treinamento}
-                    </p>
+        
 
-                    <p>
-                        <strong>Progresso:</strong>
-                        ${progresso}%
-                    </p>
-
-                    <button
-                        type="button"
-                        onclick="alterarStatusUsuario(
-                            ${usuario.id},
-                            ${!usuario.ativo}
-                        )"
-                    >
-                        ${botaoTexto}
-                    </button>
-
-                    ${!usuario.ativo ? `
-                        <button
-                            type="button"
-                            onclick="excluirColaborador(${usuario.id})"
-                            style="
-                                margin-top: 10px;
-                                background: #dc2626;
-                            "
-                        >
-                            EXCLUIR COLABORADOR
-                        </button>
-                    ` : ''}
-
-                    <button
-                        type="button"
-                        onclick="resetarTreinamento(${usuario.id})"
-                        style="
-                            margin-top: 10px;
-                            background: #f28c28;
-                        "
-                    >
-                        RESETAR TREINAMENTO
-                    </button>
-
-                </div>
-            `;
-        }).join('');
-
-    } catch (erro) {
-        console.error('Erro ao carregar colaboradores:', erro);
-
-        lista.innerHTML = `
-            <p style="color:red;">
-                ${erro.message}
-            </p>
-        `;
-    }
-}
-
-/* =====================================================
-   MODAL DE CONFIRMAÇÃO
-   ===================================================== */
-
-function confirmarAcaoRH(
-    titulo,
-    descricao,
-    textoBotao,
-    perigo = false
-) {
-    return new Promise(resolve => {
+function confirmarAcaoRH(titulo, descricao, textoBotao, perigo = false) {
+    return new Promise((resolve) => {
         const anterior = document.getElementById('modal-confirm-rh');
-
         if (anterior) anterior.remove();
 
         const overlay = document.createElement('div');
-
         overlay.id = 'modal-confirm-rh';
         overlay.className = 'modal-rh-overlay';
 
         overlay.innerHTML = `
             <div class="modal-rh-box" role="dialog" aria-modal="true">
-
                 <div class="modal-rh-icone">⚠️</div>
-
                 <h3 class="modal-rh-titulo"></h3>
-
                 <p class="modal-rh-descricao"></p>
-
                 <div class="modal-rh-acoes">
-
                     <button type="button" class="modal-rh-cancelar">
                         Cancelar
                     </button>
-
                     <button type="button" class="modal-rh-confirmar"></button>
-
                 </div>
             </div>
         `;
@@ -898,11 +1438,9 @@ function confirmarAcaoRH(
 
         function finalizar(resultado) {
             if (finalizado) return;
-
             finalizado = true;
 
             document.removeEventListener('keydown', aoPressionarTecla);
-
             overlay.classList.add('fechando');
 
             setTimeout(() => {
@@ -912,18 +1450,14 @@ function confirmarAcaoRH(
         }
 
         function aoPressionarTecla(evento) {
-            if (evento.key === 'Escape') {
-                finalizar(false);
-            }
+            if (evento.key === 'Escape') finalizar(false);
         }
 
         btnCancelar.addEventListener('click', () => finalizar(false));
         btnConfirmar.addEventListener('click', () => finalizar(true));
 
-        overlay.addEventListener('click', evento => {
-            if (evento.target === overlay) {
-                finalizar(false);
-            }
+        overlay.addEventListener('click', (evento) => {
+            if (evento.target === overlay) finalizar(false);
         });
 
         document.addEventListener('keydown', aoPressionarTecla);
@@ -931,22 +1465,13 @@ function confirmarAcaoRH(
     });
 }
 
-/* =====================================================
-   MENSAGEM DE CONFIRMAÇÃO
-   ===================================================== */
 
-function mostrarMensagemRH(
-    titulo,
-    descricao,
-    tipo = 'sucesso'
-) {
-    return new Promise(resolve => {
+function mostrarMensagemRH(titulo, descricao, tipo = 'sucesso') {
+    return new Promise((resolve) => {
         const anterior = document.getElementById('modal-confirm-rh');
-
         if (anterior) anterior.remove();
 
         const overlay = document.createElement('div');
-
         overlay.id = 'modal-confirm-rh';
         overlay.className = 'modal-rh-overlay';
 
@@ -954,19 +1479,14 @@ function mostrarMensagemRH(
 
         overlay.innerHTML = `
             <div class="modal-rh-box" role="dialog" aria-modal="true">
-
                 <div class="modal-rh-icone"></div>
-
                 <h3 class="modal-rh-titulo"></h3>
-
                 <p class="modal-rh-descricao"></p>
-
                 <div class="modal-rh-acoes">
                     <button type="button" class="modal-rh-confirmar">
                         ENTENDI
                     </button>
                 </div>
-
             </div>
         `;
 
@@ -984,11 +1504,9 @@ function mostrarMensagemRH(
 
         function fechar() {
             if (finalizado) return;
-
             finalizado = true;
 
             document.removeEventListener('keydown', aoPressionarTecla);
-
             overlay.classList.add('fechando');
 
             setTimeout(() => {
@@ -998,32 +1516,27 @@ function mostrarMensagemRH(
         }
 
         function aoPressionarTecla(evento) {
-            if (evento.key === 'Escape') {
-                fechar();
-            }
+            if (evento.key === 'Escape') fechar();
         }
 
         botao.addEventListener('click', fechar);
 
-        overlay.addEventListener('click', evento => {
-            if (evento.target === overlay) {
-                fechar();
-            }
+        overlay.addEventListener('click', (evento) => {
+            if (evento.target === overlay) fechar();
         });
 
         document.addEventListener('keydown', aoPressionarTecla);
         document.body.appendChild(overlay);
-
         botao.focus();
     });
 }
 
-/* =====================================================
-   ATIVAR / DESATIVAR COLABORADOR
-   ===================================================== */
 
+        
 async function alterarStatusUsuario(id, novoStatus) {
-    const token = tokenAdmin;
+    const token =
+        tokenAdmin ||
+        localStorage.getItem('integracao_admin_token');
 
     if (!token) {
         alert('Sessão administrativa não encontrada.');
@@ -1045,12 +1558,10 @@ async function alterarStatusUsuario(id, novoStatus) {
             `${API}/api/rh/usuarios/${id}/status`,
             {
                 method: 'PATCH',
-
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-
                 body: JSON.stringify({
                     ativo: novoStatus
                 })
@@ -1069,7 +1580,7 @@ async function alterarStatusUsuario(id, novoStatus) {
             novoStatus ? 'Colaborador ativado!' : 'Colaborador desativado!',
             dados.mensagem || (
                 novoStatus
-                    ? 'O colaborador foi ativado com sucesso.'
+                     ? 'O colaborador foi ativado com sucesso.'
                     : 'O colaborador foi desativado com sucesso.'
             )
         );
@@ -1081,67 +1592,83 @@ async function alterarStatusUsuario(id, novoStatus) {
         alert(erro.message);
     }
 }
+       
 
-/* =====================================================
-   RESETAR TREINAMENTO
-   ===================================================== */
+        async function resetarTreinamento(id) {
 
-async function resetarTreinamento(id) {
-    const token = tokenAdmin;
+    const token =
+        localStorage.getItem(
+            'integracao_admin_token'
+        );
 
     if (!token) {
-        alert('Sessão administrativa não encontrada.');
+
+        alert(
+            'Sessão administrativa não encontrada.'
+        );
+
         return;
     }
 
+    
     const confirmou = await confirmarAcaoRH(
-        'Resetar treinamento?',
-        'O progresso deste colaborador será reiniciado. Deseja continuar?',
-        'Sim, Resetar',
-        true
-    );
-
-    if (!confirmou) return;
-
-    try {
-        const resposta = await fetch(
-            `${API}/api/rh/usuarios/${id}/resetar-treinamento`,
-            {
-                method: 'POST',
-
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            }
+            'Resetar treinamento?',
+            'O progresso deste colaborador será reiniciado. Deseja continuar?',
+            'Sim, Resetar',
+            true
         );
 
-        const dados = await resposta.json();
+if (!confirmou) return;
+
+
+    try {
+
+        const resposta = await fetch(
+            `${API}/api/rh/usuarios`,
+        {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }
+    );
+
+        const dados =
+            await resposta.json();
 
         if (!resposta.ok) {
+
             throw new Error(
-                dados.erro || 'Erro ao resetar treinamento.'
+                dados.erro ||
+                'Erro ao resetar treinamento.'
             );
+
         }
 
         await mostrarMensagemRH(
             'Treinamento resetado!',
             dados.mensagem || 'O treinamento foi reiniciado com sucesso.'
-        );
+    );
 
         await carregarColaboradores();
 
     } catch (erro) {
-        console.error('Erro ao resetar treinamento:', erro);
-        alert(erro.message);
+
+        console.error(
+            'Erro ao resetar treinamento:',
+            erro
+        );
+
+        alert(
+            erro.message
+        );
+
     }
 }
-
-/* =====================================================
-   EXCLUIR COLABORADOR
-   ===================================================== */
+    
 
 async function excluirColaborador(id) {
-    const token = tokenAdmin;
+    const token = localStorage.getItem('integracao_admin_token');
 
     if (!token) {
         alert('Sessão administrativa não encontrada.');
@@ -1158,29 +1685,23 @@ async function excluirColaborador(id) {
     if (!confirmou) return;
 
     try {
-        const resposta = await fetch(
-            `${API}/api/usuarios/${id}`,
-            {
-                method: 'DELETE',
-
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+        const resposta = await fetch(`${API}/api/usuarios/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
-        );
+        });
 
         const dados = await resposta.json();
 
         if (!resposta.ok) {
-            throw new Error(
-                dados.erro || 'Erro ao excluir colaborador.'
-            );
+            throw new Error(dados.erro || 'Erro ao excluir colaborador.');
         }
 
         await mostrarMensagemRH(
             'Colaborador excluído!',
             dados.mensagem || 'O colaborador foi excluído com sucesso.'
-        );
+    );
 
         await carregarColaboradores();
 
@@ -1190,13 +1711,8 @@ async function excluirColaborador(id) {
     }
 }
 
-/* =====================================================
-   INICIAR PAINEL AO ABRIR A PÁGINA
-   ===================================================== */
 
-iniciarPainel();
-
-</script>
+    </script>
 
 </body>
 </html>

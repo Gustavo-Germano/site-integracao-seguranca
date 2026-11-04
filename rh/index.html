@@ -367,9 +367,13 @@
 
         <label for="data-admissao">Data de admissão</label>
         <input
-            type="date"
-            id="data-admissao"
-            required
+           type="text"
+           id="data-admissao"
+           placeholder="DD/MM/AAAA"
+           maxlength="10"
+           inputmode="numeric"
+           required
+>
         >
 
         <label for="funcao-colaborador">Função</label>
@@ -522,9 +526,29 @@ async function cadastrarColaborador(event) {
         .getElementById('nome-colaborador')
         .value.trim();
 
-    const dataAdmissao = document
-        .getElementById('data-admissao')
-        .value;
+    const dataDigitada = document.getElementById('data-admissao').value.trim();
+
+    const partesData = dataDigitada.split('/');
+    
+    if (
+        partesData.length !== 3 ||
+        !/^\d{2}\/\d{2}\/\d{4}$/.test(dataDigitada)
+    ) {
+        throw new Error('Informe a data no formato DD/MM/AAAA.');
+    }
+    
+    const [dia, mes, ano] = partesData;
+    const dataAdmissao = `${ano}-${mes}-${dia}`;
+    
+    const dataValidacao = new Date(`${dataAdmissao}T00:00:00`);
+    
+    if (
+        dataValidacao.getFullYear() !== Number(ano) ||
+        dataValidacao.getMonth() + 1 !== Number(mes) ||
+        dataValidacao.getDate() !== Number(dia)
+    ) {
+        throw new Error('Informe uma data válida.');
+    }
 
     const funcao = document
         .getElementById('funcao-colaborador')

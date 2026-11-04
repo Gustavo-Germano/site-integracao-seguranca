@@ -409,84 +409,45 @@ router.get("/acesso", async (req, res) => {
 
 router.post("/acesso/entrar", async (req, res) => {
     try {
-        const tokenAcesso = String(
-            req.body.token || ""
-        ).trim();
+        const tokenAcesso = String(req.body.token || "").trim();
 
-        const login = String(
-            req.body.login || req.body.email || ""
-        ).trim().toLowerCase();
-
-        const senha = String(
-            req.body.senha || ""
-        );
-
-        if (!tokenAcesso || !login || !senha) {
+        if (!tokenAcesso) {
             return res.status(400).json({
-                erro: "Link, usuário e senha são obrigatórios."
+                erro: "Link de acesso não informado."
             });
         }
 
         const resultado = await pool.query(
             `
-            SELECT
-                id,
-                nome,
-                email,
-                usuario_login,
-                senha,
-                perfil,
-                role,
-                ativo,
-                treinamento_concluido,
-                modulo_atual,
-                parte_atual
-            FROM public.usuarios
+            UPDATE public.usuarios
+            SET
+                token_acesso = NULL,
+                acesso_por_link = FALSE,
+                ultimo_login = CURRENT_TIMESTAMP
             WHERE token_acesso = $1
               AND acesso_por_link = TRUE
               AND token_expira_em > CURRENT_TIMESTAMP
-            LIMIT 1
+              AND ativo = TRUE
+            RETURNING
+                id,
+                nome,
+                email,
+                perfil,
+                role,
+                treinamento_concluido,
+                modulo_atual,
+                parte_atual
             `,
             [tokenAcesso]
         );
 
         if (resultado.rows.length === 0) {
             return res.status(403).json({
-                erro: "Link inválido ou expirado."
+                erro: "Link inválido, expirado ou já utilizado."
             });
         }
 
         const usuario = resultado.rows[0];
-
-        if (!usuario.ativo) {
-            return res.status(403).json({
-                erro: "Este acesso foi desativado."
-            });
-        }
-
-        const loginCorreto =
-            login === String(usuario.usuario_login || "").toLowerCase() ||
-            login === String(usuario.email || "").toLowerCase();
-
-        const senhaCorreta = await bcrypt.compare(
-            senha,
-            usuario.senha
-        );
-
-        if (!loginCorreto || !senhaCorreta) {
-            return res.status(401).json({
-                erro: "Usuário ou senha inválidos."
-            });
-        }
-
-        await pool.query(
-            `
-            UPDATE public.usuarios
-            SET ultimo_login = CURRENT_TIMESTAMP
-            WHERE id = $1
-            `,
-            [usuario.id]
-        );
 
         const token = jwt.sign(
             {
@@ -495,38 +456,23 @@ router.post("/acesso/entrar", async (req, res) => {
                 role: usuario.role
             },
             process.env.JWT_SECRET,
-            {
-                expiresIn: "8h"
-            }
+            { expiresIn: "8h" }
         );
 
         return res.json({
-            mensagem: "Autenticação realizada com sucesso.",
+            mensagem: "Treinamento iniciado.",
             token,
-            usuario: {
-                id: usuario.id,
-                nome: usuario.nome,
-                email: usuario.email,
-                usuario_login: usuario.usuario_login,
-                perfil: usuario.perfil,
-                role: usuario.role,
-                treinamento_concluido: usuario.treinamento_concluido,
-                modulo_atual: usuario.modulo_atual,
-                parte_atual: usuario.parte_atual
-            }
+            usuario
         });
+
     } catch (erro) {
-        console.error(
-            "Erro na autenticação do colaborador:",
-            erro
-        );
+        console.error("Erro ao iniciar acesso:", erro);
 
         return res.status(500).json({
-            erro: "Não foi possível autenticar o colaborador."
+            erro: "Não foi possível iniciar o treinamento."
         });
     }
 });
-
 
 
 // =====================================================

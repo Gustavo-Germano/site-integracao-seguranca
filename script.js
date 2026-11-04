@@ -675,7 +675,7 @@ risco a sua segurança, solicite a manutenção imediata ou substituição.</p>
 const textoBoasVindas = {
     texto: ` 
     <p>Olá! Seja muito bem-vindo ao nosso treinamento de Integração de Segurança. É uma satisfação enorme ter você em nossa equipe. 
-    Para começarmos, por favor, insira suas credenciais abaixo:</p>
+    Para começarmos, clique em prosseguir logo abaixo.</p>
     `,
     audio: "audios/boas-vindas.mp3"
 };

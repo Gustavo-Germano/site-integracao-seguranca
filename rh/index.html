@@ -1414,11 +1414,12 @@ async function alterarStatusUsuario(id, novoStatus) {
 }
        
 
-        async function resetarTreinamento(id) {
-            const token = localStorage.getItem('integracao_admin_token');
+        
+async function resetarTreinamento(id) {
+    const token = localStorage.getItem('integracao_admin_token');
 
     if (!token) {
-        alert('Sessão administrativa não encontrada.');
+        alert('Sessão do RH não encontrada. Faça login novamente.');
         return;
     }
 
@@ -1445,77 +1446,18 @@ async function alterarStatusUsuario(id, novoStatus) {
         const dados = await resposta.json();
 
         if (!resposta.ok) {
-            throw new Error(
-                dados.erro || 'Erro ao resetar treinamento.'
-            );
+            throw new Error(dados.erro || 'Não foi possível resetar o treinamento.');
         }
 
-        await mostrarMensagemRH(
-            'Treinamento resetado!',
-            dados.mensagem || 'O treinamento foi reiniciado com sucesso.'
-        );
-
+        await mostrarMensagemRH('Treinamento reiniciado com sucesso!');
         await carregarColaboradores();
 
     } catch (erro) {
         console.error('Erro ao resetar treinamento:', erro);
         alert(erro.message);
-    }
-}
-    
-    const confirmou = await confirmarAcaoRH(
-            'Resetar treinamento?',
-            'O progresso deste colaborador será reiniciado. Deseja continuar?',
-            'Sim, Resetar',
-            true
-        );
-
-if (!confirmou) return;
-
-
-    try {
-
-        const resposta = await fetch(
-            `${API}/api/rh/usuarios`,
-        {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        }
-    );
-
-        const dados =
-            await resposta.json();
-
-        if (!resposta.ok) {
-
-            throw new Error(
-                dados.erro ||
-                'Erro ao resetar treinamento.'
-            );
-
-        }
-
-        await mostrarMensagemRH(
-            'Treinamento resetado!',
-            dados.mensagem || 'O treinamento foi reiniciado com sucesso.'
-    );
-
-        await carregarColaboradores();
-
-    } catch (erro) {
-
-        console.error(
-            'Erro ao resetar treinamento:',
-            erro
-        );
-
-        alert(
-            erro.message
-        );
-
     } 
+
+}
 
 async function excluirColaborador(id) {
     const token = localStorage.getItem('integracao_admin_token');

@@ -64,6 +64,21 @@ router.post(
                 .randomBytes(32)
                 .toString("hex");
 
+            const verificacao = await pool.query(`
+                SELECT current_database() AS banco,
+                       current_schema() AS esquema,
+                       to_regclass('public.usuarios') AS tabela,
+                       EXISTS (
+                           SELECT 1
+                           FROM information_schema.columns
+                           WHERE table_schema = 'public'
+                             AND table_name = 'usuarios'
+                             AND column_name = 'data_admissao'
+                       ) AS tem_data_admissao
+            `);
+
+console.log("VERIFICAÇÃO DO BANCO:", verificacao.rows[0]);
+
             const resultado = await pool.query(
                 `
                 INSERT INTO public.usuarios

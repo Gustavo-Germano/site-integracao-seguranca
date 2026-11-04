@@ -2004,73 +2004,51 @@ async function loginAdministrador(event) {
 
 
 function mostrarTelaLoginAcesso(token, usuario) {
-    
-app.innerHTML = `
-    <div class="main-content">
-        <div class="container" style="text-align:center;">
-            ${getAvatarHTML()}
 
-            <h2 style="color:var(--primary-color);">
-                Integração de Segurança
-            </h2>
+    app.innerHTML = `
+        <div class="main-content">
+            <div class="container" style="text-align:center;">
 
-            <p id="texto-modulo">
-                ${formatarTextoEmSpans(textoBoasVindas.texto)}
-            </p>
+                ${getAvatarHTML()}
 
-            <form
-                id="formLoginColaborador"
-                style="display:none; max-width:500px; margin:24px auto;"
-            >
-                <label for="loginColaborador">Usuário ou e-mail</label>
-                <input
-                    id="loginColaborador"
-                    name="login"
-                    type="text"
-                    autocomplete="username"
-                    required
-                >
+                <h2 style="color:var(--primary-color);">
+                    Integração de Segurança
+                </h2>
 
-                <label for="senhaColaborador">Senha</label>
-                <input
-                    id="senhaColaborador"
-                    name="senha"
-                    type="password"
-                    autocomplete="current-password"
-                    required
-                >
-
-                <p id="erroLoginColaborador" role="alert"></p>
+                <p id="texto-modulo">
+                    ${formatarTextoEmSpans(textoBoasVindas.texto)}
+                </p>
 
                 <button
-                    type="submit"
-                    id="btnEntrarColaborador"
+                    type="button"
+                    id="btn-prosseguir-treinamento"
                     class="btn"
+                    style="
+                        display:none;
+                        margin:25px auto;
+                        min-width:220px;
+                    "
                 >
-                    ENTRAR NO TREINAMENTO
+                    PROSSEGUIR
                 </button>
-            </form>
+
+                <p id="erro-acesso" style="color:#d32f2f;"></p>
+
+            </div>
         </div>
-    </div>
-`;
+    `;
 
+    const botao = document.getElementById(
+        "btn-prosseguir-treinamento"
+    );
 
-    const form = document.getElementById("formLoginColaborador");
-    const campoLogin = document.getElementById("loginColaborador");
-    const campoSenha = document.getElementById("senhaColaborador");
-    const mensagemErro = document.getElementById("erroLoginColaborador");
-    const botao = document.getElementById("btnEntrarColaborador");
+    botao.addEventListener("click", async () => {
 
-    campoLogin.value = usuario.usuario_login || "";
-
-    form.addEventListener("submit", async (evento) => {
-        evento.preventDefault();
-
-        mensagemErro.textContent = "";
         botao.disabled = true;
-        botao.textContent = "VALIDANDO...";
+        botao.textContent = "LIBERANDO TREINAMENTO...";
 
         try {
+
             const resposta = await fetch(
                 `${API_URL}/api/auth/acesso/entrar`,
                 {
@@ -2078,11 +2056,7 @@ app.innerHTML = `
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({
-                        token,
-                        login: campoLogin.value.trim(),
-                        senha: campoSenha.value
-                    })
+                    body: JSON.stringify({ token })
                 }
             );
 
@@ -2090,17 +2064,19 @@ app.innerHTML = `
 
             if (!resposta.ok) {
                 throw new Error(
-                    dados.erro || "Não foi possível entrar."
+                    dados.erro || "Não foi possível liberar o treinamento."
                 );
             }
 
             if (!dados.token || !dados.usuario) {
-                throw new Error(
-                    "O servidor não retornou os dados de autenticação."
-                );
+                throw new Error("Dados de acesso não recebidos.");
             }
 
-            localStorage.setItem("integracao_token", dados.token);
+            localStorage.setItem(
+                "integracao_token",
+                dados.token
+            );
+
             localStorage.setItem(
                 "integracao_usuario",
                 JSON.stringify(dados.usuario)
@@ -2111,7 +2087,14 @@ app.innerHTML = `
             estado.parteAtual = Number(dados.usuario.parte_atual) || 0;
             estado.maiorEtapa = Math.max(estado.etapaAtual, 1);
 
+            window.history.replaceState(
+                {},
+                document.title,
+                window.location.pathname
+            );
+
             if (dados.usuario.treinamento_concluido) {
+
                 estado.etapaAtual = modulos.length + 1;
                 estado.parteAtual = 0;
                 estado.maiorEtapa = modulos.length;
@@ -2122,44 +2105,43 @@ app.innerHTML = `
                 return;
             }
 
-            
             await carregarProgressoServidor();
-
-            // Atualiza a barra superior e abre o módulo atual,
-            // sem repetir as boas-vindas nem mostrar o botão inicial.
             await init(false);
-            return;
-
 
         } catch (erro) {
-            mensagemErro.textContent = erro.message;
-        } finally {
+
+            document.getElementById("erro-acesso").textContent =
+                erro.message;
+
             botao.disabled = false;
-            botao.textContent = "ENTRAR NO TREINAMENTO";
+            botao.textContent = "PROSSEGUIR";
         }
     });
 
-    // Reproduz as boas-vindas na tela original do robô.
+    // O robô lê somente a saudação.
     tocarAudioESincronizar(
         textoBoasVindas.audio,
         textoBoasVindas.texto,
         true
     );
-}
-
+    }
 
 function liberarFormularioLogin() {
-    const form = document.getElementById("formLoginColaborador");
 
-    if (!form) return;
+    const botao = document.getElementById(
+        "btn-prosseguir-treinamento"
+    );
 
-    form.style.display = "block";
+    if (!botao) return;
 
-    form.scrollIntoView({
+    botao.style.display = "inline-flex";
+
+    botao.scrollIntoView({
         behavior: "smooth",
-        block: "nearest"
+        block: "center"
     });
 }
+    
 
 /* =====================================================
    MOSTRA BOTÃO LARANJA

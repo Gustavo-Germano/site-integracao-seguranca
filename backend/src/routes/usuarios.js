@@ -43,197 +43,139 @@ router.post(
             } = req.body;
 
             if (!nome || !data_admissao || !funcao || !setor || !whatsapp) {
-            throw new Error('Preencha todos os campos obrigatórios.');
-            }
-
-            const emailNormalizado =
-                email.trim().toLowerCase();
-
-            // Verifica se o email já existe
-            const emailExistente =
-                await pool.query(
-                    `
-                    SELECT id
-                    FROM public.usuarios
-                    WHERE LOWER(email) = $1
-                    `,
-                    [emailNormalizado]
-                );
-
-            if (emailExistente.rows.length > 0) {
-                return res.status(409).json({
-                    erro: "Este email já está cadastrado."
+                return res.status(400).json({
+                    erro: "Preencha todos os campos obrigatórios."
                 });
             }
 
             // Gera usuário de login
-            const nomeBase =
-                nome
-                    .normalize("NFD")
-                    .replace(/[\u0300-\u036f]/g, "")
-                    .toLowerCase()
-                    .replace(/[^a-z0-9]+/g, ".")
-                    .replace(/^\.+|\.+$/g, "");
+            const nomeBase = nome
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, ".")
+                .replace(/^\.+|\.+$/g, "");
 
-            let usuarioLogin =
-                nomeBase || "colaborador";
-
+            let usuarioLogin = nomeBase || "colaborador";
             let contador = 1;
 
             while (true) {
-                const loginExistente =
-                    await pool.query(
-                        `
-                        SELECT id
-                        FROM public.usuarios
-                        WHERE usuario_login = $1
-                        `,
-                        [usuarioLogin]
-                    );
+                const loginExistente = await pool.query(
+                    `SELECT id
+                     FROM public.usuarios
+                     WHERE usuario_login = $1`,
+                    [usuarioLogin]
+                );
 
                 if (loginExistente.rows.length === 0) {
                     break;
                 }
 
                 contador++;
-
-                usuarioLogin =
-                    `${nomeBase}.${contador}`;
+                usuarioLogin = `${nomeBase}.${contador}`;
             }
 
-            // Senha temporária
-            
+            // Gera senha temporária
             const primeiroNome = String(nome).trim().split(/\s+/)[0];
 
             const nomeSenha =
-                primeiroNome.charAt(0).toLocaleUpperCase('pt-BR') +
-                primeiroNome.slice(1).toLocaleLowerCase('pt-BR');
+                primeiroNome.charAt(0).toLocaleUpperCase("pt-BR") +
+                primeiroNome.slice(1).toLocaleLowerCase("pt-BR");
 
             const numeros = String(
                 Math.floor(Math.random() * 10000)
-            ).padStart(4, '0');
+            ).padStart(4, "0");
 
             const senhaTemporaria = `${nomeSenha}${numeros}`;
 
+            const senhaHash = await bcrypt.hash(
+                senhaTemporaria,
+                12
+            );
 
-            const senhaHash =
-                await bcrypt.hash(
-                    senhaTemporaria,
-                    12
-                );
+            // Gera token exclusivo do treinamento
+            const tokenAcesso = crypto
+                .randomBytes(32)
+                .toString("hex");
 
-            // Token exclusivo do link de treinamento
-            const tokenAcesso =
-                crypto
-                    .randomBytes(32)
-                    .toString("hex");
+            // Cadastra colaborador
+            const resultado = await pool.query(
+                `
+                INSERT INTO public.usuarios
+                (
+                    nome,
+                    data_admissao,
+                    funcao,
+                    setor,
+                    whatsapp,
+                    usuario_login,
+                    senha,
+                    perfil,
+                    role,
+                    ativo,
+                    acesso_por_link,
+                    token_acesso,
+                    token_expira_em,
+                    treinamento_concluido,
+                    modulo_atual,
+                    parte_atual
+                )
+                VALUES
+                (
+                    $1, $2, $3, $4, $5, $6, $7,
+                    'colaborador',
+                    'colaborador',
+                    TRUE,
+                    TRUE,
+                    $8,
+                    CURRENT_TIMESTAMP + INTERVAL '30 days',
+                    FALSE,
+                    1,
+                    0
+                )
+                RETURNING *
+                `,
+                [
+                    nome.trim(),
+                    data_admissao,
+                    funcao.trim(),
+                    setor.trim(),
+                    whatsapp.trim(),
+                    usuarioLogin,
+                    senhaHash,
+                    tokenAcesso
+                ]
+            );
 
-            // Cria o colaborador
-            const resultado =
-                await pool.query(
-                    `
-                    INSERT INTO public.usuarios
-                    (
-                        nome,
-                        email,
-                        usuario_login,
-                        senha,
-                        perfil,
-                        role,
-                        ativo,
-                        acesso_por_link,
-                        token_acesso,
-                        token_expira_em,
-                        treinamento_concluido,
-                        modulo_atual,
-                        parte_atual
-                    )
-                    VALUES
-                    (
-                        $1,
-                        $2,
-                        $3,
-                        $4,
-                        'colaborador',
-                        'colaborador',
-                        TRUE,
-                        TRUE,
-                        $5,
-                        CURRENT_TIMESTAMP + INTERVAL '30 days',
-                        FALSE,
-                        1,
-                        0
-                    )
-                    RETURNING
-                        id,
-                        nome,
-                        email,
-                        usuario_login,
-                        perfil,
-                        role,
-                        ativo,
-                        acesso_por_link,
-                        token_acesso,
-                        token_expira_em,
-                        treinamento_concluido,
-                        modulo_atual,
-                        parte_atual,
-                        criado_em
-                    `,
-                    [
-                        nome.trim(),
-                        emailNormalizado,
-                        usuarioLogin,
-                        senhaHash,
-                        tokenAcesso
-                    ]
-                );
-
-            // Link real do treinamento
-            
-        const linkTreinamento =
-            `${process.env.FRONTEND_URL || "https://site-integracao-seguranca-1.onrender.com"}/?acesso=${encodeURIComponent(tokenAcesso)}`;
-
+            const linkTreinamento =
+                `${process.env.FRONTEND_URL || "https://site-integracao-seguranca-1.onrender.com"}/?acesso=${encodeURIComponent(tokenAcesso)}`;
 
             return res.status(201).json({
-                mensagem:
-                    "Colaborador cadastrado com sucesso.",
-
-                usuario:
-                    resultado.rows[0],
-
+                mensagem: "Colaborador cadastrado com sucesso.",
+                usuario: resultado.rows[0],
                 credenciais: {
-                    usuario_login:
-                        usuarioLogin,
-
-                    senha_temporaria:
-                        senhaTemporaria
+                    usuario_login: usuarioLogin,
+                    senha_temporaria: senhaTemporaria
                 },
-
-                link_treinamento:
-                    linkTreinamento
+                link_treinamento: linkTreinamento
             });
 
         } catch (erro) {
-            console.error(
-                "Erro ao criar colaborador:",
-                erro
-            );
+            console.error("Erro ao criar colaborador:", erro);
 
             if (erro.code === "23505") {
                 return res.status(409).json({
-                    erro:
-                        "Email ou usuário já cadastrado."
+                    erro: "Usuário já cadastrado."
                 });
             }
 
             return res.status(500).json({
-                erro:
-                    "Erro interno do servidor."
+                erro: "Erro interno do servidor."
             });
         }
     }
 );
+
 /*
 |--------------------------------------------------------------------------
 | USUÁRIO LOGADO

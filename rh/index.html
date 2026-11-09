@@ -717,12 +717,26 @@ button:disabled {
 
     <hr style="margin: 25px 0; border: none; border-top: 1px solid #ddd;">
 
+    <button
+        type="button"
+        id="btn-gerenciar"
+        onclick="carregarColaboradores()"
+    >
+        GERENCIAR COLABORADORES
+    </button>
+
+    <div id="lista-colaboradores">
+        <p style="text-align:center;color:#666;">
+            Clique em GERENCIAR COLABORADORES para visualizar os ativos.
+        </p>
     </div>
     <script>
 
         const API = 'https://site-integracao-seguranca.onrender.com';
 
-        let tokenAdmin = localStorage.getItem('integracao_admin_token') || '';
+        let tokenAdmin = localStorage.getItem(
+            'integracao_admin_token'
+        );
 
 
         document
@@ -871,43 +885,7 @@ button:disabled {
             }
 
         }
-async function obterTokenRH() {
-    let token = localStorage.getItem('integracao_admin_token');
 
-    if (token) {
-        tokenAdmin = token;
-        return token;
-    }
-
-    const chave = new URLSearchParams(
-        window.location.hash.substring(1)
-    ).get('chave');
-
-    if (!chave) {
-        throw new Error('Chave de acesso do RH não encontrada no link.');
-    }
-
-    const resposta = await fetch(`${API}/api/rh/validar-painel`, {
-        method: 'POST',
-        headers: {
-            'X-RH-Panel-Key': chave
-        }
-    });
-
-    const dados = await resposta.json();
-
-    if (!resposta.ok || !dados.token) {
-        throw new Error(dados.erro || 'Falha na autenticação do RH.');
-    }
-
-    tokenAdmin = dados.token;
-
-    localStorage.setItem('integracao_admin_token', tokenAdmin);
-
-    history.replaceState(null, '', window.location.pathname);
-
-    return tokenAdmin;
-}
     
 async function cadastrarColaborador(event) {
     event.preventDefault();
@@ -944,13 +922,11 @@ async function cadastrarColaborador(event) {
         return;
     }
 
-    try {
-    tokenAdmin = await obterTokenRH();
-} catch (erro) {
-    mensagem.textContent = erro.message;
-    mensagem.className = 'erro';
-    return;
-}
+    if (!tokenAdmin) {
+        mensagem.textContent = 'Sessão de acesso não encontrada. É necessário autenticar o RH.';
+        mensagem.className = 'erro';
+        return;
+    }
 
     btn.disabled = true;
     btn.textContent = 'CADASTRANDO...';
@@ -1027,16 +1003,20 @@ async function cadastrarColaborador(event) {
     }
 }
 
-       async function carregarColaboradores() {
+        async function carregarColaboradores() {
 
-    let token;
+            const token =
+                localStorage.getItem(
+                    'integracao_admin_token'
+                );
 
-try {
-    token = await obterTokenRH();
-} catch (erro) {
-    console.error('Erro de autenticação RH:', erro);
-    return;
-}
+
+            if (!token) {
+
+                return;
+
+            }
+
 
             const lista =
                 document.getElementById(
@@ -1236,6 +1216,8 @@ try {
             }
 
         }
+
+        
 
 function confirmarAcaoRH(titulo, descricao, textoBotao, perigo = false) {
     return new Promise((resolve) => {
@@ -1524,7 +1506,5 @@ async function excluirColaborador(id) {
 
     </script>
 
-<script>
-</script>
 </body>
 </html>

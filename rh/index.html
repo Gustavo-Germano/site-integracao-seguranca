@@ -922,10 +922,39 @@ async function cadastrarColaborador(event) {
         return;
     }
 
+    try {
+    tokenAdmin = localStorage.getItem('integracao_admin_token') || '';
+
     if (!tokenAdmin) {
-        mensagem.textContent = 'Sessão de acesso não encontrada. É necessário autenticar o RH.';
-        mensagem.className = 'erro';
-        return;
+        const chave = new URLSearchParams(
+            window.location.hash.substring(1)
+        ).get('chave');
+
+        if (!chave) {
+            throw new Error('Acesso ao painel RH não autorizado.');
+        }
+
+        const respostaToken = await fetch(`${API}/api/rh/validar-painel`, {
+            method: 'POST',
+            headers: {
+                'X-RH-Panel-Key': chave
+            }
+        });
+
+        const dadosToken = await respostaToken.json();
+
+        if (!respostaToken.ok) {
+            throw new Error(dadosToken.erro || 'Falha na autenticação RH.');
+        }
+
+        tokenAdmin = dadosToken.token;
+
+        localStorage.setItem('integracao_admin_token', tokenAdmin);
+    }
+} catch (erro) {
+    mensagem.textContent = erro.message;
+    mensagem.className = 'erro';
+    return;
 }
 
     btn.disabled = true;
@@ -1374,19 +1403,20 @@ async function alterarStatusUsuario(id, novoStatus) {
     if (!confirmou) return;
 
     try {
-        const resposta = await fetch(
-            `${API}/api/rh/usuarios/${id}/status`,
-            {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    ativo: novoStatus
-                })
-            }
-        );
+        const resposta = await fetch(`${API}/api/usuarios`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${tokenAdmin}`
+    },
+    body: JSON.stringify({
+        nome,
+        data_admissao,
+        funcao,
+        setor,
+        whatsapp
+    })
+});
 
         const dados = await resposta.json();
 

@@ -30,8 +30,6 @@ const router = express.Router();
 
 router.post(
     "/",
-    autenticar,
-    permitirRoles("rh", "admin"),
     async (req, res) => {
         try {
             const {

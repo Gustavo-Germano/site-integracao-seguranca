@@ -913,68 +913,32 @@ async function cadastrarColaborador(event) {
     const dataTeste = new Date(`${data_admissao}T00:00:00`);
 
     if (
-        dataTeste.getFullYear() !== Number(ano) ||
-        dataTeste.getMonth() + 1 !== Number(mes) ||
-        dataTeste.getDate() !== Number(dia)
-    ) {
-        mensagem.textContent = 'Informe uma data válida.';
-        mensagem.className = 'erro';
-        return;
-    }
-
-    try {
-    tokenAdmin = localStorage.getItem('integracao_admin_token') || '';
-
-    if (!tokenAdmin) {
-        const chave = new URLSearchParams(
-            window.location.hash.substring(1)
-        ).get('chave');
-
-        if (!chave) {
-            throw new Error('Acesso ao painel RH não autorizado.');
-        }
-
-        const respostaToken = await fetch(`${API}/api/rh/validar-painel`, {
-            method: 'POST',
-            headers: {
-                'X-RH-Panel-Key': chave
-            }
-        });
-
-        const dadosToken = await respostaToken.json();
-
-        if (!respostaToken.ok) {
-            throw new Error(dadosToken.erro || 'Falha na autenticação RH.');
-        }
-
-        tokenAdmin = dadosToken.token;
-
-        localStorage.setItem('integracao_admin_token', tokenAdmin);
-    }
-} catch (erro) {
-    mensagem.textContent = erro.message;
+    dataTeste.getFullYear() !== Number(ano) ||
+    dataTeste.getMonth() + 1 !== Number(mes) ||
+    dataTeste.getDate() !== Number(dia)
+) {
+    mensagem.textContent = 'Informe uma data válida.';
     mensagem.className = 'erro';
     return;
 }
 
-    btn.disabled = true;
-    btn.textContent = 'CADASTRANDO...';
+btn.disabled = true;
+btn.textContent = 'CADASTRANDO...';
 
-    try {
-        const resposta = await fetch(`${API}/api/usuarios`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${tokenAdmin}`
-            },
-            body: JSON.stringify({
-                nome,
-                data_admissao,
-                funcao,
-                setor,
-                whatsapp
-            })
-        });
+try {
+    const resposta = await fetch(`${API}/api/usuarios`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            nome,
+            data_admissao,
+            funcao,
+            setor,
+            whatsapp
+        })
+    });
 
         const dados = await resposta.json();
 
@@ -1030,8 +994,6 @@ async function cadastrarColaborador(event) {
         btn.disabled = false;
         btn.textContent = 'GERAR LINK DO TREINAMENTO';
     }
-}
-
         async function carregarColaboradores() {
 
             const token =
@@ -1245,7 +1207,7 @@ async function cadastrarColaborador(event) {
             }
 
         }
-
+}
         
 
 function confirmarAcaoRH(titulo, descricao, textoBotao, perigo = false) {

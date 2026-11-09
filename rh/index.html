@@ -717,12 +717,6 @@ button:disabled {
 
     <hr style="margin: 25px 0; border: none; border-top: 1px solid #ddd;">
 
-    <button
-        type="button"
-        id="btn-gerenciar"
-        onclick="carregarColaboradores()"
-    >
-
     </div>
     <script>
 
@@ -1004,8 +998,9 @@ async function cadastrarColaborador(event) {
                     'integracao_admin_token'
                 );
 
+            const token = localStorage.getItem('integracao_admin_token');
+
             if (!token) {
-                lista.innerHTML = '<p>Sessão do RH não encontrada. É necessário validar o acesso.</p>';
                 return;
             }
 
@@ -1498,14 +1493,6 @@ async function excluirColaborador(id) {
     </script>
 
 <script>
-document.addEventListener('DOMContentLoaded', async () => {
-    const lista = document.getElementById('lista-colaboradores');
-
-    if (lista) {
-        await carregarColaboradores();
-    }
-});
-
 </script>
 </body>
 </html>

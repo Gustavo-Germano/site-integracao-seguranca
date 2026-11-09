@@ -722,9 +722,7 @@ button:disabled {
 
         const API = 'https://site-integracao-seguranca.onrender.com';
 
-        let tokenAdmin = localStorage.getItem(
-            'integracao_admin_token'
-        );
+        let tokenAdmin = localStorage.getItem('integracao_admin_token') || '';
 
 
         document

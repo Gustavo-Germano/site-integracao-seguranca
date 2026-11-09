@@ -991,20 +991,13 @@ async function cadastrarColaborador(event) {
     }
 }
 
-        async function carregarColaboradores() {
+       async function carregarColaboradores() {
 
-            const token =
-                localStorage.getItem(
-                    'integracao_admin_token'
-                );
+    const token = localStorage.getItem('integracao_admin_token');
 
-            }
-            
-            const token = localStorage.getItem('integracao_admin_token');
-
-            if (!token) {
-                return;
-            }
+    if (!token) {
+        return;
+    }
 
             const lista =
                 document.getElementById(
@@ -1203,7 +1196,7 @@ async function cadastrarColaborador(event) {
 
             }
 
-        
+        }
 
 function confirmarAcaoRH(titulo, descricao, textoBotao, perigo = false) {
     return new Promise((resolve) => {

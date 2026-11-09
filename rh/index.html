@@ -715,21 +715,14 @@ button:disabled {
 
     </form>
 
-    <hr style="margin: 25px 0; border: none; border-top: 1px solid #ddd;">
+   <hr style="margin: 25px 0; border: none; border-top: 1px solid #ddd;">
 
-    <button
-        type="button"
-        id="btn-gerenciar"
-        onclick="carregarColaboradores()"
-    >
-        GERENCIAR COLABORADORES
-    </button>
+<div id="lista-colaboradores">
+    <p style="text-align:center;color:#666;">
+        Carregando colaboradores...
+    </p>
+</div>
 
-    <div id="lista-colaboradores">
-        <p style="text-align:center;color:#666;">
-            Clique em GERENCIAR COLABORADORES para visualizar os ativos.
-        </p>
-    </div>
     <script>
 
         const API = 'https://site-integracao-seguranca.onrender.com';
@@ -913,41 +906,45 @@ async function cadastrarColaborador(event) {
     const dataTeste = new Date(`${data_admissao}T00:00:00`);
 
     if (
-    dataTeste.getFullYear() !== Number(ano) ||
-    dataTeste.getMonth() + 1 !== Number(mes) ||
-    dataTeste.getDate() !== Number(dia)
-) {
-    mensagem.textContent = 'Informe uma data válida.';
-    mensagem.className = 'erro';
-    return;
-}
+        dataTeste.getFullYear() !== Number(ano) ||
+        dataTeste.getMonth() + 1 !== Number(mes) ||
+        dataTeste.getDate() !== Number(dia)
+    ) {
+        mensagem.textContent = 'Informe uma data válida.';
+        mensagem.className = 'erro';
+        return;
+    }
 
-btn.disabled = true;
-btn.textContent = 'CADASTRANDO...';
+    btn.disabled = true;
+    btn.textContent = 'CADASTRANDO...';
 
-try {
-    const resposta = await fetch(`${API}/api/usuarios`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            nome,
-            data_admissao,
-            funcao,
-            setor,
-            whatsapp
-        })
-    });
+    try {
+        const resposta = await fetch(`${API}/api/usuarios`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                nome,
+                data_admissao,
+                funcao,
+                setor,
+                whatsapp
+            })
+        });
 
         const dados = await resposta.json();
 
         if (!resposta.ok) {
-            throw new Error(dados.erro || 'Não foi possível cadastrar o colaborador.');
+            throw new Error(
+                dados.erro || 'Não foi possível cadastrar o colaborador.'
+            );
         }
 
         if (!dados.link_treinamento) {
-            throw new Error('Cadastro realizado, mas o servidor não retornou o link do treinamento.');
+            throw new Error(
+                'Cadastro realizado, mas o servidor não retornou o link do treinamento.'
+            );
         }
 
         const link = dados.link_treinamento;
@@ -973,12 +970,15 @@ try {
 
         mensagem.className = 'sucesso';
 
-        document.getElementById('copiar-link').onclick = () => {
-            navigator.clipboard.writeText(link);
+        document.getElementById('copiar-link').onclick = async () => {
+            await navigator.clipboard.writeText(link);
         };
 
         document.getElementById('enviar-whatsapp').onclick = () => {
-            window.open(`https://wa.me/?text=${mensagemWhatsApp}`, '_blank');
+            window.open(
+                `https://wa.me/?text=${mensagemWhatsApp}`,
+                '_blank'
+            );
         };
 
         document.getElementById('form-admin').reset();
@@ -994,219 +994,116 @@ try {
         btn.disabled = false;
         btn.textContent = 'GERAR LINK DO TREINAMENTO';
     }
-        async function carregarColaboradores() {
-
-            const token =
-                localStorage.getItem(
-                    'integracao_admin_token'
-                );
+}
 
 
-            if (!token) {
+// ==========================================
+// CARREGAR COLABORADORES
+// ==========================================
 
-                return;
+async function carregarColaboradores() {
+    const lista = document.getElementById('lista-colaboradores');
 
+    if (!lista) return;
+
+    const token = localStorage.getItem('integracao_admin_token');
+
+    if (!token) {
+        lista.innerHTML = '<p>Cadastro realizado. A listagem exige autenticação do RH.</p>';
+        return;
+    }
+
+    lista.innerHTML = '<p>Carregando colaboradores...</p>';
+
+    try {
+        const resposta = await fetch(`${API}/api/rh/usuarios`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
+        });
 
+        const dados = await resposta.json();
 
-            const lista =
-                document.getElementById(
-                    'lista-colaboradores'
-                );
-
-
-            lista.innerHTML =
-                '<p>Carregando colaboradores...</p>';
-
-
-            try {
-
-                const resposta = await fetch(
-                    `${API}/api/rh/usuarios`,
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    }
-                );
-
-
-                const dados =
-                    await resposta.json();
-
-
-                if (!resposta.ok) {
-
-                    throw new Error(
-                        dados.erro ||
-                        'Erro ao carregar colaboradores.'
-                    );
-
-                }
-
-
-                const colaboradores = dados.usuarios || [];
-
-
-                if (
-                    colaboradores.length === 0
-                ) {
-
-                    lista.innerHTML =
-                        '<p>Nenhum colaborador cadastrado.</p>';
-
-                    return;
-
-                }
-
-
-                lista.innerHTML =
-                    colaboradores.map(
-                        usuario => {
-
-                            const status =
-                                usuario.ativo
-                                    ? 'ATIVO'
-                                    : 'DESATIVADO';
-
-
-                            const treinamento =
-                                usuario.treinamento_concluido
-                                    ? 'CONCLUÍDO'
-                                    : 'EM ANDAMENTO';
-
-
-                            const percentual =
-                                usuario.treinamento_concluido
-                                    ? 100
-                                    : Math.round(
-                                        (
-                                            Number(
-                                                usuario.ultimo_modulo
-                                            ) / 12
-                                        ) * 100
-                                    );
-
-
-                            const botaoTexto =
-                                usuario.ativo
-                                    ? 'DESATIVAR'
-                                    : 'ATIVAR';
-
-                            const moduloAtual = Number(
-                                usuario.ultimo_modulo ?? usuario.modulo_atual ?? 0
-                            );
-
-                            const progresso = usuario.treinamento_concluido
-                                ? 100
-                                : Math.min(
-                                    99,
-                                    Math.max(0, Math.round((moduloAtual / 12) * 100))
-                                );
-
-                            return `
-                                <div class="colaborador-card">
-                                
-                                    <h3>${usuario.nome}</h3>
-                                
-                                    <p>
-                                        <strong>Admissão:</strong>
-                                        ${usuario.data_admissao || "Não informada"}
-                                    </p>
-
-                                    <p>
-                                        <strong>Função:</strong>
-                                        ${usuario.funcao || "Não informada"}
-                                    </p>
-
-                                    <p>
-                                        <strong>Setor:</strong>
-                                        ${usuario.setor || "Não informado"}
-                                    </p>
-
-                                    <p>
-                                        <strong>WhatsApp:</strong>
-                                        ${usuario.whatsapp || "Não informado"}
-                                    </p>
-                                
-                                    <p>
-                                        <strong>Status:</strong>
-                                        ${status}
-                                    </p>
-                                
-                                    <p>
-                                        <strong>Treinamento:</strong> ${treinamento}
-                                    </p>
-
-                                    <p>
-                                        <strong>Progresso:</strong> ${progresso}%
-                                    </p>
-                                
-                                    
-                                    <button
-                                        type="button"
-                                        onclick="alterarStatusUsuario(
-                                            ${usuario.id},
-                                            ${!usuario.ativo}
-                                        )"
-                                    >
-                                        ${botaoTexto}
-
-                                    </button>
-                                    ${!usuario.ativo ? `
-                                        <button
-                                            type="button"
-                                            onclick="excluirColaborador(${usuario.id})"
-                                            style="
-                                                margin-top: 10px;
-                                                background: #dc2626;
-                                            "
-                                        >
-                                            EXCLUIR COLABORADOR
-                                        </button>
-                                    ` : ''}
-                                    
-                                    <button
-                                        type="button"
-                                        onclick="resetarTreinamento(${usuario.id})"
-                                        style="
-                                            margin-top: 10px;
-                                            background: #f28c28;
-                                        "
-                                    >
-                                        RESETAR TREINAMENTO
-                                    </button>
-
-                                
-                                </div>
-                            `;
-
-                        }
-                    ).join('');
-
-
-            } catch (erro) {
-
-                console.error(
-                    'Erro:',
-                    erro
-                );
-
-
-                lista.innerHTML = `
-
-                    <p style="color:red;">
-
-                        ${erro.message}
-
-                    </p>
-
-                `;
-
-            }
-
+        if (!resposta.ok) {
+            throw new Error(
+                dados.erro || 'Erro ao carregar colaboradores.'
+            );
         }
+
+        const colaboradores = dados.usuarios || [];
+
+        if (colaboradores.length === 0) {
+            lista.innerHTML = '<p>Nenhum colaborador cadastrado.</p>';
+            return;
+        }
+
+        lista.innerHTML = colaboradores.map(usuario => {
+            const status = usuario.ativo ? 'ATIVO' : 'DESATIVADO';
+
+            const treinamento = usuario.treinamento_concluido
+                ? 'CONCLUÍDO'
+                : 'EM ANDAMENTO';
+
+            const moduloAtual = Number(
+                usuario.ultimo_modulo ?? usuario.modulo_atual ?? 0
+            );
+
+            const progresso = usuario.treinamento_concluido
+                ? 100
+                : Math.min(
+                    99,
+                    Math.max(0, Math.round((moduloAtual / 12) * 100))
+                );
+
+            const botaoTexto = usuario.ativo ? 'DESATIVAR' : 'ATIVAR';
+
+            return `
+                <div class="colaborador-card">
+                    <h3>${usuario.nome}</h3>
+
+                    <p><strong>Admissão:</strong> ${usuario.data_admissao || 'Não informada'}</p>
+                    <p><strong>Função:</strong> ${usuario.funcao || 'Não informada'}</p>
+                    <p><strong>Setor:</strong> ${usuario.setor || 'Não informado'}</p>
+                    <p><strong>WhatsApp:</strong> ${usuario.whatsapp || 'Não informado'}</p>
+                    <p><strong>Status:</strong> ${status}</p>
+                    <p><strong>Treinamento:</strong> ${treinamento}</p>
+                    <p><strong>Progresso:</strong> ${progresso}%</p>
+
+                    <button
+                        type="button"
+                        onclick="alterarStatusUsuario(${usuario.id}, ${!usuario.ativo})"
+                    >
+                        ${botaoTexto}
+                    </button>
+
+                    ${!usuario.ativo ? `
+                        <button
+                            type="button"
+                            onclick="excluirColaborador(${usuario.id})"
+                            style="margin-top:10px;background:#dc2626;"
+                        >
+                            EXCLUIR COLABORADOR
+                        </button>
+                    ` : ''}
+
+                    <button
+                        type="button"
+                        onclick="resetarTreinamento(${usuario.id})"
+                        style="margin-top:10px;background:#f28c28;"
+                    >
+                        RESETAR TREINAMENTO
+                    </button>
+                </div>
+            `;
+        }).join('');
+
+    } catch (erro) {
+        console.error('Erro ao carregar colaboradores:', erro);
+        lista.innerHTML = `
+            <p style="color:red;">${erro.message}</p>
+        `;
+    }
 }
         
 

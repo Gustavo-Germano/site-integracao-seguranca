@@ -14,40 +14,29 @@ const router = express.Router();
 // VALIDAR CHAVE E GERAR SESSÃO TEMPORÁRIA DO PAINEL RH
 // ======================================================
 
-router.post(
-    "/validar-painel",
-    (req, res) => {
-        try {
-            const token = jwt.sign(
-                {
-                    id: "painel-rh",
-                    role: "rh",
-                    perfil: "rh",
-                    tipo: "painel_rh"
-                },
-                process.env.JWT_SECRET,
-                {
-                    expiresIn: "30m"
-                }
-            );
+router.post("/validar-painel", (req, res) => {
+    const chaveRecebida = req.headers["x-rh-panel-key"];
+    const chaveCorreta = process.env.RH_PANEL_SECRET;
 
-            return res.json({
-                autorizado: true,
-                token,
-                expiraEm: 1800
-            });
-        } catch (erro) {
-            console.error(
-                "Erro ao criar sessão do painel RH:",
-                erro
-            );
-
-            return res.status(500).json({
-                erro: "Não foi possível iniciar a sessão do painel RH."
-            });
-        }
+    if (!chaveCorreta || chaveRecebida !== chaveCorreta) {
+        return res.status(401).json({
+            erro: "Acesso não autorizado ao painel RH."
+        });
     }
-);
+
+    const token = jwt.sign(
+        {
+            id: "painel-rh",
+            role: "rh",
+            perfil: "rh",
+            tipo: "painel_rh"
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: "30m" }
+    );
+
+    return res.json({ sucesso: true, token });
+});
 
 // ======================================================
 // LISTAR COLABORADORES

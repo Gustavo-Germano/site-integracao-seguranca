@@ -1010,13 +1010,10 @@ async function cadastrarColaborador(event) {
                     'integracao_admin_token'
                 );
 
-
             if (!token) {
-
+                lista.innerHTML = '<p>Sessão do RH não encontrada. É necessário validar o acesso.</p>';
                 return;
-
             }
-
 
             const lista =
                 document.getElementById(
@@ -1506,5 +1503,15 @@ async function excluirColaborador(id) {
 
     </script>
 
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const lista = document.getElementById('lista-colaboradores');
+
+    if (lista) {
+        await carregarColaboradores();
+    }
+});
+
+</script>
 </body>
 </html>

@@ -249,8 +249,6 @@ router.get(
 
 router.delete(
     "/:id",
-    autenticar,
-    permitirRoles("rh", "admin"),
     async (req, res) => {
         const client = await pool.connect();
 

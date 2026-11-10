@@ -1324,13 +1324,6 @@ async function resetarTreinamento(id) {
 }
 
 async function excluirColaborador(id) {
-    const token = localStorage.getItem('integracao_admin_token');
-
-    if (!token) {
-        alert('Sessão administrativa não encontrada.');
-        return;
-    }
-
     const confirmou = await confirmarAcaoRH(
         'Excluir colaborador?',
         'Esta exclusão é definitiva e não poderá ser desfeita. Deseja continuar?',
@@ -1342,22 +1335,21 @@ async function excluirColaborador(id) {
 
     try {
         const resposta = await fetch(`${API}/api/usuarios/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+            method: 'DELETE'
         });
 
         const dados = await resposta.json();
 
         if (!resposta.ok) {
-            throw new Error(dados.erro || 'Erro ao excluir colaborador.');
+            throw new Error(
+                dados.erro || 'Erro ao excluir colaborador.'
+            );
         }
 
         await mostrarMensagemRH(
             'Colaborador excluído!',
             dados.mensagem || 'O colaborador foi excluído com sucesso.'
-    );
+        );
 
         await carregarColaboradores();
 

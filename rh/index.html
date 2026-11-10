@@ -1228,15 +1228,6 @@ function mostrarMensagemRH(titulo, descricao, tipo = 'sucesso') {
 
         
 async function alterarStatusUsuario(id, novoStatus) {
-    const token =
-        tokenAdmin ||
-        localStorage.getItem('integracao_admin_token');
-
-    if (!token) {
-        alert('Sessão administrativa não encontrada.');
-        return;
-    }
-
     const confirmou = await confirmarAcaoRH(
         novoStatus ? 'Ativar colaborador?' : 'Desativar colaborador?',
         novoStatus
@@ -1248,20 +1239,18 @@ async function alterarStatusUsuario(id, novoStatus) {
     if (!confirmou) return;
 
     try {
-        const resposta = await fetch(`${API}/api/usuarios`, {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${tokenAdmin}`
-    },
-    body: JSON.stringify({
-        nome,
-        data_admissao,
-        funcao,
-        setor,
-        whatsapp
-    })
-});
+        const resposta = await fetch(
+            `${API}/api/rh/usuarios/${id}/status`,
+            {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ativo: novoStatus
+                })
+            }
+        );
 
         const dados = await resposta.json();
 
@@ -1275,7 +1264,7 @@ async function alterarStatusUsuario(id, novoStatus) {
             novoStatus ? 'Colaborador ativado!' : 'Colaborador desativado!',
             dados.mensagem || (
                 novoStatus
-                     ? 'O colaborador foi ativado com sucesso.'
+                    ? 'O colaborador foi ativado com sucesso.'
                     : 'O colaborador foi desativado com sucesso.'
             )
         );

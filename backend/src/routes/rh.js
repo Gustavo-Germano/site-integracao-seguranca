@@ -99,8 +99,6 @@ router.get("/usuarios", async (req, res) => {
 
 router.patch(
     "/usuarios/:id/status",
-    autenticar,
-    permitirRoles("rh", "admin"),
     async (req, res) => {
 
         const usuarioId =

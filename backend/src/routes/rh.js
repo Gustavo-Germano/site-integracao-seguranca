@@ -42,11 +42,7 @@ router.post("/validar-painel", (req, res) => {
 // LISTAR COLABORADORES
 // ======================================================
 
-router.get(
-    "/usuarios",
-    autenticar,
-    permitirRoles("rh", "admin"),
-    async (req, res) => {
+router.get("/usuarios", async (req, res) => {
 
         try {
 

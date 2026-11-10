@@ -1006,29 +1006,15 @@ async function carregarColaboradores() {
 
     if (!lista) return;
 
-    const token = localStorage.getItem('integracao_admin_token');
-
-    if (!token) {
-        lista.innerHTML = '<p>Cadastro realizado. A listagem exige autenticação do RH.</p>';
-        return;
-    }
-
     lista.innerHTML = '<p>Carregando colaboradores...</p>';
 
     try {
-        const resposta = await fetch(`${API}/api/rh/usuarios`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
+        const resposta = await fetch(`${API}/api/rh/usuarios`);
 
         const dados = await resposta.json();
 
         if (!resposta.ok) {
-            throw new Error(
-                dados.erro || 'Erro ao carregar colaboradores.'
-            );
+            throw new Error(dados.erro || 'Erro ao carregar colaboradores.');
         }
 
         const colaboradores = dados.usuarios || [];
@@ -1392,6 +1378,9 @@ async function excluirColaborador(id) {
     }
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    carregarColaboradores();
+});
 
     </script>
 

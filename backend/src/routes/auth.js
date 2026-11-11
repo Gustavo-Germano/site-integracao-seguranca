@@ -2,12 +2,9 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-
+import { enviarAvisoAcesso } from "../whatsapp.js";
 import { pool } from "../db.js";
-import {
-    autenticar,
-    permitirPerfis
-} from "../middleware/auth.js";
+import {autenticar,permitirPerfis} from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -407,6 +404,7 @@ router.get("/acesso", async (req, res) => {
 });
 
 
+
 router.post("/acesso/entrar", async (req, res) => {
     try {
         const tokenAcesso = String(req.body.token || "").trim();
@@ -419,33 +417,77 @@ router.post("/acesso/entrar", async (req, res) => {
 
         const resultado = await pool.query(
             `
-            UPDATE public.usuarios
-            SET
-                ultimo_login = CURRENT_TIMESTAMP
-            WHERE token_acesso = $1
-              AND acesso_por_link = TRUE
-              AND token_expira_em > CURRENT_TIMESTAMP
-              AND ativo = TRUE
-            RETURNING
-                id,
-                nome,
-                email,
-                perfil,
-                role,
-                treinamento_concluido,
-                modulo_atual,
-                parte_atual
+            WITH primeiro_acesso AS (
+                UPDATE public.usuarios
+                SET primeiro_acesso_em = CURRENT_TIMESTAMP
+                WHERE token_acesso = $1
+                  AND acesso_por_link = TRUE
+                  AND token_expira_em > CURRENT_TIMESTAMP
+                  AND ativo = TRUE
+                  AND primeiro_acesso_em IS NULL
+                RETURNING id
+            )
+            SELECT
+                u.id,
+                u.nome,
+                u.email,
+                u.perfil,
+                u.role,
+                u.treinamento_concluido,
+                u.modulo_atual,
+                u.parte_atual,
+                u.primeiro_acesso_em,
+                EXISTS (
+                    SELECT 1 FROM primeiro_acesso
+                ) AS primeiro_acesso
+            FROM public.usuarios u
+            WHERE u.token_acesso = $1
+              AND u.acesso_por_link = TRUE
+              AND u.token_expira_em > CURRENT_TIMESTAMP
+              AND u.ativo = TRUE
+            LIMIT 1
             `,
             [tokenAcesso]
         );
 
         if (resultado.rows.length === 0) {
             return res.status(403).json({
-                erro: "Link inválido, expirado ou já utilizado."
+                erro: "Link inválido, expirado ou acesso desativado."
             });
         }
 
         const usuario = resultado.rows[0];
+
+        // Mantém o registro do último acesso
+        await pool.query(
+            `
+            UPDATE public.usuarios
+            SET ultimo_login = CURRENT_TIMESTAMP
+            WHERE id = $1
+            `,
+            [usuario.id]
+        );
+
+        // Envia o aviso somente no primeiro acesso
+        if (usuario.primeiro_acesso) {
+            const dataAcesso = new Date(
+                usuario.primeiro_acesso_em
+            ).toLocaleString("pt-BR", {
+                timeZone: "America/Sao_Paulo"
+            });
+
+            try {
+                await enviarAvisoAcesso(
+                    usuario.nome,
+                    dataAcesso
+                );
+            } catch (erroWhatsApp) {
+                console.error(
+                    "Falha ao avisar Marcos pelo WhatsApp:",
+                    erroWhatsApp
+                );
+            }
+        }
 
         const token = jwt.sign(
             {

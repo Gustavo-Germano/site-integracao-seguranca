@@ -1,0 +1,636 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Individual do RH</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f1f5f9;
+            color: #1e293b;
+            min-height: 100vh;
+            padding: 30px 16px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: #0f172a;
+            color: white;
+            padding: 28px;
+            border-radius: 14px;
+            margin-bottom: 22px;
+        }
+
+        header h1 {
+            font-size: 25px;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 14px;
+            margin-bottom: 18px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.05);
+        }
+
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 18px;
+            color: #0f172a;
+        }
+
+        .dados {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .campo small {
+            display: block;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .campo strong {
+            display: block;
+            font-size: 15px;
+            overflow-wrap: anywhere;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .ativo {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .inativo {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .progresso-item {
+            padding: 13px 0;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .progresso-item:last-child {
+            border-bottom: none;
+        }
+
+        .concluido {
+            color: #15803d;
+            font-weight: bold;
+        }
+
+        .pendente {
+            color: #64748b;
+        }
+
+        .botoes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        button {
+            border: none;
+            padding: 13px 18px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        button:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .btn-desativar {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn-ativar {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .mensagem {
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            display: none;
+            line-height: 1.5;
+        }
+
+        .erro {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .sucesso {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .centralizado {
+            text-align: center;
+            padding: 35px 15px;
+            color: #64748b;
+        }
+
+        footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 12px;
+            padding: 20px 0;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 16px 10px;
+            }
+
+            header {
+                padding: 22px;
+            }
+
+            header h1 {
+                font-size: 21px;
+            }
+
+            .card {
+                padding: 19px;
+            }
+
+            .dados {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .progresso-item {
+                font-size: 13px;
+            }
+
+            .botoes button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+        <h1>Painel Individual do RH</h1>
+        <p>Acompanhamento do treinamento do colaborador</p>
+    </header>
+
+    <div id="mensagem" class="mensagem"></div>
+
+    <div id="carregando" class="card centralizado">
+        Validando acesso e carregando informações...
+    </div>
+
+    <div id="painel" style="display:none;">
+
+        <section class="card">
+            <h2>Dados do colaborador</h2>
+
+            <div class="dados">
+                <div class="campo">
+                    <small>Nome</small>
+                    <strong id="nome">-</strong>
+                </div>
+
+                <div class="campo">
+                    <small>E-mail</small>
+                    <strong id="email">-</strong>
+                </div>
+
+                <div class="campo">
+                    <small>Data de admissão</small>
+                    <strong id="admissao">-</strong>
+                </div>
+
+                <div class="campo">
+                    <small>Função</small>
+                    <strong id="funcao">-</strong>
+                </div>
+
+                <div class="campo">
+                    <small>Setor</small>
+                    <strong id="setor">-</strong>
+                </div>
+
+                <div class="campo">
+                    <small>WhatsApp</small>
+                    <strong id="whatsapp">-</strong>
+                </div>
+
+                <div class="campo">
+                    <small>Primeiro acesso</small>
+                    <strong id="primeiro-acesso">Ainda não acessou</strong>
+                </div>
+
+                <div class="campo">
+                    <small>Último acesso</small>
+                    <strong id="ultimo-acesso">Ainda não acessou</strong>
+                </div>
+
+                <div class="campo">
+                    <small>Status do colaborador</small>
+                    <strong id="status-colaborador">-</strong>
+                </div>
+
+                <div class="campo">
+                    <small>Treinamento</small>
+                    <strong id="status-treinamento">-</strong>
+                </div>
+
+                <div class="campo">
+                    <small>Conclusão</small>
+                    <strong id="data-conclusao">-</strong>
+                </div>
+
+                <div class="campo">
+                    <small>Módulo atual</small>
+                    <strong id="modulo-atual">-</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Progresso do treinamento</h2>
+            <div id="lista-progresso"></div>
+        </section>
+
+
+        <section class="card">
+            <h2>Link de treinamento</h2>
+        
+            <p style="font-size:14px;color:#64748b;margin-bottom:14px;">
+                Copie ou encaminhe o acesso para o colaborador realizar o treinamento.
+            </p>
+        
+            <a
+                id="link-treinamento"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="display:block;color:#047857;font-weight:bold;word-break:break-all;margin-bottom:18px;"
+            >
+                Carregando link...
+            </a>
+        
+            <div class="botoes">
+                <button type="button" onclick="copiarLinkTreinamento()">
+                    COPIAR LINK
+                </button>
+            
+                <button type="button" onclick="enviarLinkWhatsApp()">
+                    ENVIAR PELO WHATSAPP
+                </button>
+            </div>
+        </section>
+
+
+        <section class="card">
+            <h2>Gerenciar acesso</h2>
+            <p style="font-size:14px;color:#64748b;margin-bottom:18px;">
+                Você pode ativar ou desativar o acesso deste colaborador ao treinamento.
+            </p>
+
+            <div class="botoes">
+                <button
+                    id="btn-status"
+                    class="btn-desativar"
+                    onclick="alterarStatus()">
+                    DESATIVAR COLABORADOR
+                </button>
+            </div>
+        </section>
+
+    </div>
+
+    <footer>
+        Integração de Segurança
+    </footer>
+
+</div>
+
+<script>
+    const API = "https://site-integracao-seguranca.onrender.com";
+
+    let tokenSessao = null;
+    let colaboradorAtual = null;
+    let linkTreinamentoAtual = null;
+
+    function mostrarMensagem(texto, tipo = "erro") {
+        const elemento = document.getElementById("mensagem");
+
+        elemento.textContent = texto;
+        elemento.className = "mensagem " + tipo;
+        elemento.style.display = "block";
+    }
+
+    function esconderCarregamento() {
+        document.getElementById("carregando").style.display = "none";
+    }
+
+    function formatarData(data) {
+        if (!data) return "-";
+
+        const dataObj = new Date(data);
+
+        if (isNaN(dataObj.getTime())) return "-";
+
+        return dataObj.toLocaleString("pt-BR");
+    }
+
+    function formatarDataSimples(data) {
+        if (!data) return "-";
+
+        const partes = String(data).slice(0, 10).split("-");
+
+        if (partes.length !== 3) return "-";
+
+        return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    }
+
+    function preencherDados(c) {
+        document.getElementById("nome").textContent = c.nome || "-";
+        document.getElementById("email").textContent = c.email || "-";
+        document.getElementById("admissao").textContent =
+            formatarDataSimples(c.data_admissao);
+
+        document.getElementById("funcao").textContent = c.funcao || "-";
+        document.getElementById("setor").textContent = c.setor || "-";
+        document.getElementById("whatsapp").textContent = c.whatsapp || "-";
+
+        document.getElementById("primeiro-acesso").textContent =
+            formatarData(c.primeiro_acesso_em);
+
+        document.getElementById("ultimo-acesso").textContent =
+            formatarData(c.ultimo_login);
+
+        const status = document.getElementById("status-colaborador");
+
+        status.innerHTML = "";
+
+        const etiqueta = document.createElement("span");
+        etiqueta.className = "status " + (c.ativo ? "ativo" : "inativo");
+        etiqueta.textContent = c.ativo ? "ATIVO" : "DESATIVADO";
+
+        status.appendChild(etiqueta);
+
+        document.getElementById("status-treinamento").textContent =
+            c.treinamento_concluido ? "CONCLUÍDO" : "EM ANDAMENTO";
+
+        document.getElementById("data-conclusao").textContent =
+            formatarData(c.concluido_em);
+
+        document.getElementById("modulo-atual").textContent =
+            c.treinamento_concluido
+                ? "Treinamento finalizado"
+                : `Módulo ${c.modulo_atual || 1} - Parte ${c.parte_atual ?? 0}`;
+
+        const botao = document.getElementById("btn-status");
+
+        botao.textContent = c.ativo
+            ? "DESATIVAR COLABORADOR"
+            : "REATIVAR COLABORADOR";
+
+        botao.className = c.ativo
+            ? "btn-desativar"
+            : "btn-ativar";
+    }
+
+    function preencherProgresso(lista) {
+        const container = document.getElementById("lista-progresso");
+
+        container.innerHTML = "";
+
+        if (!lista || lista.length === 0) {
+            container.textContent =
+                "Ainda não existem registros de progresso.";
+            return;
+        }
+
+        lista.forEach(item => {
+            const linha = document.createElement("div");
+            linha.className = "progresso-item";
+
+            const descricao = document.createElement("span");
+            descricao.textContent =
+                `Módulo ${item.modulo} - Parte ${item.parte}`;
+
+            const status = document.createElement("strong");
+            status.className = item.concluido ? "concluido" : "pendente";
+            status.textContent = item.concluido ? "CONCLUÍDO" : "PENDENTE";
+
+            linha.appendChild(descricao);
+            linha.appendChild(status);
+
+            container.appendChild(linha);
+        });
+    }
+
+    async function carregarPainel() {
+        try {
+            const resposta = await fetch(`${API}/api/rh/acesso/me`, {
+                headers: {
+                    Authorization: `Bearer ${tokenSessao}`
+                }
+            });
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(dados.mensagem || "Não foi possível carregar os dados.");
+            }
+
+            colaboradorAtual = dados.colaborador;
+            linkTreinamentoAtual = dados.link_treinamento;
+
+            preencherDados(dados.colaborador);
+            preencherProgresso(dados.progresso);
+
+            const elementoLink = document.getElementById("link-treinamento");
+
+            if (linkTreinamentoAtual) {
+                elementoLink.href = linkTreinamentoAtual;
+                elementoLink.textContent = linkTreinamentoAtual;
+            } else {
+                elementoLink.removeAttribute("href");
+                elementoLink.textContent = "Link de treinamento indisponível.";
+            }
+
+            document.getElementById("painel").style.display = "block";
+            esconderCarregamento();
+
+        } catch (erro) {
+            esconderCarregamento();
+            mostrarMensagem(erro.message);
+        }
+    }
+
+
+async function copiarLinkTreinamento() {
+    if (!linkTreinamentoAtual) {
+        mostrarMensagem("Link de treinamento indisponível.");
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(linkTreinamentoAtual);
+        mostrarMensagem("Link de treinamento copiado!", "sucesso");
+    } catch (erro) {
+        mostrarMensagem("Não foi possível copiar o link. Copie diretamente o endereço exibido.");
+    }
+}
+
+function enviarLinkWhatsApp() {
+    if (!linkTreinamentoAtual) {
+        mostrarMensagem("Link de treinamento indisponível.");
+        return;
+    }
+
+    const nome = colaboradorAtual?.nome || "colaborador";
+
+    const texto = encodeURIComponent(
+        `Olá, ${nome}! Segue seu link para acessar o treinamento de Integração de Segurança:\n\n${linkTreinamentoAtual}`
+    );
+
+    window.open(
+        `https://wa.me/?text=${texto}`,
+        "_blank"
+    );
+}
+
+
+    async function validarAcesso() {
+        try {
+            const parametros = new URLSearchParams(window.location.search);
+            const tokenUrl = parametros.get("token");
+
+            if (tokenUrl) {
+                const resposta = await fetch(`${API}/api/rh/acesso/validar`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ token: tokenUrl })
+                });
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok) {
+                    throw new Error(dados.mensagem || "Link inválido.");
+                }
+
+                tokenSessao = dados.token;
+
+                // Remove o token original da barra de endereço.
+                window.history.replaceState({}, document.title, window.location.pathname);
+
+                // Mantém somente a sessão temporária nesta aba.
+                sessionStorage.setItem("rh_sessao_individual", tokenSessao);
+
+            } else {
+                tokenSessao = sessionStorage.getItem("rh_sessao_individual");
+            }
+
+            if (!tokenSessao) {
+                throw new Error("Acesse o painel utilizando o link individual enviado pelo administrador.");
+            }
+
+            await carregarPainel();
+
+        } catch (erro) {
+            esconderCarregamento();
+            mostrarMensagem(erro.message);
+        }
+    }
+
+    async function alterarStatus() {
+        if (!colaboradorAtual) return;
+
+        const novoStatus = !colaboradorAtual.ativo;
+
+        const confirmacao = confirm(
+            novoStatus
+                ? "Deseja reativar o acesso deste colaborador?"
+                : "Deseja desativar o acesso deste colaborador?"
+        );
+
+        if (!confirmacao) return;
+
+        const botao = document.getElementById("btn-status");
+        botao.disabled = true;
+
+        try {
+            const resposta = await fetch(`${API}/api/rh/acesso/status`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${tokenSessao}`
+                },
+                body: JSON.stringify({ ativo: novoStatus })
+            });
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(dados.mensagem || "Não foi possível alterar o status.");
+            }
+
+            mostrarMensagem(dados.mensagem, "sucesso");
+
+            await carregarPainel();
+
+        } catch (erro) {
+            mostrarMensagem(erro.message);
+        } finally {
+            botao.disabled = false;
+        }
+    }
+
+    validarAcesso();
+</script>
+
+</body>
+</html>

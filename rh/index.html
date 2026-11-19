@@ -880,6 +880,8 @@ button:disabled {
         }
 
     
+
+
 async function cadastrarColaborador(event) {
     event.preventDefault();
 
@@ -894,6 +896,15 @@ async function cadastrarColaborador(event) {
 
     mensagem.textContent = '';
     mensagem.className = '';
+
+    const token = tokenAdmin ||
+        localStorage.getItem('integracao_admin_token');
+
+    if (!token) {
+        mensagem.textContent = 'Faça login como administrador para cadastrar.';
+        mensagem.className = 'erro';
+        return;
+    }
 
     if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dataDigitada)) {
         mensagem.textContent = 'Informe a data no formato DD/MM/AAAA.';
@@ -922,7 +933,8 @@ async function cadastrarColaborador(event) {
         const resposta = await fetch(`${API}/api/usuarios`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 nome,
@@ -941,37 +953,45 @@ async function cadastrarColaborador(event) {
             );
         }
 
-        if (!dados.link_treinamento) {
+        const linkPainelRh = dados.link_painel_rh;
+
+        if (!linkPainelRh) {
             throw new Error(
-                'Cadastro realizado, mas o servidor não retornou o link do treinamento.'
+                'Cadastro realizado, mas o servidor não retornou o link do painel RH.'
             );
         }
 
-        const link = dados.link_treinamento;
         const mensagemWhatsApp = encodeURIComponent(
-            'Acesse seu treinamento de Integração de Segurança: ' + link
+            `Acesso ao painel individual do RH.\n` +
+            `Colaborador: ${nome}\n` +
+            `Link para acessar: ${linkPainelRh}`
         );
 
         mensagem.innerHTML = `
             <strong>✓ COLABORADOR CADASTRADO!</strong>
             <br><br>
-            Link do treinamento:
+            <strong>Link do painel individual do RH:</strong>
             <br>
-            <a href="${link}" target="_blank" rel="noopener noreferrer"
+            <a href="${linkPainelRh}" target="_blank" rel="noopener noreferrer"
                style="color:#047857;font-weight:700;word-break:break-all;">
-                ${link}
+                ${linkPainelRh}
             </a>
             <br><br>
-            <button type="button" id="copiar-link">COPIAR LINK</button>
+            <button type="button" id="copiar-link">COPIAR LINK DO RH</button>
             <button type="button" id="enviar-whatsapp" style="margin-top:10px;">
-                ENVIAR PELO WHATSAPP
+                ENVIAR LINK AO RH PELO WHATSAPP
             </button>
         `;
 
         mensagem.className = 'sucesso';
 
         document.getElementById('copiar-link').onclick = async () => {
-            await navigator.clipboard.writeText(link);
+            try {
+                await navigator.clipboard.writeText(linkPainelRh);
+                alert('Link do painel RH copiado!');
+            } catch (erro) {
+                alert('Não foi possível copiar automaticamente. Copie o link exibido na tela.');
+            }
         };
 
         document.getElementById('enviar-whatsapp').onclick = () => {
@@ -983,8 +1003,6 @@ async function cadastrarColaborador(event) {
 
         document.getElementById('form-admin').reset();
 
-        await carregarColaboradores();
-
     } catch (erro) {
         console.error('Erro no cadastro:', erro);
         mensagem.textContent = '❌ ' + erro.message;
@@ -992,24 +1010,38 @@ async function cadastrarColaborador(event) {
 
     } finally {
         btn.disabled = false;
-        btn.textContent = 'GERAR LINK DO TREINAMENTO';
+        btn.textContent = 'GERAR LINK DO PAINEL RH';
     }
 }
+
 
 
 // ==========================================
 // CARREGAR COLABORADORES
 // ==========================================
 
+
 async function carregarColaboradores() {
     const lista = document.getElementById('lista-colaboradores');
 
     if (!lista) return;
 
+    const token = localStorage.getItem('integracao_admin_token');
+
+    if (!token) {
+        lista.innerHTML = '<p>Faça login como administrador.</p>';
+        return;
+    }
+
     lista.innerHTML = '<p>Carregando colaboradores...</p>';
 
     try {
-        const resposta = await fetch(`${API}/api/rh/usuarios`);
+        const resposta = await fetch(`${API}/api/rh/usuarios`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
 
         const dados = await resposta.json();
 
@@ -1026,22 +1058,6 @@ async function carregarColaboradores() {
 
         lista.innerHTML = colaboradores.map(usuario => {
             const status = usuario.ativo ? 'ATIVO' : 'DESATIVADO';
-
-            const treinamento = usuario.treinamento_concluido
-                ? 'CONCLUÍDO'
-                : 'EM ANDAMENTO';
-
-            const moduloAtual = Number(
-                usuario.ultimo_modulo ?? usuario.modulo_atual ?? 0
-            );
-
-            const progresso = usuario.treinamento_concluido
-                ? 100
-                : Math.min(
-                    99,
-                    Math.max(0, Math.round((moduloAtual / 12) * 100))
-                );
-
             const botaoTexto = usuario.ativo ? 'DESATIVAR' : 'ATIVAR';
 
             return `
@@ -1053,8 +1069,6 @@ async function carregarColaboradores() {
                     <p><strong>Setor:</strong> ${usuario.setor || 'Não informado'}</p>
                     <p><strong>WhatsApp:</strong> ${usuario.whatsapp || 'Não informado'}</p>
                     <p><strong>Status:</strong> ${status}</p>
-                    <p><strong>Treinamento:</strong> ${treinamento}</p>
-                    <p><strong>Progresso:</strong> ${progresso}%</p>
 
                     <button
                         type="button"
@@ -1062,35 +1076,16 @@ async function carregarColaboradores() {
                     >
                         ${botaoTexto}
                     </button>
-
-                    ${!usuario.ativo ? `
-                        <button
-                            type="button"
-                            onclick="excluirColaborador(${usuario.id})"
-                            style="margin-top:10px;background:#dc2626;"
-                        >
-                            EXCLUIR COLABORADOR
-                        </button>
-                    ` : ''}
-
-                    <button
-                        type="button"
-                        onclick="resetarTreinamento(${usuario.id})"
-                        style="margin-top:10px;background:#f28c28;"
-                    >
-                        RESETAR TREINAMENTO
-                    </button>
                 </div>
             `;
         }).join('');
 
     } catch (erro) {
         console.error('Erro ao carregar colaboradores:', erro);
-        lista.innerHTML = `
-            <p style="color:red;">${erro.message}</p>
-        `;
+        lista.innerHTML = `<p style="color:red;">${erro.message}</p>`;
     }
 }
+
         
 
 function confirmarAcaoRH(titulo, descricao, textoBotao, perigo = false) {
@@ -1227,7 +1222,15 @@ function mostrarMensagemRH(titulo, descricao, tipo = 'sucesso') {
 
 
         
+
 async function alterarStatusUsuario(id, novoStatus) {
+    const token = localStorage.getItem('integracao_admin_token');
+
+    if (!token) {
+        alert('Sessão administrativa não encontrada.');
+        return;
+    }
+
     const confirmou = await confirmarAcaoRH(
         novoStatus ? 'Ativar colaborador?' : 'Desativar colaborador?',
         novoStatus
@@ -1244,7 +1247,8 @@ async function alterarStatusUsuario(id, novoStatus) {
             {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     ativo: novoStatus
@@ -1255,18 +1259,12 @@ async function alterarStatusUsuario(id, novoStatus) {
         const dados = await resposta.json();
 
         if (!resposta.ok) {
-            throw new Error(
-                dados.erro || 'Erro ao alterar status.'
-            );
+            throw new Error(dados.erro || 'Erro ao alterar status.');
         }
 
         await mostrarMensagemRH(
             novoStatus ? 'Colaborador ativado!' : 'Colaborador desativado!',
-            dados.mensagem || (
-                novoStatus
-                    ? 'O colaborador foi ativado com sucesso.'
-                    : 'O colaborador foi desativado com sucesso.'
-            )
+            dados.mensagem
         );
 
         await carregarColaboradores();

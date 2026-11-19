@@ -2,13 +2,16 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { pool } from "../db.js";
-
 import {
     autenticar,
     permitirRoles
 } from "../middleware/auth.js";
 
 const router = express.Router();
+
+const FRONTEND_URL =
+    process.env.FRONTEND_URL ||
+    "https://site-integracao-seguranca-1.onrender.com";
 
 
 /*
@@ -28,9 +31,15 @@ const router = express.Router();
 |
 */
 
+
 router.post(
     "/",
+    autenticar,
+    permitirRoles("admin"),
     async (req, res) => {
+        const client = await pool.connect();
+        let transacaoIniciada = false;
+
         try {
             const {
                 nome,
@@ -46,7 +55,12 @@ router.post(
                 });
             }
 
+            // Inicia transação
+            await client.query("BEGIN");
+            transacaoIniciada = true;
+
             // Gera usuário de login
+            
             const nomeBase = nome
                 .normalize("NFD")
                 .replace(/[\u0300-\u036f]/g, "")
@@ -58,7 +72,7 @@ router.post(
             let contador = 1;
 
             while (true) {
-                const loginExistente = await pool.query(
+                const loginExistente = await client.query(
                     `SELECT id
                      FROM public.usuarios
                      WHERE usuario_login = $1`,
@@ -80,9 +94,11 @@ router.post(
                 primeiroNome.charAt(0).toLocaleUpperCase("pt-BR") +
                 primeiroNome.slice(1).toLocaleLowerCase("pt-BR");
 
+            
             const numeros = String(
-                Math.floor(Math.random() * 10000)
+                crypto.randomInt(0, 10000)
             ).padStart(4, "0");
+            
 
             const senhaTemporaria = `${nomeSenha}${numeros}`;
 
@@ -96,8 +112,19 @@ router.post(
                 .randomBytes(32)
                 .toString("hex");
 
+            // Gera token exclusivo do painel RH
+            const tokenRh = crypto
+                .randomBytes(32)
+                .toString("hex");
+
+            // Armazena somente o hash do token RH
+            const tokenRhHash = crypto
+                .createHash("sha256")
+                .update(tokenRh)
+                .digest("hex");
+
             // Cadastra colaborador
-            const resultado = await pool.query(
+            const resultado = await client.query(
                 `
                 INSERT INTO public.usuarios
                 (
@@ -131,7 +158,7 @@ router.post(
                     1,
                     0
                 )
-                RETURNING *
+                RETURNING id
                 `,
                 [
                     nome.trim(),
@@ -145,20 +172,52 @@ router.post(
                 ]
             );
 
-            const linkTreinamento =
-                `${process.env.FRONTEND_URL || "https://site-integracao-seguranca-1.onrender.com"}/?acesso=${encodeURIComponent(tokenAcesso)}`;
+            // Registra o acesso individual do RH
+            await client.query(
+                `
+                INSERT INTO public.rh_acessos
+                (
+                    usuario_id,
+                    token_hash,
+                    criado_por,
+                    expira_em
+                )
+                VALUES (
+                    $1,
+                    $2,
+                    $3,
+                    CURRENT_TIMESTAMP + INTERVAL '90 days'
+                )
+                `,
+                [
+                    resultado.rows[0].id,
+                    tokenRhHash,
+                    req.usuario.id
+                ]
+            );
+
+            // Confirma as duas operações
+            await client.query("COMMIT");
+            transacaoIniciada = false;
+
+            // Monta o link individual do RH
+            const linkPainelRh =
+                `${FRONTEND_URL}/rh/acesso.html?token=${encodeURIComponent(tokenRh)}`;
 
             return res.status(201).json({
                 mensagem: "Colaborador cadastrado com sucesso.",
-                usuario: resultado.rows[0],
                 credenciais: {
                     usuario_login: usuarioLogin,
                     senha_temporaria: senhaTemporaria
                 },
-                link_treinamento: linkTreinamento
+                link_painel_rh: linkPainelRh
             });
 
         } catch (erro) {
+            if (transacaoIniciada) {
+                await client.query("ROLLBACK");
+            }
+
             console.error("Erro ao criar colaborador:", erro);
 
             if (erro.code === "23505") {
@@ -170,10 +229,15 @@ router.post(
             return res.status(500).json({
                 erro: "Erro interno do servidor."
             });
+
+        } finally {
+            client.release();
         }
     }
 );
 
+
+    
 /*
 |--------------------------------------------------------------------------
 | USUÁRIO LOGADO
@@ -247,10 +311,14 @@ router.get(
 );
 
 
+
 router.delete(
     "/:id",
+    autenticar,
+    permitirRoles("admin"),
     async (req, res) => {
         const client = await pool.connect();
+        let transacaoIniciada = false;
 
         try {
             const id = Number(req.params.id);
@@ -262,9 +330,10 @@ router.delete(
             }
 
             await client.query("BEGIN");
+            transacaoIniciada = true;
 
             const resultado = await client.query(
-                `SELECT id, perfil, role, ativo
+                `SELECT id, perfil, role
                  FROM public.usuarios
                  WHERE id = $1
                  FOR UPDATE`,
@@ -273,6 +342,8 @@ router.delete(
 
             if (resultado.rows.length === 0) {
                 await client.query("ROLLBACK");
+                transacaoIniciada = false;
+
                 return res.status(404).json({
                     erro: "Colaborador não encontrado."
                 });
@@ -285,48 +356,53 @@ router.delete(
                 usuario.role !== "colaborador"
             ) {
                 await client.query("ROLLBACK");
+                transacaoIniciada = false;
+
                 return res.status(403).json({
-                    erro: "Somente colaboradores podem ser excluídos."
-                });
-            }
-
-            if (usuario.ativo) {
-                await client.query("ROLLBACK");
-                return res.status(409).json({
-                    erro: "Desative o colaborador antes de excluí-lo."
+                    erro: "Somente colaboradores podem ser desativados."
                 });
             }
 
             await client.query(
-                `DELETE FROM public.progresso
-                 WHERE usuario_id = $1`,
-                [id]
-            );
-
-            await client.query(
-                `DELETE FROM public.usuarios
+                `UPDATE public.usuarios
+                 SET ativo = FALSE,
+                     atualizado_em = CURRENT_TIMESTAMP
                  WHERE id = $1`,
                 [id]
             );
 
+            await client.query(
+                `UPDATE public.rh_acessos
+                 SET revogado_em = CURRENT_TIMESTAMP
+                 WHERE usuario_id = $1
+                   AND revogado_em IS NULL`,
+                [id]
+            );
+
             await client.query("COMMIT");
+            transacaoIniciada = false;
 
             return res.json({
-                mensagem: "Colaborador excluído com sucesso."
+                mensagem: "Colaborador desativado e acessos RH revogados. Histórico preservado."
             });
-        } catch (erro) {
-            await client.query("ROLLBACK");
 
-            console.error("Erro ao excluir colaborador:", erro);
+        } catch (erro) {
+            if (transacaoIniciada) {
+                await client.query("ROLLBACK");
+            }
+
+            console.error("Erro ao desativar colaborador:", erro);
 
             return res.status(500).json({
-                erro: "Não foi possível excluir o colaborador. Verifique se existem outros registros vinculados."
+                erro: "Não foi possível desativar o colaborador."
             });
+
         } finally {
             client.release();
         }
     }
 );
+
 
 
 export default router;

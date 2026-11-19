@@ -882,6 +882,7 @@ button:disabled {
     
 
 
+
 async function cadastrarColaborador(event) {
     event.preventDefault();
 
@@ -896,15 +897,6 @@ async function cadastrarColaborador(event) {
 
     mensagem.textContent = '';
     mensagem.className = '';
-
-    const token = tokenAdmin ||
-        localStorage.getItem('integracao_admin_token');
-
-    if (!token) {
-        mensagem.textContent = 'Faça login como administrador para cadastrar.';
-        mensagem.className = 'erro';
-        return;
-    }
 
     if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dataDigitada)) {
         mensagem.textContent = 'Informe a data no formato DD/MM/AAAA.';
@@ -933,8 +925,7 @@ async function cadastrarColaborador(event) {
         const resposta = await fetch(`${API}/api/usuarios`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 nome,
@@ -949,7 +940,7 @@ async function cadastrarColaborador(event) {
 
         if (!resposta.ok) {
             throw new Error(
-                dados.erro || 'Não foi possível cadastrar o colaborador.'
+                dados.erro || dados.mensagem || 'Não foi possível cadastrar o colaborador.'
             );
         }
 
@@ -1010,9 +1001,10 @@ async function cadastrarColaborador(event) {
 
     } finally {
         btn.disabled = false;
-        btn.textContent = 'GERAR LINK DO PAINEL RH';
+        btn.textContent = 'GERAR LINK DO TREINAMENTO';
     }
 }
+
 
 
 

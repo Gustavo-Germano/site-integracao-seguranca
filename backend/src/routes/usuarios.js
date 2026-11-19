@@ -34,8 +34,6 @@ const FRONTEND_URL =
 
 router.post(
     "/",
-    autenticar,
-    permitirRoles("admin"),
     async (req, res) => {
         const client = await pool.connect();
         let transacaoIniciada = false;
@@ -98,7 +96,7 @@ router.post(
             const numeros = String(
                 crypto.randomInt(0, 10000)
             ).padStart(4, "0");
-            
+
 
             const senhaTemporaria = `${nomeSenha}${numeros}`;
 
@@ -192,7 +190,7 @@ router.post(
                 [
                     resultado.rows[0].id,
                     tokenRhHash,
-                    req.usuario.id
+                    null
                 ]
             );
 

@@ -11,6 +11,34 @@ import {
 
 const router = express.Router();
 
+// Acesso privado ao painel administrativo
+router.get("/validar-admin-painel", (req, res) => {
+    const chaveRecebida = req.query.chave;
+    const chaveCorreta = process.env.ADMIN_PANEL_SECRET;
+
+    if (!chaveCorreta || chaveRecebida !== chaveCorreta) {
+        return res.status(401).json({
+            erro: "Acesso não autorizado."
+        });
+    }
+
+    const token = jwt.sign(
+        {
+            id: "painel-admin",
+            role: "admin",
+            perfil: "admin",
+            tipo: "admin_panel"
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: "12h" }
+    );
+
+    return res.json({
+        sucesso: true,
+        token
+    });
+});
+
 // ======================================================
 // VALIDAR CHAVE E GERAR SESSÃO TEMPORÁRIA DO PAINEL RH
 // ======================================================

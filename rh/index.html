@@ -788,8 +788,9 @@ button:disabled {
                         method: 'POST',
 
                         headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${tokenAdmin}`
+                    },
 
                         body: JSON.stringify({
 
@@ -1349,8 +1350,66 @@ async function excluirColaborador(id) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    carregarColaboradores();
+document.addEventListener('DOMContentLoaded', async () => {
+    const lista = document.getElementById('lista-colaboradores');
+
+    try {
+        lista.innerHTML = '<p>Carregando colaboradores...</p>';
+
+        const parametros = new URLSearchParams(
+            window.location.hash.slice(1)
+        );
+
+        const chave = parametros.get('chave');
+
+        if (chave) {
+            const resposta = await fetch(
+                `${API}/api/rh/validar-admin-painel?chave=${encodeURIComponent(chave)}`
+            );
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(dados.erro || 'Link privado inválido.');
+            }
+
+            tokenAdmin = dados.token;
+
+            localStorage.setItem(
+                'integracao_admin_token',
+                dados.token
+            );
+
+            // Remove a chave da barra de endereço
+            history.replaceState(
+                null,
+                '',
+                window.location.pathname + window.location.search
+            );
+
+        } else {
+            tokenAdmin = localStorage.getItem(
+                'integracao_admin_token'
+            );
+        }
+
+        if (!tokenAdmin) {
+            throw new Error(
+                'Acesso expirado. Abra novamente o link privado do painel.'
+            );
+        }
+
+        await carregarColaboradores();
+
+    } catch (erro) {
+        console.error('Erro ao abrir painel:', erro);
+
+        lista.innerHTML = `
+            <p style="color:red;text-align:center;">
+                ${erro.message}
+            </p>
+        `;
+    }
 });
 
     </script>

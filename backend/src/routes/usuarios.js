@@ -362,18 +362,8 @@ router.delete(
             }
 
             await client.query(
-                `UPDATE public.usuarios
-                 SET ativo = FALSE,
-                     atualizado_em = CURRENT_TIMESTAMP
+                `DELETE FROM public.usuarios
                  WHERE id = $1`,
-                [id]
-            );
-
-            await client.query(
-                `UPDATE public.rh_acessos
-                 SET revogado_em = CURRENT_TIMESTAMP
-                 WHERE usuario_id = $1
-                   AND revogado_em IS NULL`,
                 [id]
             );
 

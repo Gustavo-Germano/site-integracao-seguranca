@@ -1063,14 +1063,26 @@ async function carregarColaboradores() {
                     <p><strong>WhatsApp:</strong> ${usuario.whatsapp || 'Não informado'}</p>
                     <p><strong>Status:</strong> ${status}</p>
 
-                    <button
-                        type="button"
-                        onclick="alterarStatusUsuario(${usuario.id}, ${!usuario.ativo})"
-                    >
-                        ${botaoTexto}
-                    </button>
-                </div>
-            `;
+        <button
+            type="button"
+            onclick="alterarStatusUsuario(${usuario.id}, ${!usuario.ativo})"
+        >
+            ${botaoTexto}
+        </button>
+
+        ${!usuario.ativo ? `
+            <button
+                type="button"
+                class="btn-excluir"
+                onclick="excluirColaborador(${usuario.id})"
+            >
+                EXCLUIR COLABORADOR
+            </button>
+        ` : ''}
+
+        </div>
+        `;
+        
         }).join('');
 
     } catch (erro) {

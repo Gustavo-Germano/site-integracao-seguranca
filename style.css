@@ -520,7 +520,16 @@ body.modo-login #btn-reset {
     display: none !important;
 }
 
+.btn-excluir {
+    margin-top: 12px;
+    background: #dc2626;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, .15);
+}
 
+button.btn-excluir:hover:not(:disabled) {
+    background: #b91c1c;
+    box-shadow: 0 8px 18px rgba(220, 38, 38, .20);
+}
 /* =========================================
    ANIMAÇÃO SUAVE DOS CAMPOS DE LOGIN
    ========================================= */

@@ -370,7 +370,7 @@ router.get("/acesso", async (req, res) => {
             FROM public.usuarios
             WHERE token_acesso = $1
               AND acesso_por_link = TRUE
-              AND token_expira_em > CURRENT_TIMESTAMP
+              AND token_expira_em IS NULL
             LIMIT 1
             `,
             [token]
@@ -417,56 +417,38 @@ router.post("/acesso/entrar", async (req, res) => {
 
         const resultado = await pool.query(
             `
-            WITH primeiro_acesso AS (
-                UPDATE public.usuarios
-                SET primeiro_acesso_em = CURRENT_TIMESTAMP
-                WHERE token_acesso = $1
-                  AND acesso_por_link = TRUE
-                  AND token_expira_em > CURRENT_TIMESTAMP
-                  AND ativo = TRUE
-                  AND primeiro_acesso_em IS NULL
-                RETURNING id
-            )
-            SELECT
-                u.id,
-                u.nome,
-                u.email,
-                u.perfil,
-                u.role,
-                u.treinamento_concluido,
-                u.modulo_atual,
-                u.parte_atual,
-                u.primeiro_acesso_em,
-                EXISTS (
-                    SELECT 1 FROM primeiro_acesso
-                ) AS primeiro_acesso
-            FROM public.usuarios u
-            WHERE u.token_acesso = $1
-              AND u.acesso_por_link = TRUE
-              AND u.token_expira_em > CURRENT_TIMESTAMP
-              AND u.ativo = TRUE
-            LIMIT 1
+            UPDATE public.usuarios
+            SET
+                primeiro_acesso_em = CURRENT_TIMESTAMP,
+                ultimo_login = CURRENT_TIMESTAMP
+            WHERE token_acesso = $1
+              AND acesso_por_link = TRUE
+              AND token_expira_em > CURRENT_TIMESTAMP
+              AND ativo = TRUE
+              AND primeiro_acesso_em IS NULL
+            RETURNING
+                id,
+                nome,
+                email,
+                perfil,
+                role,
+                treinamento_concluido,
+                modulo_atual,
+                parte_atual,
+                primeiro_acesso_em,
+                TRUE AS primeiro_acesso
             `,
             [tokenAcesso]
         );
 
         if (resultado.rows.length === 0) {
             return res.status(403).json({
-                erro: "Link inválido, expirado ou acesso desativado."
+                erro: "Link já utilizado ou acesso desativado."
             });
         }
 
         const usuario = resultado.rows[0];
 
-        // Mantém o registro do último acesso
-        await pool.query(
-            `
-            UPDATE public.usuarios
-            SET ultimo_login = CURRENT_TIMESTAMP
-            WHERE id = $1
-            `,
-            [usuario.id]
-        );
 
         // Envia o aviso somente no primeiro acesso
         if (usuario.primeiro_acesso) {

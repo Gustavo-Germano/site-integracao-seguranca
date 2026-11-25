@@ -292,7 +292,10 @@ async function autenticarAcessoRh(req, res, next) {
             WHERE ra.id = $1
               AND ra.usuario_id = $2
               AND ra.revogado_em IS NULL
-              AND ra.expira_em > CURRENT_TIMESTAMP
+              AND (
+                ra.expira_em IS NULL
+                OR ra.expira_em > CURRENT_TIMESTAMP
+            )
             `,
             [dadosToken.rh_access_id, dadosToken.usuario_id]
         );
@@ -340,7 +343,10 @@ router.post("/acesso/validar", async (req, res) => {
             INNER JOIN public.usuarios u ON u.id = ra.usuario_id
             WHERE ra.token_hash = $1
             AND ra.revogado_em IS NULL
-            AND ra.expira_em > CURRENT_TIMESTAMP
+            AND (
+                ra.expira_em IS NULL
+                OR ra.expira_em > CURRENT_TIMESTAMP
+            )
             AND (u.perfil = 'colaborador' OR u.role = 'colaborador')
             AND u.ativo = TRUE
             `,

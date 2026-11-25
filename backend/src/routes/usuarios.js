@@ -34,6 +34,8 @@ const FRONTEND_URL =
 
 router.post(
     "/",
+    autenticar,
+    permitirRoles("admin"),
     async (req, res) => {
         const client = await pool.connect();
         let transacaoIniciada = false;
@@ -184,7 +186,7 @@ router.post(
                     $1,
                     $2,
                     $3,
-                    CURRENT_TIMESTAMP + INTERVAL '90 days'
+                    NULL
                 )
                 `,
                 [
@@ -357,7 +359,7 @@ router.delete(
                 transacaoIniciada = false;
 
                 return res.status(403).json({
-                    erro: "Somente colaboradores podem ser desativados."
+                    erro: "Somente colaboradores podem ser excluídos."
                 });
             }
 
@@ -371,7 +373,7 @@ router.delete(
             transacaoIniciada = false;
 
             return res.json({
-                mensagem: "Colaborador desativado e acessos RH revogados. Histórico preservado."
+                mensagem: "Colaborador desativado e acessos RH revogados. Histórico de auditoria preservado."
             });
 
         } catch (erro) {
